@@ -1,0 +1,310 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>IPv4及其编址 | 果冻小配方</title><meta name="author" content="GuoDong"><meta name="copyright" content="GuoDong"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="IP地位;IPv4格式；IPv4地址;有类IP地址;子网超网;无类别域间选路;">
+<meta property="og:type" content="website">
+<meta property="og:title" content="IPv4及其编址">
+<meta property="og:url" content="https://gaoguodong03.github.io/gdBlog/old_posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E7%AC%AC5%E7%AB%A03.html">
+<meta property="og:site_name" content="果冻小配方">
+<meta property="og:description" content="IP地位;IPv4格式；IPv4地址;有类IP地址;子网超网;无类别域间选路;">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://gaoguodong03.github.io/gdBlog/img/touxiang.jpg">
+<meta property="article:published_time" content="2023-05-09T04:00:00.000Z">
+<meta property="article:modified_time" content="2025-09-29T09:11:46.898Z">
+<meta property="article:author" content="GuoDong">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://gaoguodong03.github.io/gdBlog/img/touxiang.jpg"><script type="application/ld+json"></script><link rel="shortcut icon" href="/gdBlog/img/logo.jpg"><link rel="canonical" href="https://gaoguodong03.github.io/gdBlog/old_posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E7%AC%AC5%E7%AB%A03.html"><link rel="preconnect"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/gdBlog/css/index.css"><link rel="stylesheet" href="/gdBlog/pluginsSrc/@fortawesome/fontawesome-free/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/gdBlog/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: '/gdBlog/pluginsSrc/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'IPv4及其编址',
+  isHighlightShrink: false,
+  isToc: false,
+  pageType: 'page'
+}</script><style>#article-container.post-content h1:before, h2:before, h3:before, h4:before, h5:before, h6:before { -webkit-animation: avatar_turn_around 1s linear infinite; -moz-animation: avatar_turn_around 1s linear infinite; -o-animation: avatar_turn_around 1s linear infinite; -ms-animation: avatar_turn_around 1s linear infinite; animation: avatar_turn_around 1s linear infinite; }</style><!-- hexo injector head_end start --><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-categories-card@1.0.0/lib/categorybar.css"><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-wowjs/lib/animate.min.css" media="print" onload="this.media='screen'"><!-- hexo injector head_end end --><meta name="generator" content="Hexo 8.0.0"></head><body><div id="web_bg" style="background-image: url(/gdBlog/img/bg1.jpg);"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/gdBlog/img/touxiang.jpg" onerror="this.onerror=null;this.src='/gdBlog/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/gdBlog/archives/"><div class="headline">文章</div><div class="length-num">10</div></a><a href="/gdBlog/tags/"><div class="headline">标签</div><div class="length-num">4</div></a><a href="/gdBlog/categories/"><div class="headline">分类</div><div class="length-num">2</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/gdBlog/search/"><i class="fa-fw fas fa-search"></i><span> 搜索</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div></div></div></div><div class="page" id="body-wrap"><header class="not-home-page" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/gdBlog/"><img class="site-icon" src="/gdBlog/img/logo.jpg" alt="Logo"><span class="site-name">果冻小配方</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/gdBlog/search/"><i class="fa-fw fas fa-search"></i><span> 搜索</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="page-site-info"><h1 id="site-title">IPv4及其编址</h1></div></header><main class="layout" id="content-inner"><div id="page"><div class="container" id="article-container"><h2 id="IPv4"><a href="#IPv4" class="headerlink" title="IPv4"></a>IPv4</h2><h3 id="地位"><a href="#地位" class="headerlink" title="地位"></a>地位</h3><p>从整体上来看：</p>
+<p><img src="D:\Blog_source\Pic\image-20230509121521935.png" alt="image-20230509121521935"></p>
+<p><code>Internet Protocol (IP)</code>使用最广泛的互联网协议:</p>
+<ul>
+<li><p>无连接的网络层协议。</p>
+</li>
+<li><p>基于数据报路由。</p>
+</li>
+<li><p>IP提供尽力而为的服务，靠不住！！</p>
+</li>
+<li><p>IP中的路由算法是分层路由算法、距离向量路由算法和链路状态路由算法的混合。</p>
+</li>
+</ul>
+<p>而IPv4就是IP协议的version 4.</p>
+<h3 id="格式"><a href="#格式" class="headerlink" title="格式"></a>格式</h3><p><img src="D:\Blog_source\Pic\image-20230509122508966.png" alt="image-20230509122508966"></p>
+<p>Header+data</p>
+<p>对于头:</p>
+<p><img src="D:\Blog_source\Pic\image-20230509122553707.png" alt="image-20230509122553707"></p>
+<ul>
+<li><p>Version (4 bits)</p>
+</li>
+<li><p>IHL(4 bits)</p>
+<p>表示头有多长，单位为32位字,所以要<code>乘以4</code>变成字节，Val：5～15对应20～60个字节</p>
+</li>
+<li><p>TOS(8 bits):前6位用来标记数据包的服务等级，下面的2位用来携带显式的拥塞通知（ECN）信息</p>
+</li>
+<li><p>Total Length(16 bits):包括头和数据，单位为字节,最大长度为65，535字节</p>
+</li>
+<li><p>Identification (16 bits):允许目标主机确定新到达的片段属于哪一个数据报.数据报的所有片段都包含相同的Identification值</p>
+</li>
+<li><p>DF (1 bit):Don’t Fragment.为1就是不能分片,为0就是可以</p>
+</li>
+<li><p>MF (1 bit):More Fragments.<code>最后一片是0</code>(no more),其余是1</p>
+</li>
+<li><p>Fragment offset (13 bits):告知此片段在当前数据报中的位置，单位为8字节(0~8191),所以必定是<code>8的倍数</code></p>
+</li>
+<li><p>TTL: Time to live (8 bits)：一种用于限制数据包寿命的计数器。它应该以秒为单位来计算时间；它必须在每一跳上递减；当它到达0时，数据包被丢弃，一个警告数据包被发送回源主机</p>
+</li>
+<li><p>Protocol field (8 bits)：把它交给哪个传输进程（TCP&#x2F;UDP等）</p>
+<p>IP数据报可以封装来自几个高级协议的数据，例如:TCP&#x3D;6,UDP&#x3D;17,ICMP&#x3D;1,IGMP&#x3D;2，OSPF&#x3D;89</p>
+<p><img src="D:\Blog_source\Pic\image-20230509124042049.png" alt="image-20230509124042049"></p>
+</li>
+<li><p>The Header checksum (16 bits):仅验证<code>头</code>;<code>必须在每一跳重新计算</code></p>
+</li>
+</ul>
+<p><img src="D:\Blog_source\Pic\image-20230509124209057.png" alt="image-20230509124209057"></p>
+<p>计算比较简单,每两个字节(也就是半行)相加,使得总体的结果全为1.如果结果错误就丢弃(很重要，所以每跳都要计算，data部分不算)</p>
+<h3 id="分片和重装"><a href="#分片和重装" class="headerlink" title="分片和重装"></a>分片和重装</h3><p>Fragmentation and Re-assembly</p>
+<p>问题：一个数据报可以通过不同的网络传播。不同的网络具有不同的最大帧大小。</p>
+<p>结果：IP应适应不同的MTU</p>
+<p><code>MTU</code>:最大传输单元</p>
+<p>IP数据报由源主机或路径中的任何路由器分段。IP数据报在目的地重新组装.</p>
+<p>下面是一个IPv4的例子：</p>
+<p><img src="D:\Blog_source\Pic\image-20230509123628455.png" alt="image-20230509123628455"></p>
+<h2 id="IPv4-Address"><a href="#IPv4-Address" class="headerlink" title="IPv4 Address"></a>IPv4 Address</h2><p><code>互联网地址或IP地址</code>:在网络层用于识别每个设备连接到互联网的标识符被称为Internet address or IP address. </p>
+<p><img src="D:\Blog_source\Pic\image-20230509131713558.png" alt="image-20230509131713558"></p>
+<h3 id="格式-1"><a href="#格式-1" class="headerlink" title="格式"></a>格式</h3><h4 id="点分十进制"><a href="#点分十进制" class="headerlink" title="点分十进制"></a>点分十进制</h4><p>Dotted-decimal notation</p>
+<p>每个网络接口都是唯一的，<code>与它的物理地址无关</code>，它通常定义了1connection到Internet。如果一个主机&#x2F;路由器有两个接口连接到互联网，那么它有两个IP地址.</p>
+<h4 id="x-x-x-x-m"><a href="#x-x-x-x-m" class="headerlink" title="x.x.x.x&#x2F;m"></a>x.x.x.x&#x2F;m</h4><p>网络号m位，主机号&#x3D;32-m&#x3D;n 位</p>
+<p>两种类型的IP寻址：有类与无类 Classful vs. Classless</p>
+<h3 id="Classful-IP-Addressing"><a href="#Classful-IP-Addressing" class="headerlink" title="Classful IP Addressing"></a>Classful IP Addressing</h3><p>大类ABC,DE是小类</p>
+<p>分两类，<code>网络号+ 主机号</code>Network ID(net-id) + Host ID (host-id)</p>
+<p><img src="D:\Blog_source\Pic\image-20230509125325900.png" alt="image-20230509125325900"></p>
+<p>对应的都是32位,4个字节</p>
+<p>A类的就有7(8-1)个网络号,也就是只有128个A类,但每个A类有2^24-2()全0或1不能用)个主机号</p>
+<h4 id="Network-address"><a href="#Network-address" class="headerlink" title="Network address"></a>Network address</h4><p>网络号部分保留，主机号部分为0</p>
+<p>这个时候就要使用<code>default mask(默认/缺省掩码)</code>方便计算</p>
+<p>Network address   &#x3D;   IP address bit 逻辑与  default mask</p>
+<p>所以说,ABC对应的Default masks:<br>Class A: 255.0.0.0<br>Class B: 255.255.0.0<br>Class C: 255.255.255.0</p>
+<h4 id="特殊的"><a href="#特殊的" class="headerlink" title="特殊的"></a>特殊的</h4><p><img src="D:\Blog_source\Pic\image-20230509130021535.png" alt="image-20230509130021535"></p>
+<p>所以说主机号全0和全1都不能用:其中第一个地址（主机号为全0）为网络地址,最后一个地址（主机号为全1）为广播地址.可分配（可用）地址数：2n-2</p>
+<p>这个设计之初以为IP地址足够用，因此才划分为ABC等类，不同用户各取所需。问题在于大家都想要大的，IP又慢慢不够，所以对其进行了调整：对于A类来说,太大了，将一个大的分为多个小的部门便于管理，于是出现了子网划分Subnetting；对于C类来说，太小了，多个C部门合成一个大的团队，就出现了超网划分Supernetting</p>
+<h4 id="Subnetting"><a href="#Subnetting" class="headerlink" title="Subnetting"></a>Subnetting</h4><p>一个网络被分成几个部分供内部使用，但对于由网络地址标识外部世界来说，它仍然像一个单一网络</p>
+<p>子网划分对于外部不可见</p>
+<p>通过使用主机部分的一部分来标识物理网络来标识子网</p>
+<p><code>Subnet Mask(子网掩码）</code></p>
+<p>如果源和目的地的IP地址和子网掩码已知，那么我们就可以找到网络地址</p>
+<p><img src="D:\Blog_source\Pic\image-20230509131425513.png" alt="image-20230509131425513"></p>
+<h4 id="Supernetting"><a href="#Supernetting" class="headerlink" title="Supernetting"></a>Supernetting</h4><p><code>C类块的数量必须是2的幂</code></p>
+<p>块在地址空间中必须是连续的（块之间没有间隙）</p>
+<p><img src="D:\Blog_source\Pic\image-20230509131548853.png" alt="image-20230509131548853"></p>
+<h3 id="Classless-Addressing"><a href="#Classless-Addressing" class="headerlink" title="Classless Addressing"></a>Classless Addressing</h3><p>以上,发现资源枯竭,路由表爆炸,效率奇低,还是压根不分类,自己按照规则分类就好,所以就有了无类别地址</p>
+<p><img src="D:\Blog_source\Pic\image-20230509132122860.png" alt="image-20230509132122860"></p>
+<p>例题:</p>
+<p><img src="D:\Blog_source\Pic\image-20230509132139261.png" alt="image-20230509132139261"></p>
+<p>PPT167</p>
+</div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/gdBlog/img/touxiang.jpg" onerror="this.onerror=null;this.src='/gdBlog/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">GuoDong</div><div class="author-info-description">碎碎念念 岁岁年年</div><div class="site-data"><a href="/gdBlog/archives/"><div class="headline">文章</div><div class="length-num">10</div></a><a href="/gdBlog/tags/"><div class="headline">标签</div><div class="length-num">4</div></a><a href="/gdBlog/categories/"><div class="headline">分类</div><div class="length-num">2</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/gaoguodong03"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/gaoguodong03" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">有重要的事情 得去趟南京!</div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/gdBlog/2025/10/01/RAG/" title="RAG（Retrieval-AugmentedGeneration检索增强生成">RAG（Retrieval-AugmentedGeneration检索增强生成</a><time datetime="2025-09-30T16:00:00.000Z" title="发表于 2025-10-01 00:00:00">2025-10-01</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/gdBlog/2025/09/30/Docker/" title="Docker">Docker</a><time datetime="2025-09-29T16:00:00.000Z" title="发表于 2025-09-30 00:00:00">2025-09-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/gdBlog/2025/09/30/JSON/" title="JSON">JSON</a><time datetime="2025-09-29T16:00:00.000Z" title="发表于 2025-09-30 00:00:00">2025-09-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/gdBlog/2025/09/30/MCP/" title="MCP(Model Context Protocol模型上下文协议)">MCP(Model Context Protocol模型上下文协议)</a><time datetime="2025-09-29T16:00:00.000Z" title="发表于 2025-09-30 00:00:00">2025-09-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/gdBlog/2025/09/30/MVC/" title="MVC">MVC</a><time datetime="2025-09-29T16:00:00.000Z" title="发表于 2025-09-30 00:00:00">2025-09-30</time></div></div></div></div><div class="card-widget card-categories"><div class="item-headline">
+            <i class="fas fa-folder-open"></i>
+            <span>分类</span>
+            
+          </div>
+          <ul class="card-category-list" id="aside-cat-list">
+            <li class="card-category-list-item "><a class="card-category-list-link" href="/gdBlog/categories/Hexo/"><span class="card-category-list-name">Hexo</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/gdBlog/categories/%E6%9E%9C%E5%86%BB%E7%9A%84%E8%88%AA%E6%B5%B7%E6%97%A5%E5%BF%97/"><span class="card-category-list-name">果冻的航海日志</span><span class="card-category-list-count">9</span></a></li>
+          </ul></div><div class="card-widget card-tags"><div class="item-headline"><i class="fas fa-tags"></i><span>标签</span></div><div class="card-tag-cloud"><a href="/gdBlog/tags/LLM/" style="font-size: 1.37em; color: #99a4b2">LLM</a> <a href="/gdBlog/tags/Hexo/" style="font-size: 1.1em; color: #999">Hexo</a> <a href="/gdBlog/tags/%E5%85%83%E8%8A%B3/" style="font-size: 1.23em; color: #999ea6">元芳</a> <a href="/gdBlog/tags/tools/" style="font-size: 1.5em; color: #99a9bf">tools</a></div></div><div class="card-widget card-archives">
+    <div class="item-headline">
+      <i class="fas fa-archive"></i>
+      <span>归档</span>
+      
+    </div>
+  
+    <ul class="card-archive-list">
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/gdBlog/archives/2025/10/">
+            <span class="card-archive-list-date">
+              十月 2025
+            </span>
+            <span class="card-archive-list-count">1</span>
+          </a>
+        </li>
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/gdBlog/archives/2025/09/">
+            <span class="card-archive-list-date">
+              九月 2025
+            </span>
+            <span class="card-archive-list-count">8</span>
+          </a>
+        </li>
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/gdBlog/archives/2023/05/">
+            <span class="card-archive-list-date">
+              五月 2023
+            </span>
+            <span class="card-archive-list-count">1</span>
+          </a>
+        </li>
+      
+    </ul>
+  </div><div class="card-widget card-webinfo"><div class="item-headline"><i class="fas fa-chart-line"></i><span>网站信息</span></div><div class="webinfo"><div class="webinfo-item"><div class="item-name">文章数目 :</div><div class="item-count">10</div></div><div class="webinfo-item"><div class="item-name">本站访客数 :</div><div class="item-count" id="busuanzi_value_site_uv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">本站总浏览量 :</div><div class="item-count" id="busuanzi_value_site_pv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">最后更新时间 :</div><div class="item-count" id="last-push-date" data-lastPushDate="2025-10-01T03:49:07.467Z"><i class="fa-solid fa-spinner fa-spin"></i></div></div></div></div></div></div></main><footer id="footer" style="background: transparent;"><div class="footer-other"><div class="footer-copyright"></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/gdBlog/js/utils.js"></script><script src="/gdBlog/js/main.js"></script><div class="js-pjax"></div><script src="/config/js/happy-title.js" async></script><script src="/config/js/foot.js" async></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><!-- hexo injector body_end start --><script data-pjax>
+    function butterfly_categories_card_injector_config(){
+      var parent_div_git = document.getElementById('recent-posts');
+      var item_html = '<style>li.categoryBar-list-item{width:32.3%;}.categoryBar-list{max-height: 380px;overflow:auto;}.categoryBar-list::-webkit-scrollbar{width:0!important}@media screen and (max-width: 650px){.categoryBar-list{max-height: 320px;}}</style><div class="recent-post-item" style="height:auto;width:100%;padding:0px;"><div id="categoryBar"><ul class="categoryBar-list"><li class="categoryBar-list-item" style="background:url(https://npm.elemecdn.com/akilar-candyassets/image/cover1.webp);"> <a class="categoryBar-list-link" href="categories/果冻的航海日志/">果冻的航海日志</a><span class="categoryBar-list-count">9</span><span class="categoryBar-list-descr">果冻的航海日记</span></li><li class="categoryBar-list-item" style="background:url(undefined);"> <a class="categoryBar-list-link" href="categories/Hexo/">Hexo</a><span class="categoryBar-list-count">1</span><span class="categoryBar-list-descr"></span></li></ul></div></div>';
+      console.log('已挂载butterfly_categories_card')
+      parent_div_git.insertAdjacentHTML("afterbegin",item_html)
+      }
+    if( document.getElementById('recent-posts') && (location.pathname ==='/'|| '/' ==='all')){
+    butterfly_categories_card_injector_config()
+    }
+  </script><div class="js-pjax"><script async="async">var arr = document.getElementsByClassName('recent-post-item');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__zoomIn');
+    arr[i].setAttribute('data-wow-duration', '1500ms');
+    arr[i].setAttribute('data-wow-delay', '0ms');
+    arr[i].setAttribute('data-wow-offset', '0');
+    arr[i].setAttribute('data-wow-iteration', '1');
+  }</script><script async="async">var arr = document.getElementsByClassName('card-widget');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__zoomIn');
+    arr[i].setAttribute('data-wow-duration', '1500ms');
+    arr[i].setAttribute('data-wow-delay', '0ms');
+    arr[i].setAttribute('data-wow-offset', '0');
+    arr[i].setAttribute('data-wow-iteration', '1');
+  }</script><script async="async">var arr = document.getElementsByClassName('container');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__zoomIn');
+    arr[i].setAttribute('data-wow-duration', '1500ms');
+    arr[i].setAttribute('data-wow-delay', '0ms');
+    arr[i].setAttribute('data-wow-offset', '0');
+    arr[i].setAttribute('data-wow-iteration', '1');
+  }</script></div><script defer src="https://npm.elemecdn.com/hexo-butterfly-wowjs/lib/wow.min.js"></script><script defer src="https://npm.elemecdn.com/hexo-butterfly-wowjs/lib/wow_init.js"></script><!-- hexo injector body_end end --></body></html>

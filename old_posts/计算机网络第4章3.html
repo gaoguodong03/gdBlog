@@ -1,0 +1,274 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>数据链路层交换 | 果冻小配方</title><meta name="author" content="GuoDong"><meta name="copyright" content="GuoDong"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="Data Link Layer Switching；Bridge； 连接设备摘要，交换机和网桥；Virtual LANs；第四章小结">
+<meta property="og:type" content="website">
+<meta property="og:title" content="数据链路层交换">
+<meta property="og:url" content="https://gaoguodong03.github.io/gdBlog/old_posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E7%AC%AC4%E7%AB%A03.html">
+<meta property="og:site_name" content="果冻小配方">
+<meta property="og:description" content="Data Link Layer Switching；Bridge； 连接设备摘要，交换机和网桥；Virtual LANs；第四章小结">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://gaoguodong03.github.io/gdBlog/img/touxiang.jpg">
+<meta property="article:published_time" content="2023-05-07T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-09-29T09:11:46.896Z">
+<meta property="article:author" content="GuoDong">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://gaoguodong03.github.io/gdBlog/img/touxiang.jpg"><script type="application/ld+json"></script><link rel="shortcut icon" href="/gdBlog/img/logo.jpg"><link rel="canonical" href="https://gaoguodong03.github.io/gdBlog/old_posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E7%AC%AC4%E7%AB%A03.html"><link rel="preconnect"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/gdBlog/css/index.css"><link rel="stylesheet" href="/gdBlog/pluginsSrc/@fortawesome/fontawesome-free/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/gdBlog/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: '/gdBlog/pluginsSrc/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '数据链路层交换',
+  isHighlightShrink: false,
+  isToc: false,
+  pageType: 'page'
+}</script><style>#article-container.post-content h1:before, h2:before, h3:before, h4:before, h5:before, h6:before { -webkit-animation: avatar_turn_around 1s linear infinite; -moz-animation: avatar_turn_around 1s linear infinite; -o-animation: avatar_turn_around 1s linear infinite; -ms-animation: avatar_turn_around 1s linear infinite; animation: avatar_turn_around 1s linear infinite; }</style><!-- hexo injector head_end start --><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-categories-card@1.0.0/lib/categorybar.css"><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-wowjs/lib/animate.min.css" media="print" onload="this.media='screen'"><!-- hexo injector head_end end --><meta name="generator" content="Hexo 8.0.0"></head><body><div id="web_bg" style="background-image: url(/gdBlog/img/bg1.jpg);"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/gdBlog/img/touxiang.jpg" onerror="this.onerror=null;this.src='/gdBlog/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/gdBlog/archives/"><div class="headline">文章</div><div class="length-num">10</div></a><a href="/gdBlog/tags/"><div class="headline">标签</div><div class="length-num">4</div></a><a href="/gdBlog/categories/"><div class="headline">分类</div><div class="length-num">2</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/gdBlog/search/"><i class="fa-fw fas fa-search"></i><span> 搜索</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div></div></div></div><div class="page" id="body-wrap"><header class="not-home-page" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/gdBlog/"><img class="site-icon" src="/gdBlog/img/logo.jpg" alt="Logo"><span class="site-name">果冻小配方</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/gdBlog/search/"><i class="fa-fw fas fa-search"></i><span> 搜索</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="page-site-info"><h1 id="site-title">数据链路层交换</h1></div></header><main class="layout" id="content-inner"><div id="page"><div class="container" id="article-container"><h2 id="网桥"><a href="#网桥" class="headerlink" title="网桥"></a>网桥</h2><h3 id="初识"><a href="#初识" class="headerlink" title="初识"></a>初识</h3><p>连接不同局域网；故障隔离；建设需要；混杂模式</p>
+<p>Bridges are used to interconnect LANs at data link layer.</p>
+<p>即插即用</p>
+<p>不足：延迟增加；广播风暴。</p>
+<p>下面例子是将802.11转换为802.3：</p>
+<p><img src="D:\Blog_source\Pic\image-20230508185203227.png" alt="image-20230508185203227"></p>
+<p>当然，转换不同的协议问题还是有很多的，就比如帧格式不同，网速不同，安全性同；下面是不同的帧格式：</p>
+<p><img src="D:\Blog_source\Pic\image-20230508185422395.png" alt="image-20230508185422395"></p>
+<h3 id="算法"><a href="#算法" class="headerlink" title="算法"></a>算法</h3><h4 id="后向学习"><a href="#后向学习" class="headerlink" title="后向学习"></a>后向学习</h4><p>station table：</p>
+<p><img src="D:\Blog_source\Pic\image-20230508185811628.png" alt="image-20230508185811628"></p>
+<p>构建station table：</p>
+<ol>
+<li>初始化:当桥接器第一次插入时，所有的哈希表都是空的</li>
+<li>桥在promiscuous mode(混杂模式)下运行，它们可以看到在任何局域网上发送的每一个帧。</li>
+<li><img src="D:\Blog_source\Pic\image-20230508190041756.png" alt="image-20230508190041756"></li>
+<li>在连接的所有（除了到达帧的）端口上输出，</li>
+</ol>
+<p>补充：交换机根据转发表将收到的帧转发到相应端口</p>
+<h4 id="生成树"><a href="#生成树" class="headerlink" title="生成树"></a>生成树</h4><p>解决出现环路的问题loop</p>
+<p>解决方法：断环，形成树形拓扑</p>
+<ol>
+<li>每个网桥周期性地从它的所有端口向它的邻居广播一个配置消息，并处理它从其他网桥接收到的消息，这个消息不被转发，它包括：</li>
+<li>选择ID最低的网桥作为根网桥，在交换足够多的消息后，所有网桥将在根网桥上达成一致。</li>
+<li>记住它找到的到根的最短路径，如果有多条等价路径，则选择ID最低的桥路径</li>
+<li>关闭不属于最短路径的端口</li>
+<li>算法在正常运行期间继续运行，自动检测拓扑变化并更新树</li>
+</ol>
+<p>原文如下：</p>
+<p><img src="D:\Blog_source\Pic\image-20230508191112428.png" alt="image-20230508191112428"></p>
+<h2 id="连接设备摘要"><a href="#连接设备摘要" class="headerlink" title="连接设备摘要"></a>连接设备摘要</h2><p>Interconnection Devices（互连器件）：</p>
+<p><img src="D:\Blog_source\Pic\image-20230508191156885.png" alt="image-20230508191156885"></p>
+<p><img src="D:\Blog_source\Pic\image-20230508191257131.png" alt="image-20230508191257131"></p>
+<h2 id="VlANs"><a href="#VlANs" class="headerlink" title="VlANs"></a>VlANs</h2><p>Virtual LANs</p>
+<p>A building with centralized wiring using <code>hubs</code> and a <code>switch</code></p>
+<p>设计原因：</p>
+<ol>
+<li>许多部门都有他们不想传递到部门外的信息</li>
+<li>有些局域网比其他局域网重，可能需要将它们分开。</li>
+<li>广播拥挤和广播风暴</li>
+</ol>
+<p>原文如下：</p>
+<p><img src="D:\Blog_source\Pic\image-20230508191659679.png" alt="image-20230508191659679"></p>
+<p>what is it</p>
+<p>将逻辑拓扑与物理拓扑分离</p>
+<p>禁止跨颜色多播和广播和从不同VLAN传输到目的地的数据包</p>
+<p>在网桥或交换机中，配置表告诉我们哪些VLAN可以通过哪个端口访问。</p>
+<p>原文如下：</p>
+<p><img src="D:\Blog_source\Pic\image-20230508192029486.png" alt="image-20230508192029486"></p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p><img src="D:\Blog_source\Pic\image-20230508192119032.png" alt="image-20230508192119032"></p>
+<p><img src="D:\Blog_source\Pic\image-20230508192125880.png" alt="image-20230508192125880"></p>
+</div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/gdBlog/img/touxiang.jpg" onerror="this.onerror=null;this.src='/gdBlog/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">GuoDong</div><div class="author-info-description">碎碎念念 岁岁年年</div><div class="site-data"><a href="/gdBlog/archives/"><div class="headline">文章</div><div class="length-num">10</div></a><a href="/gdBlog/tags/"><div class="headline">标签</div><div class="length-num">4</div></a><a href="/gdBlog/categories/"><div class="headline">分类</div><div class="length-num">2</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/gaoguodong03"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/gaoguodong03" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">有重要的事情 得去趟南京!</div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/gdBlog/2025/10/01/RAG/" title="RAG（Retrieval-AugmentedGeneration检索增强生成">RAG（Retrieval-AugmentedGeneration检索增强生成</a><time datetime="2025-09-30T16:00:00.000Z" title="发表于 2025-10-01 00:00:00">2025-10-01</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/gdBlog/2025/09/30/Docker/" title="Docker">Docker</a><time datetime="2025-09-29T16:00:00.000Z" title="发表于 2025-09-30 00:00:00">2025-09-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/gdBlog/2025/09/30/JSON/" title="JSON">JSON</a><time datetime="2025-09-29T16:00:00.000Z" title="发表于 2025-09-30 00:00:00">2025-09-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/gdBlog/2025/09/30/MCP/" title="MCP(Model Context Protocol模型上下文协议)">MCP(Model Context Protocol模型上下文协议)</a><time datetime="2025-09-29T16:00:00.000Z" title="发表于 2025-09-30 00:00:00">2025-09-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/gdBlog/2025/09/30/MVC/" title="MVC">MVC</a><time datetime="2025-09-29T16:00:00.000Z" title="发表于 2025-09-30 00:00:00">2025-09-30</time></div></div></div></div><div class="card-widget card-categories"><div class="item-headline">
+            <i class="fas fa-folder-open"></i>
+            <span>分类</span>
+            
+          </div>
+          <ul class="card-category-list" id="aside-cat-list">
+            <li class="card-category-list-item "><a class="card-category-list-link" href="/gdBlog/categories/Hexo/"><span class="card-category-list-name">Hexo</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/gdBlog/categories/%E6%9E%9C%E5%86%BB%E7%9A%84%E8%88%AA%E6%B5%B7%E6%97%A5%E5%BF%97/"><span class="card-category-list-name">果冻的航海日志</span><span class="card-category-list-count">9</span></a></li>
+          </ul></div><div class="card-widget card-tags"><div class="item-headline"><i class="fas fa-tags"></i><span>标签</span></div><div class="card-tag-cloud"><a href="/gdBlog/tags/LLM/" style="font-size: 1.37em; color: #99a4b2">LLM</a> <a href="/gdBlog/tags/Hexo/" style="font-size: 1.1em; color: #999">Hexo</a> <a href="/gdBlog/tags/%E5%85%83%E8%8A%B3/" style="font-size: 1.23em; color: #999ea6">元芳</a> <a href="/gdBlog/tags/tools/" style="font-size: 1.5em; color: #99a9bf">tools</a></div></div><div class="card-widget card-archives">
+    <div class="item-headline">
+      <i class="fas fa-archive"></i>
+      <span>归档</span>
+      
+    </div>
+  
+    <ul class="card-archive-list">
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/gdBlog/archives/2025/10/">
+            <span class="card-archive-list-date">
+              十月 2025
+            </span>
+            <span class="card-archive-list-count">1</span>
+          </a>
+        </li>
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/gdBlog/archives/2025/09/">
+            <span class="card-archive-list-date">
+              九月 2025
+            </span>
+            <span class="card-archive-list-count">8</span>
+          </a>
+        </li>
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/gdBlog/archives/2023/05/">
+            <span class="card-archive-list-date">
+              五月 2023
+            </span>
+            <span class="card-archive-list-count">1</span>
+          </a>
+        </li>
+      
+    </ul>
+  </div><div class="card-widget card-webinfo"><div class="item-headline"><i class="fas fa-chart-line"></i><span>网站信息</span></div><div class="webinfo"><div class="webinfo-item"><div class="item-name">文章数目 :</div><div class="item-count">10</div></div><div class="webinfo-item"><div class="item-name">本站访客数 :</div><div class="item-count" id="busuanzi_value_site_uv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">本站总浏览量 :</div><div class="item-count" id="busuanzi_value_site_pv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">最后更新时间 :</div><div class="item-count" id="last-push-date" data-lastPushDate="2025-10-01T03:49:07.467Z"><i class="fa-solid fa-spinner fa-spin"></i></div></div></div></div></div></div></main><footer id="footer" style="background: transparent;"><div class="footer-other"><div class="footer-copyright"></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/gdBlog/js/utils.js"></script><script src="/gdBlog/js/main.js"></script><div class="js-pjax"></div><script src="/config/js/happy-title.js" async></script><script src="/config/js/foot.js" async></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><!-- hexo injector body_end start --><script data-pjax>
+    function butterfly_categories_card_injector_config(){
+      var parent_div_git = document.getElementById('recent-posts');
+      var item_html = '<style>li.categoryBar-list-item{width:32.3%;}.categoryBar-list{max-height: 380px;overflow:auto;}.categoryBar-list::-webkit-scrollbar{width:0!important}@media screen and (max-width: 650px){.categoryBar-list{max-height: 320px;}}</style><div class="recent-post-item" style="height:auto;width:100%;padding:0px;"><div id="categoryBar"><ul class="categoryBar-list"><li class="categoryBar-list-item" style="background:url(https://npm.elemecdn.com/akilar-candyassets/image/cover1.webp);"> <a class="categoryBar-list-link" href="categories/果冻的航海日志/">果冻的航海日志</a><span class="categoryBar-list-count">9</span><span class="categoryBar-list-descr">果冻的航海日记</span></li><li class="categoryBar-list-item" style="background:url(undefined);"> <a class="categoryBar-list-link" href="categories/Hexo/">Hexo</a><span class="categoryBar-list-count">1</span><span class="categoryBar-list-descr"></span></li></ul></div></div>';
+      console.log('已挂载butterfly_categories_card')
+      parent_div_git.insertAdjacentHTML("afterbegin",item_html)
+      }
+    if( document.getElementById('recent-posts') && (location.pathname ==='/'|| '/' ==='all')){
+    butterfly_categories_card_injector_config()
+    }
+  </script><div class="js-pjax"><script async="async">var arr = document.getElementsByClassName('recent-post-item');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__zoomIn');
+    arr[i].setAttribute('data-wow-duration', '1500ms');
+    arr[i].setAttribute('data-wow-delay', '0ms');
+    arr[i].setAttribute('data-wow-offset', '0');
+    arr[i].setAttribute('data-wow-iteration', '1');
+  }</script><script async="async">var arr = document.getElementsByClassName('card-widget');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__zoomIn');
+    arr[i].setAttribute('data-wow-duration', '1500ms');
+    arr[i].setAttribute('data-wow-delay', '0ms');
+    arr[i].setAttribute('data-wow-offset', '0');
+    arr[i].setAttribute('data-wow-iteration', '1');
+  }</script><script async="async">var arr = document.getElementsByClassName('container');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__zoomIn');
+    arr[i].setAttribute('data-wow-duration', '1500ms');
+    arr[i].setAttribute('data-wow-delay', '0ms');
+    arr[i].setAttribute('data-wow-offset', '0');
+    arr[i].setAttribute('data-wow-iteration', '1');
+  }</script></div><script defer src="https://npm.elemecdn.com/hexo-butterfly-wowjs/lib/wow.min.js"></script><script defer src="https://npm.elemecdn.com/hexo-butterfly-wowjs/lib/wow_init.js"></script><!-- hexo injector body_end end --></body></html>

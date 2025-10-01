@@ -1,0 +1,332 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>网络层路由算法以及拥塞控制 | 果冻小配方</title><meta name="author" content="GuoDong"><meta name="copyright" content="GuoDong"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="介绍；五种路由算法；拥塞控制">
+<meta property="og:type" content="website">
+<meta property="og:title" content="网络层路由算法以及拥塞控制">
+<meta property="og:url" content="https://gaoguodong03.github.io/gdBlog/old_posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E7%AC%AC5%E7%AB%A01.html">
+<meta property="og:site_name" content="果冻小配方">
+<meta property="og:description" content="介绍；五种路由算法；拥塞控制">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://gaoguodong03.github.io/gdBlog/img/touxiang.jpg">
+<meta property="article:published_time" content="2023-05-07T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-09-29T09:11:46.896Z">
+<meta property="article:author" content="GuoDong">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://gaoguodong03.github.io/gdBlog/img/touxiang.jpg"><script type="application/ld+json"></script><link rel="shortcut icon" href="/gdBlog/img/logo.jpg"><link rel="canonical" href="https://gaoguodong03.github.io/gdBlog/old_posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E7%AC%AC5%E7%AB%A01.html"><link rel="preconnect"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/gdBlog/css/index.css"><link rel="stylesheet" href="/gdBlog/pluginsSrc/@fortawesome/fontawesome-free/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/gdBlog/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: '/gdBlog/pluginsSrc/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '网络层路由算法以及拥塞控制',
+  isHighlightShrink: false,
+  isToc: false,
+  pageType: 'page'
+}</script><style>#article-container.post-content h1:before, h2:before, h3:before, h4:before, h5:before, h6:before { -webkit-animation: avatar_turn_around 1s linear infinite; -moz-animation: avatar_turn_around 1s linear infinite; -o-animation: avatar_turn_around 1s linear infinite; -ms-animation: avatar_turn_around 1s linear infinite; animation: avatar_turn_around 1s linear infinite; }</style><!-- hexo injector head_end start --><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-categories-card@1.0.0/lib/categorybar.css"><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-wowjs/lib/animate.min.css" media="print" onload="this.media='screen'"><!-- hexo injector head_end end --><meta name="generator" content="Hexo 8.0.0"></head><body><div id="web_bg" style="background-image: url(/gdBlog/img/bg1.jpg);"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/gdBlog/img/touxiang.jpg" onerror="this.onerror=null;this.src='/gdBlog/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/gdBlog/archives/"><div class="headline">文章</div><div class="length-num">10</div></a><a href="/gdBlog/tags/"><div class="headline">标签</div><div class="length-num">4</div></a><a href="/gdBlog/categories/"><div class="headline">分类</div><div class="length-num">2</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/gdBlog/search/"><i class="fa-fw fas fa-search"></i><span> 搜索</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div></div></div></div><div class="page" id="body-wrap"><header class="not-home-page" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/gdBlog/"><img class="site-icon" src="/gdBlog/img/logo.jpg" alt="Logo"><span class="site-name">果冻小配方</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/gdBlog/search/"><i class="fa-fw fas fa-search"></i><span> 搜索</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="page-site-info"><h1 id="site-title">网络层路由算法以及拥塞控制</h1></div></header><main class="layout" id="content-inner"><div id="page"><div class="container" id="article-container"><h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><h3 id="作用"><a href="#作用" class="headerlink" title="作用"></a>作用</h3><p><img src="D:\Blog_source\Pic\image-20230508201547328.png" alt="image-20230508201547328"></p>
+<p>internetworking：网络互联（不同的网络：网络地址不同、实现技术可能不同、包格式可能不同）</p>
+<p>addressing：编址，数值统一和格式统一，接口地址唯一</p>
+<p>packetizing：组包，IP</p>
+<p>Fragmenting：分段分片，不同的数据链路层网络支持的最大数据长度不同</p>
+<p>Routing：决定下一跳</p>
+<p>网络层也会创建一个路由转发表，当一个数据包到达时，路由器检查它的路由表并找到数据包的接口。然后发送发送，目的地确保包上的目的地址与主机的地址相同。</p>
+<h3 id="服务"><a href="#服务" class="headerlink" title="服务"></a>服务</h3><p>确认的面向连接的服务（虚电路）</p>
+<p>无连接的服务（数据报）</p>
+<p><img src="D:\Blog_source\Pic\image-20230508202541226.png" alt="image-20230508202541226"></p>
+<p>数据报：</p>
+<p><code>路由表是动态的，并定期更新。</code></p>
+<p><code>包中需要携带完整地址；包到达可能失序</code></p>
+<p><img src="D:\Blog_source\Pic\image-20230508202919149.png" alt="image-20230508202919149"></p>
+<p>虚电路：</p>
+<p>在数据传输前建立虚电路并确定端到端路径</p>
+<p>虚电路标识符（VCI）:本地有效（Much shorter than address）</p>
+<p><img src="D:\Blog_source\Pic\image-20230508203047067.png" alt="image-20230508203047067"></p>
+<p><img src="D:\Blog_source\Pic\image-20230508203058380.png" alt="image-20230508203058380"></p>
+<p>已经确认了路径为ACEF</p>
+<p>两者对比：</p>
+<p><img src="D:\Blog_source\Pic\image-20230508203158085.png" alt="image-20230508203158085"></p>
+<h2 id="路由算法"><a href="#路由算法" class="headerlink" title="路由算法"></a>路由算法</h2><p>当一个数据包从源到目的地时，它可能会经过许多路由器。当数据包准备好被转发时，路由器会查阅路由表。路由表指定了数据包的最佳路径。</p>
+<p>路由算法：用于构造和更新路由表的算法</p>
+<p><code>数据报网络对每个包选路</code></p>
+<p><code>虚电路网络只在建立虚电路时选路</code></p>
+<p>分类:</p>
+<ul>
+<li>非自适应算法（静态路由）Nonadaptive algorithms (Static Routing):</li>
+</ul>
+<p>要使用的路由选择是预先计算的，离线，并在网络启动时下载到路由器上。</p>
+<p>路由决策不是基于当前流量和拓扑的测量或估计</p>
+<ul>
+<li>Adaptive(自适应) algorithms</li>
+</ul>
+<p>改变他们的路由决策以反映拓扑结构的变化，通常也反映通信量的变化</p>
+<p>适应网络拓扑和业务量的变化</p>
+<h3 id="最优化原则"><a href="#最优化原则" class="headerlink" title="最优化原则"></a>最优化原则</h3><p>The Optimality Principle</p>
+<p><code>最优路径上任意两点之间的路径也是最优的</code></p>
+<p>Sink Tree(宿树&#x2F;汇集树):</p>
+<ul>
+<li>以目的节点为根，由所有源节点到目的节点的最优路由构成</li>
+<li>不包含任何循环，所以每个包将在有限的跳数内被传递</li>
+</ul>
+<p>路由算法的目的：</p>
+<ul>
+<li>发现并使用所有路由器的接收树</li>
+<li>不同的路由器对当前拓扑可能有不同的想法</li>
+</ul>
+<h3 id="迪杰特斯拉算法"><a href="#迪杰特斯拉算法" class="headerlink" title="迪杰特斯拉算法"></a>迪杰特斯拉算法</h3><p>Dijkstra’s “Shortest Path” Algorithm</p>
+<p><img src="D:\Blog_source\Pic\image-20230508204537317.png" alt="image-20230508204537317"></p>
+<h3 id="flooding"><a href="#flooding" class="headerlink" title="flooding"></a>flooding</h3><p>无需路由表</p>
+<p>不需要网络信息</p>
+<p>除了输入链路，输入分组在每一条链路上重发</p>
+<p>最终许多副本将到达目的地。</p>
+<p><img src="D:\Blog_source\Pic\image-20230508221405967.png" alt="image-20230508221405967"></p>
+<p>问题：生成大量重复的数据包</p>
+<p>解决：</p>
+<ul>
+<li><p>每个数据包的头包含一个跳计计数器。</p>
+</li>
+<li><p>源在每个数据包中放置一个序号</p>
+</li>
+</ul>
+<h3 id="距离矢量选路"><a href="#距离矢量选路" class="headerlink" title="距离矢量选路"></a>距离矢量选路</h3><p>Distance Vector Routing (DVR)</p>
+<p>基于贝尔曼-福德算法</p>
+<p>每个路由器都维护一个路由表</p>
+<p>通过与邻居交换信息来更新表，路由器周期地向所有邻居广播整个路由表</p>
+<p>具体事例参见ch5-PPT51</p>
+<p><img src="D:\Blog_source\Pic\image-20230508222118575.png" alt="image-20230508222118575"></p>
+<p>问题：有回路和依照传闻进行路由</p>
+<p><img src="D:\Blog_source\Pic\image-20230508222242807.png" alt="image-20230508222242807"></p>
+<h3 id="链路状态选路"><a href="#链路状态选路" class="headerlink" title="链路状态选路"></a>链路状态选路</h3><p>Link State Routing (LSR)</p>
+<p>在LSR中，每个路由器与网络中的其他路由器共享其邻居的知识。</p>
+<p>然而，在LSR中，链路状态包（LSP）定义了最知名的网络拓扑结构在本地构建后被发送到每个路由器。（flooding）</p>
+<p>从接收到的LSP和整个拓扑的知识，路由器就可以计算出从它自己到该区域内其它路由器的最短路径。</p>
+<p>原文如下：</p>
+<p><img src="D:\Blog_source\Pic\image-20230508222426951.png" alt="image-20230508222426951"></p>
+<p>步骤：</p>
+<p><img src="D:\Blog_source\Pic\image-20230508222532527.png" alt="image-20230508222532527"></p>
+<p>实例参见ch5-PPT65</p>
+<h3 id="层次选路-分级选路"><a href="#层次选路-分级选路" class="headerlink" title="层次选路&#x2F;分级选路"></a>层次选路&#x2F;分级选路</h3><p>Hierarchical Routing</p>
+<p>Levels : regions区域 -&gt; clusters簇 -&gt; zones区 -&gt; groups群</p>
+<p><img src="D:\Blog_source\Pic\image-20230508222856032.png" alt="image-20230508222856032"></p>
+<h2 id="拥塞控制"><a href="#拥塞控制" class="headerlink" title="拥塞控制"></a>拥塞控制</h2><p>Congestion control</p>
+<p>拥塞发生在任何涉及等待或排队的系统中。</p>
+<p><img src="D:\Blog_source\Pic\image-20230508223059177.png" alt="image-20230508223059177"></p>
+<p>对比流控</p>
+<p><img src="D:\Blog_source\Pic\image-20230508223209123.png" alt="image-20230508223209123"></p>
+<p>解决方法：</p>
+<p><img src="D:\Blog_source\Pic\image-20230508223334186.png" alt="image-20230508223334186"></p>
+<p><img src="D:\Blog_source\Pic\image-20230508224550386.png" alt="image-20230508224550386"></p>
+<h3 id="业务量减速-流量调节"><a href="#业务量减速-流量调节" class="headerlink" title="业务量减速&#x2F;流量调节"></a>业务量减速&#x2F;流量调节</h3><p>Traffic Throttling</p>
+<p><img src="D:\Blog_source\Pic\image-20230508223505570.png" alt="image-20230508223505570"></p>
+<p><img src="D:\Blog_source\Pic\image-20230508223620373.png" alt="image-20230508223620373"></p>
+<h4 id="Hop-by-Hop-Backpressure"><a href="#Hop-by-Hop-Backpressure" class="headerlink" title="Hop-by-Hop Backpressure"></a>Hop-by-Hop Backpressure</h4><p>只影响源的扼流圈包</p>
+<p>一种阻塞数据包，影响它所经过的每一跳</p>
+<p>原文如下：</p>
+<p><img src="D:\Blog_source\Pic\image-20230508223824106.png" alt="image-20230508223824106"></p>
+<h4 id="ECN"><a href="#ECN" class="headerlink" title="ECN"></a>ECN</h4><p>IP数据包报头中的两个比特用于记录数据包是否都经历了拥堵。</p>
+<p>路由器检测到拥塞，在转发时标记数据包</p>
+<p>然后，目的地将任何标记回送给发送者，作为下一个应答包中的显式拥塞信号。</p>
+<p>原文如下：</p>
+<p><img src="D:\Blog_source\Pic\image-20230508223945683.png" alt="image-20230508223945683"></p>
+<h3 id="负载掉落"><a href="#负载掉落" class="headerlink" title="负载掉落"></a>负载掉落</h3><p>取决于应用程序的类型</p>
+<p><img src="D:\Blog_source\Pic\image-20230508224136065.png" alt="image-20230508224136065"></p>
+<p>实例：<code>RED</code></p>
+<p><img src="D:\Blog_source\Pic\image-20230508224243386.png" alt="image-20230508224243386"></p>
+</div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/gdBlog/img/touxiang.jpg" onerror="this.onerror=null;this.src='/gdBlog/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">GuoDong</div><div class="author-info-description">碎碎念念 岁岁年年</div><div class="site-data"><a href="/gdBlog/archives/"><div class="headline">文章</div><div class="length-num">10</div></a><a href="/gdBlog/tags/"><div class="headline">标签</div><div class="length-num">4</div></a><a href="/gdBlog/categories/"><div class="headline">分类</div><div class="length-num">2</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/gaoguodong03"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/gaoguodong03" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">有重要的事情 得去趟南京!</div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/gdBlog/2025/10/01/RAG/" title="RAG（Retrieval-AugmentedGeneration检索增强生成">RAG（Retrieval-AugmentedGeneration检索增强生成</a><time datetime="2025-09-30T16:00:00.000Z" title="发表于 2025-10-01 00:00:00">2025-10-01</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/gdBlog/2025/09/30/Docker/" title="Docker">Docker</a><time datetime="2025-09-29T16:00:00.000Z" title="发表于 2025-09-30 00:00:00">2025-09-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/gdBlog/2025/09/30/JSON/" title="JSON">JSON</a><time datetime="2025-09-29T16:00:00.000Z" title="发表于 2025-09-30 00:00:00">2025-09-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/gdBlog/2025/09/30/MCP/" title="MCP(Model Context Protocol模型上下文协议)">MCP(Model Context Protocol模型上下文协议)</a><time datetime="2025-09-29T16:00:00.000Z" title="发表于 2025-09-30 00:00:00">2025-09-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/gdBlog/2025/09/30/MVC/" title="MVC">MVC</a><time datetime="2025-09-29T16:00:00.000Z" title="发表于 2025-09-30 00:00:00">2025-09-30</time></div></div></div></div><div class="card-widget card-categories"><div class="item-headline">
+            <i class="fas fa-folder-open"></i>
+            <span>分类</span>
+            
+          </div>
+          <ul class="card-category-list" id="aside-cat-list">
+            <li class="card-category-list-item "><a class="card-category-list-link" href="/gdBlog/categories/Hexo/"><span class="card-category-list-name">Hexo</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/gdBlog/categories/%E6%9E%9C%E5%86%BB%E7%9A%84%E8%88%AA%E6%B5%B7%E6%97%A5%E5%BF%97/"><span class="card-category-list-name">果冻的航海日志</span><span class="card-category-list-count">9</span></a></li>
+          </ul></div><div class="card-widget card-tags"><div class="item-headline"><i class="fas fa-tags"></i><span>标签</span></div><div class="card-tag-cloud"><a href="/gdBlog/tags/LLM/" style="font-size: 1.37em; color: #99a4b2">LLM</a> <a href="/gdBlog/tags/Hexo/" style="font-size: 1.1em; color: #999">Hexo</a> <a href="/gdBlog/tags/%E5%85%83%E8%8A%B3/" style="font-size: 1.23em; color: #999ea6">元芳</a> <a href="/gdBlog/tags/tools/" style="font-size: 1.5em; color: #99a9bf">tools</a></div></div><div class="card-widget card-archives">
+    <div class="item-headline">
+      <i class="fas fa-archive"></i>
+      <span>归档</span>
+      
+    </div>
+  
+    <ul class="card-archive-list">
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/gdBlog/archives/2025/10/">
+            <span class="card-archive-list-date">
+              十月 2025
+            </span>
+            <span class="card-archive-list-count">1</span>
+          </a>
+        </li>
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/gdBlog/archives/2025/09/">
+            <span class="card-archive-list-date">
+              九月 2025
+            </span>
+            <span class="card-archive-list-count">8</span>
+          </a>
+        </li>
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/gdBlog/archives/2023/05/">
+            <span class="card-archive-list-date">
+              五月 2023
+            </span>
+            <span class="card-archive-list-count">1</span>
+          </a>
+        </li>
+      
+    </ul>
+  </div><div class="card-widget card-webinfo"><div class="item-headline"><i class="fas fa-chart-line"></i><span>网站信息</span></div><div class="webinfo"><div class="webinfo-item"><div class="item-name">文章数目 :</div><div class="item-count">10</div></div><div class="webinfo-item"><div class="item-name">本站访客数 :</div><div class="item-count" id="busuanzi_value_site_uv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">本站总浏览量 :</div><div class="item-count" id="busuanzi_value_site_pv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">最后更新时间 :</div><div class="item-count" id="last-push-date" data-lastPushDate="2025-10-01T03:49:07.467Z"><i class="fa-solid fa-spinner fa-spin"></i></div></div></div></div></div></div></main><footer id="footer" style="background: transparent;"><div class="footer-other"><div class="footer-copyright"></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/gdBlog/js/utils.js"></script><script src="/gdBlog/js/main.js"></script><div class="js-pjax"></div><script src="/config/js/happy-title.js" async></script><script src="/config/js/foot.js" async></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><!-- hexo injector body_end start --><script data-pjax>
+    function butterfly_categories_card_injector_config(){
+      var parent_div_git = document.getElementById('recent-posts');
+      var item_html = '<style>li.categoryBar-list-item{width:32.3%;}.categoryBar-list{max-height: 380px;overflow:auto;}.categoryBar-list::-webkit-scrollbar{width:0!important}@media screen and (max-width: 650px){.categoryBar-list{max-height: 320px;}}</style><div class="recent-post-item" style="height:auto;width:100%;padding:0px;"><div id="categoryBar"><ul class="categoryBar-list"><li class="categoryBar-list-item" style="background:url(https://npm.elemecdn.com/akilar-candyassets/image/cover1.webp);"> <a class="categoryBar-list-link" href="categories/果冻的航海日志/">果冻的航海日志</a><span class="categoryBar-list-count">9</span><span class="categoryBar-list-descr">果冻的航海日记</span></li><li class="categoryBar-list-item" style="background:url(undefined);"> <a class="categoryBar-list-link" href="categories/Hexo/">Hexo</a><span class="categoryBar-list-count">1</span><span class="categoryBar-list-descr"></span></li></ul></div></div>';
+      console.log('已挂载butterfly_categories_card')
+      parent_div_git.insertAdjacentHTML("afterbegin",item_html)
+      }
+    if( document.getElementById('recent-posts') && (location.pathname ==='/'|| '/' ==='all')){
+    butterfly_categories_card_injector_config()
+    }
+  </script><div class="js-pjax"><script async="async">var arr = document.getElementsByClassName('recent-post-item');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__zoomIn');
+    arr[i].setAttribute('data-wow-duration', '1500ms');
+    arr[i].setAttribute('data-wow-delay', '0ms');
+    arr[i].setAttribute('data-wow-offset', '0');
+    arr[i].setAttribute('data-wow-iteration', '1');
+  }</script><script async="async">var arr = document.getElementsByClassName('card-widget');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__zoomIn');
+    arr[i].setAttribute('data-wow-duration', '1500ms');
+    arr[i].setAttribute('data-wow-delay', '0ms');
+    arr[i].setAttribute('data-wow-offset', '0');
+    arr[i].setAttribute('data-wow-iteration', '1');
+  }</script><script async="async">var arr = document.getElementsByClassName('container');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__zoomIn');
+    arr[i].setAttribute('data-wow-duration', '1500ms');
+    arr[i].setAttribute('data-wow-delay', '0ms');
+    arr[i].setAttribute('data-wow-offset', '0');
+    arr[i].setAttribute('data-wow-iteration', '1');
+  }</script></div><script defer src="https://npm.elemecdn.com/hexo-butterfly-wowjs/lib/wow.min.js"></script><script defer src="https://npm.elemecdn.com/hexo-butterfly-wowjs/lib/wow_init.js"></script><!-- hexo injector body_end end --></body></html>

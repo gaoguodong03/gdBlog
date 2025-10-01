@@ -1,0 +1,631 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>The Physical Layer | 果冻小配方</title><meta name="author" content="GuoDong"><meta name="copyright" content="GuoDong"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="计算机网络第二章物理层">
+<meta property="og:type" content="website">
+<meta property="og:title" content="The Physical Layer">
+<meta property="og:url" content="https://gaoguodong03.github.io/gdBlog/old_posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E7%AC%AC2%E7%AB%A0.html">
+<meta property="og:site_name" content="果冻小配方">
+<meta property="og:description" content="计算机网络第二章物理层">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://gaoguodong03.github.io/gdBlog/img/touxiang.jpg">
+<meta property="article:published_time" content="2025-09-29T09:11:46.885Z">
+<meta property="article:modified_time" content="2025-09-29T09:11:46.885Z">
+<meta property="article:author" content="GuoDong">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://gaoguodong03.github.io/gdBlog/img/touxiang.jpg"><script type="application/ld+json"></script><link rel="shortcut icon" href="/gdBlog/img/logo.jpg"><link rel="canonical" href="https://gaoguodong03.github.io/gdBlog/old_posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E7%AC%AC2%E7%AB%A0.html"><link rel="preconnect"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/gdBlog/css/index.css"><link rel="stylesheet" href="/gdBlog/pluginsSrc/@fortawesome/fontawesome-free/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/gdBlog/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: '/gdBlog/pluginsSrc/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'The Physical Layer',
+  isHighlightShrink: false,
+  isToc: false,
+  pageType: 'page'
+}</script><style>#article-container.post-content h1:before, h2:before, h3:before, h4:before, h5:before, h6:before { -webkit-animation: avatar_turn_around 1s linear infinite; -moz-animation: avatar_turn_around 1s linear infinite; -o-animation: avatar_turn_around 1s linear infinite; -ms-animation: avatar_turn_around 1s linear infinite; animation: avatar_turn_around 1s linear infinite; }</style><!-- hexo injector head_end start --><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-categories-card@1.0.0/lib/categorybar.css"><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-wowjs/lib/animate.min.css" media="print" onload="this.media='screen'"><!-- hexo injector head_end end --><meta name="generator" content="Hexo 8.0.0"></head><body><div id="web_bg" style="background-image: url(/gdBlog/img/bg1.jpg);"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/gdBlog/img/touxiang.jpg" onerror="this.onerror=null;this.src='/gdBlog/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/gdBlog/archives/"><div class="headline">文章</div><div class="length-num">10</div></a><a href="/gdBlog/tags/"><div class="headline">标签</div><div class="length-num">4</div></a><a href="/gdBlog/categories/"><div class="headline">分类</div><div class="length-num">2</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/gdBlog/search/"><i class="fa-fw fas fa-search"></i><span> 搜索</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div></div></div></div><div class="page" id="body-wrap"><header class="not-home-page" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/gdBlog/"><img class="site-icon" src="/gdBlog/img/logo.jpg" alt="Logo"><span class="site-name">果冻小配方</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/gdBlog/search/"><i class="fa-fw fas fa-search"></i><span> 搜索</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="page-site-info"><h1 id="site-title">The Physical Layer</h1></div></header><main class="layout" id="content-inner"><div id="page"><div class="container" id="article-container"><h1 id="物理层"><a href="#物理层" class="headerlink" title="物理层"></a>物理层</h1><ul>
+<li>物理层考虑的是怎样才能<strong>在连接各种计算机的传输媒体上传输数据比特流</strong>，而不是指具体的传输媒体。</li>
+<li>物理层的作用是要尽可能地<strong>屏蔽掉不同传输媒体和通信手段的差异</strong>。</li>
+<li>用于物理层的协议也常称为<strong>物理层规程</strong> (procedure)。</li>
+<li>协议和标准：物理层标准 RS-232, RJ-45</li>
+<li>设备：调制解调器 Modem，ADSL Modem，编码&#x2F;解码器 Codec, DSLAM，多路复用器Multiplexer，中继器 Repeater(放大整形信号)，放大器 Amplifier（放大信号）</li>
+</ul>
+<h2 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h2><ul>
+<li><p>信道：传送信息的媒介，被其物理性质(金属纯度等)决定了其带宽</p>
+</li>
+<li><p>信号：其带宽取决于其主要能量集中的带宽</p>
+</li>
+</ul>
+<h3 id="带宽Bandwidth"><a href="#带宽Bandwidth" class="headerlink" title="带宽Bandwidth"></a>带宽Bandwidth</h3><ul>
+<li>一般用bps描述</li>
+<li>Bit Rate: bps，每秒多少传输bits</li>
+<li>Baun Rate: Baud.每秒传输的信号单元 &#x3D; 1&#x2F;T(一个信号单元时间）</li>
+<li>V: 信号的有效状态数(电平级数)</li>
+<li>一个信号单元：one signal unit &#x3D; log2V bit（2进制编码）</li>
+<li><ul>
+<li><img src="https://cdn.jsdelivr.net/gh/gdlearncoding/blogImage@main/202303032135954.png" alt="image-20230303213526911"></li>
+<li>V&#x3D;64,则表示用6位长的bits就能表示一个信号单元</li>
+</ul>
+</li>
+<li>&#x3D;&#x3D;Bit Rate &#x3D; Baud Rate * log2 V&#x3D;&#x3D;</li>
+<li><ul>
+<li>推导:两边同时*1s</li>
+<li>物理意义:传输多少bits &#x3D; 传输的信号单元数*每个信号单元被转换为多少bits</li>
+<li><img src="https://cdn.jsdelivr.net/gh/gdlearncoding/blogImage@main/202303052011446.png" alt="image-20230303221429862"></li>
+<li>答案:64</li>
+</ul>
+</li>
+<li><img src="https://cdn.jsdelivr.net/gh/gdlearncoding/blogImage@main/202303032106322.png" alt="image-20230303210614228"></li>
+</ul>
+<h3 id="时延"><a href="#时延" class="headerlink" title="时延"></a>时延</h3><p>  单向，发送第一位到接收最后一位；<br>  <img src="https://cdn.jsdelivr.net/gh/gdlearncoding/blogImage@main/202303032106314.png" alt="image-20230303210632275"><br>  时延 &#x3D; 四个相加（后两个不怎么用）</p>
+<p>&#x3D;&#x3D;发送时延 &#x3D; 数据块长度 &#x2F; 信号带宽&#x3D;&#x3D;(重点)(单位s &#x3D; bit &#x2F; bps)(是位bit,不是字节)</p>
+<p>Transmission Delay &#x3D; packet length (bits) &#x2F; link bandwidth (bps)</p>
+<p><img src="https://cdn.jsdelivr.net/gh/gdlearncoding/blogImage@main/202303032110005.png" alt="image-20230303211049977"></p>
+<p>答案:800s.TD &#x3D; 1M字节&#x2F;(10Kb&#x2F;s) &#x3D;1M*8bits&#x2F;(10000bit&#x2F;s)&#x3D;800s</p>
+<ul>
+<li>带宽时延积 &#x3D; 带宽*传播时延<br>长肥网络long-fat network</li>
+</ul>
+<h3 id="单半全双工"><a href="#单半全双工" class="headerlink" title="单半全双工"></a>单半全双工</h3><p>  <img src="https://cdn.jsdelivr.net/gh/gdlearncoding/blogImage@main/202303032114482.png" alt="image-20230303211447443"></p>
+<p>  所以说全双工等于两个相反的单工</p>
+<h3 id="串行并行传输"><a href="#串行并行传输" class="headerlink" title="串行并行传输"></a>串行并行传输</h3><p><img src="https://cdn.jsdelivr.net/gh/gdlearncoding/blogImage@main/202303032115575.png" alt="image-20230303211557515"></p>
+<p>前者一条线依次传输，后者多条线一起传输</p>
+<p>同异步传输</p>
+<p><img src="https://cdn.jsdelivr.net/gh/gdlearncoding/blogImage@main/202303032117773.png" alt="image-20230303211712715"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/gdlearncoding/blogImage@main/202303052011448.png" alt="image-20230303211748780"></p>
+<p>&#x3D;&#x3D;同步效率高&#x3D;&#x3D;</p>
+<h3 id="Impairment传输损耗"><a href="#Impairment传输损耗" class="headerlink" title="Impairment传输损耗"></a>Impairment传输损耗</h3><ul>
+<li><p>振幅衰减Attenuation，失真 distorti</p>
+</li>
+<li><p>时延失真Delay distortion</p>
+</li>
+<li><p>噪声Noise</p>
+<p>在一定程度上都可以通过物理层技术修复（信号放大器等）</p>
+<p>失真严重会产生误码：需要数据链路层处理(检错纠错码).修不了那就重发喽</p>
+<p>中型波（高频没进去），拖尾（不同波时延不同）<br>码间干扰（解决方法:减频率）</p>
+</li>
+</ul>
+<h2 id="基础理论"><a href="#基础理论" class="headerlink" title="基础理论"></a>基础理论</h2><h3 id="傅里叶变换"><a href="#傅里叶变换" class="headerlink" title="傅里叶变换"></a>傅里叶变换</h3><ul>
+<li><p>任何周期为T (&#x3D;1&#x2F;f)的周期信号g(t)都可以通过对一个(可能是无限的)sin和cos求和构造。</p>
+</li>
+<li><p><img src="https://cdn.jsdelivr.net/gh/gdlearncoding/blogImage@main/202303032139729.png" alt="image-20230303213937703"></p>
+</li>
+<li><p>振幅:<img src="https://cdn.jsdelivr.net/gh/gdlearncoding/blogImage@main/202303032141826.png" alt="image-20230303214136800"></p>
+</li>
+</ul>
+<p>结论:&#x3D;&#x3D;频率越高，能量越小&#x3D;&#x3D;</p>
+<h3 id="带宽"><a href="#带宽" class="headerlink" title="带宽"></a>带宽</h3><ul>
+<li>任何传输设备传信号都要失去不同傅里叶级数的成分</li>
+<li>传输后传输的频率范围强度高于0.5就被称为带宽</li>
+</ul>
+<p>结论:&#x3D;&#x3D;更高的数据速率需要更大的带宽,限制带宽会限制数据速率&#x3D;&#x3D;</p>
+<p>带宽越高,越贵,所有实际的信号的带宽都有限.所以尽可能有效利用给定的带宽</p>
+<p>也就是说传输速率尽量高的同时使信号质量控制在可接受的范围内.</p>
+<p>&#x3D;&gt;传输速率c、信道带宽B之间的关系</p>
+<h3 id="无噪声信道容量"><a href="#无噪声信道容量" class="headerlink" title="无噪声信道容量"></a>无噪声信道容量</h3><p>Capacity for noiseless channel</p>
+<p>Nyquist证明:如果将任意信号通过带宽为B的低通滤波器，则滤波后的信号每秒只需进行2B个采样就可以完全重构</p>
+<p>&#x3D;&#x3D;C&#x3D;波特率*log2V&#x3D;&#x3D;</p>
+<p>给定二进制信号，B Hz支持的数据速率为2B bps(一个周期内采样两个点就能画出来大致图像)</p>
+<p>Nyquist Bit Rate(奈奎斯特公式):</p>
+<p>&#x3D;&#x3D;bit rate &#x3D; 2 * bandwidth * log2 V&#x3D;&#x3D;&#x3D;&gt;&#x3D;&#x3D;C&#x3D;2Blog2V&#x3D;&#x3D;</p>
+<p><img src="https://cdn.jsdelivr.net/gh/gdlearncoding/blogImage@main/202303050947722.png" alt="image-20230305094719643"></p>
+<p>信号振幅范围确定的条件下，级数越多，码元(信号单元)的电压差越小,也就是说,可靠性越差</p>
+<h3 id="有声信道容量"><a href="#有声信道容量" class="headerlink" title="有声信道容量"></a>有声信道容量</h3><p>有噪信道的最大传输速率与<strong>信道带宽</strong>和<strong>信道质量</strong>(也就是信噪比)有关</p>
+<p>Shannon Capacity(香农公式):</p>
+<p><img src="https://cdn.jsdelivr.net/gh/gdlearncoding/blogImage@main/202303032200173.png" alt="image-20230303220057143"></p>
+<p>其中，容量以比特&#x2F;秒为单位，带宽以赫兹为单位，信号和噪声功率以相同的物理单位测量</p>
+<p>SNR (Signal-to-Noise Ratio) :</p>
+<p><img src="https://cdn.jsdelivr.net/gh/gdlearncoding/blogImage@main/202303032202255.png" alt="image-20230303220255230"></p>
+<p>The units of this log scale are called decibels(dB)</p>
+<p>C&#x3D;Blog2(1+S&#x2F;N)&#x3D;&gt;C&#x3D;博客2(1+(10^(dB抹个零)))</p>
+<p><img src="https://cdn.jsdelivr.net/gh/gdlearncoding/blogImage@main/202303052011449.png" alt="image-20230303221658918"></p>
+<p>两个公式右端联立,消去B,求V.答案32</p>
+<p><img src="https://cdn.jsdelivr.net/gh/gdlearncoding/blogImage@main/202303122231295.png" alt="image-20230312223136258"></p>
+<p>&#x3D;&#x3D;二者取小值&#x3D;&#x3D;</p>
+<h2 id="传输介质"><a href="#传输介质" class="headerlink" title="传输介质"></a>传输介质</h2><p>属于第零层,但与物理层(转换时)关系密切</p>
+<h3 id="有线传输介质"><a href="#有线传输介质" class="headerlink" title="有线传输介质"></a>有线传输介质</h3><table>
+<thead>
+<tr>
+<th>类别</th>
+<th>工作原理</th>
+<th>物理结构</th>
+<th>特性</th>
+<th>分类</th>
+<th>典型应用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>双绞线</td>
+<td>铜</td>
+<td>两根彼此绝缘铜导线绞合</td>
+<td>价格便宜，性能适中</td>
+<td>UTP(3,5)和STP</td>
+<td>电话线(模拟,有线局域网(数字)</td>
+</tr>
+<tr>
+<td>同轴电缆</td>
+<td>铜</td>
+<td>两根同心铜导线，双向传输</td>
+<td>比双绞线的抗干扰屏蔽能力强，可实现更远距离上的高速数据传输</td>
+<td>50-ohm cable,75-ohm cable</td>
+<td>有线电视(模拟),电话交换机和早期LAN(数字)</td>
+</tr>
+<tr>
+<td>光纤</td>
+<td>玻璃</td>
+<td>两层不同反射率,全反射</td>
+<td>高带宽,轻,安全,低错误率</td>
+<td>多模和单模</td>
+<td>光纤环,大局域网(校园骨干网)</td>
+</tr>
+</tbody></table>
+<p>电磁波谱:</p>
+<p><img src="https://cdn.jsdelivr.net/gh/gdlearncoding/blogImage@main/202303052011450.png" alt="image-20230305100310141"></p>
+<p>带宽是高频-低频,所以光纤(0ptical fiber)带宽最高(数量级摆在那呢);双绞线最窄</p>
+<p>不同传输介质的特性不同:</p>
+<ul>
+<li>带宽</li>
+<li>前两种时延(发送和传播)</li>
+<li>最大传输距离(不加中继设备,能够识别出来的最大距离,绝缘性好,有线,更远)</li>
+<li>抗干扰能力(影响信噪比)</li>
+<li>安全性</li>
+<li>安装成本,维护难度</li>
+</ul>
+<h4 id="磁介质"><a href="#磁介质" class="headerlink" title="磁介质"></a>磁介质</h4><p>Magnetic Media</p>
+<p>例子:用磁带记录加用火车运输,则有效带宽&#x3D;磁带记录总量&#x2F;运输时间(bps), 花费多少钱1GB</p>
+<h4 id="双绞线"><a href="#双绞线" class="headerlink" title="双绞线"></a>双绞线</h4><p>Twisted Pair</p>
+<p>绞合目的:电磁场相互抵消降低能量衰减</p>
+<p>双绞线有两种较为重要的型号： 3类双绞线与5类双绞线。3类双绞线由4组绞合在一起的铜质导线对组成，外覆一层绝缘胶管,≤10 Mb&#x2F;s——以太网10BaseT。5类双绞线的构成与3类双绞线相似，但具有更高的绞合度，可进一步降低干扰，提供更高质量的信号传输,≤100 Mb&#x2F;s——以太网。</p>
+<p>带宽影响:</p>
+<ul>
+<li>电线的粗细，铜芯的纯度</li>
+<li>线缆长度</li>
+<li>每米扭转数(越多越好)</li>
+</ul>
+<p>UTP和STP:无有屏蔽层(Metal shield)</p>
+<h4 id="同轴电缆"><a href="#同轴电缆" class="headerlink" title="同轴电缆"></a>同轴电缆</h4><p>Coaxial Cable,都比UTP好</p>
+<p>50Ω同轴电缆用于数字信号传输，75Ω同轴电缆最初用于模拟信号传输，目前较常用于传输数字信号。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/gdlearncoding/blogImage@main/202303052011451.png" alt="image-20230305102511445"></p>
+<h4 id="光纤"><a href="#光纤" class="headerlink" title="光纤"></a>光纤</h4><p>Fiber Cables</p>
+<p>光纤中没有附加网状屏蔽层</p>
+<p>光纤在传输光信号时不会产生电磁干扰</p>
+<p>光信号通过光纤时无辐射磁场，有效降低了数据被窃听或截取的风险</p>
+<p>优点:高带宽,轻,安全</p>
+<p>每一个入射角叫一个模式,分多模和单模(单模性能高,细,贵)<br>高锟</p>
+<h3 id="无线传输介质"><a href="#无线传输介质" class="headerlink" title="无线传输介质"></a>无线传输介质</h3><p>高误码率,时延长,安全性差,带定位能力</p>
+<p>电磁频谱:</p>
+<p><img src="https://cdn.jsdelivr.net/gh/gdlearncoding/blogImage@main/202303052011452.png" alt="image-20230305103557788"></p>
+<p>窄带,充分使用</p>
+<p>宽带,扩频</p>
+<p>按频率:VLF(very low 频率)</p>
+<p><img src="https://cdn.jsdelivr.net/gh/gdlearncoding/blogImage@main/202303052011453.png" alt="image-20230305103944350"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/gdlearncoding/blogImage@main/202303052011454.png" alt="image-20230305104123245"></p>
+<table>
+<thead>
+<tr>
+<th>种类</th>
+<th>频率</th>
+<th>带宽</th>
+<th>通信距离</th>
+<th>受干扰程度</th>
+<th>许可证</th>
+<th>应用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>无线电(短波通信)</td>
+<td>3~30MHz</td>
+<td></td>
+<td></td>
+<td>易受干扰</td>
+<td>是</td>
+<td></td>
+</tr>
+<tr>
+<td>微波</td>
+<td>300MHz~300GHz</td>
+<td></td>
+<td>可长距离(80km)</td>
+<td>恶劣天气</td>
+<td>大部分</td>
+<td></td>
+</tr>
+<tr>
+<td>红外传输</td>
+<td></td>
+<td>高</td>
+<td>近距离视线范围</td>
+<td>过不了固体</td>
+<td>否</td>
+<td>遥控器</td>
+</tr>
+<tr>
+<td>光通信</td>
+<td></td>
+<td>高</td>
+<td>500m</td>
+<td>风雾雨</td>
+<td>否</td>
+<td></td>
+</tr>
+</tbody></table>
+<h4 id="短波通信"><a href="#短波通信" class="headerlink" title="短波通信"></a>短波通信</h4><p>利用频率在3~30MHz的电磁波进行通信,短波信道的通信质量较差。当使用短波通信时，通常以低速传输，每路信道的传输速率在数十bps到数百bps</p>
+<h4 id="微波"><a href="#微波" class="headerlink" title="微波"></a>微波</h4><p>Microwave Transmission</p>
+<p>指频率在300MHz~300GHz</p>
+<p>在光纤出现之前，微波是长途电话传输系统的核心波</p>
+<p>几乎以直线传播，发射接收天线必须精确对齐</p>
+<ul>
+<li>典型设备—中继器repeater（再生信号，即信号的放大、整形</li>
+</ul>
+<p>中继器间距:80km</p>
+<p>多径衰落通常是一个严重的问题(取决于天气和频率)</p>
+<ul>
+<li>无线通信中的电磁波频谱管理：无线应用可以使用的电磁波频段需要国家相关管理部门发放使用许可证（license）</li>
+</ul>
+<p>ISM通用</p>
+<p><img src="https://cdn.jsdelivr.net/gh/gdlearncoding/blogImage@main/202303052011455.png" alt="image-20230305104727776"></p>
+<h4 id="红外传输"><a href="#红外传输" class="headerlink" title="红外传输"></a>红外传输</h4><p>Infrared Transmission</p>
+<p>自己想想红外遥控器</p>
+<p><img src="https://cdn.jsdelivr.net/gh/gdlearncoding/blogImage@main/202303052011456.png" alt="image-20230305104928681"></p>
+<h4 id="光通信"><a href="#光通信" class="headerlink" title="光通信"></a>光通信</h4><p>Lightwave Transmissi</p>
+<p>极窄光束:将1毫米宽的激光束对准500米外针头大小的目标。</p>
+<p>风和温度的变化会使激光束扭曲</p>
+<h4 id="通信卫星"><a href="#通信卫星" class="headerlink" title="通信卫星"></a>通信卫星</h4><p>Communication Satellites,把中继站建到天上的微波通信</p>
+<p>收一个上行信号,在发一个下行信号(频率不同)</p>
+<p>广:地球表面的很大一部分<br>窄:覆盖直径数百公里的区域</p>
+<p>被范艾伦(Van Allen belt) 分:</p>
+<p><img src="https://cdn.jsdelivr.net/gh/gdlearncoding/blogImage@main/202303052011457.png" alt="image-20230305105702303"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/gdlearncoding/blogImage@main/202303052011458.png" alt="image-20230305105917173"></p>
+<p>需要多少颗覆盖全球</p>
+<p>高时延,广播,通信成本与距离无关,低误码率，易于部署</p>
+<p><strong>星链和铱星系统都是地轨卫星</strong></p>
+<h2 id="数字调制与多路复用"><a href="#数字调制与多路复用" class="headerlink" title="数字调制与多路复用"></a>数字调制与多路复用</h2><p>线路编码（line code）目的:提高信号抗干扰能力</p>
+<p><img src="https://cdn.jsdelivr.net/gh/gdlearncoding/blogImage@main/202303072220343.png" alt="image-20230307220625923"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/gdlearncoding/blogImage@main/202303052011459.png" alt="image-20230305124546983"></p>
+<p>基带传输(Baseband transmission):从0到最大频率的信号</p>
+<p>通带传输(Passband Transmission):信号占据载波信号频率附近的一个频带</p>
+<h3 id="数字数据-数据信号"><a href="#数字数据-数据信号" class="headerlink" title="数字数据-&gt;数据信号"></a>数字数据-&gt;数据信号</h3><p>Non-Return to Zero(NRZ)</p>
+<p>Manchester</p>
+<p>Bipolar encoding(also Alternate Mark Inversion,AMI)(1一上一下,平衡编码)</p>
+<h5 id="曼彻斯特"><a href="#曼彻斯特" class="headerlink" title="曼彻斯特"></a>曼彻斯特</h5><p>Manchest</p>
+<p><img src="https://cdn.jsdelivr.net/gh/gdlearncoding/blogImage@main/202303052011460.png" alt="image-20230305125222867"></p>
+<ul>
+<li>每个比特周期中间跳变(Transition)</li>
+<li>跳变作为时钟和数据</li>
+<li>低到高代表1，高到低代表0(标准IEEE 802.3LAN)</li>
+<li>曼彻斯特的带宽(编码)效率是50%,两个信号单元对应一个bit数据,平衡编码</li>
+</ul>
+<h3 id="调制"><a href="#调制" class="headerlink" title="调制"></a>调制</h3><p>Modulation,对应的就是数字数据-&gt;模拟信号</p>
+<p><img src="https://cdn.jsdelivr.net/gh/gdlearncoding/blogImage@main/202303072209551.png" alt="image-20230307220726043"></p>
+<p>数字调制是通过调制通带中的<code>载波</code>信号来实现的,调制后的信号是&#x3D;&#x3D;通带信号&#x3D;&#x3D;</p>
+<p>amplitude幅度,frequency频率,phase相位</p>
+<p><img src="https://cdn.jsdelivr.net/gh/gdlearncoding/blogImage@main/202303072153645.png" alt="image-20230307215309523"></p>
+<p>复合更常用:</p>
+<p>QPSK:Quadrature Phase Shift Keying-正交相移键控<br>QAM:Quadrature Amplitude Modulation-正交幅度调制</p>
+<p>QAM是一种相位调制与振幅调制同时使用的调制方式</p>
+<p><img src="https://cdn.jsdelivr.net/gh/gdlearncoding/blogImage@main/202303072157963.png" alt="image-20230307215740924"></p>
+<p>点的相位由点与原点之间的直线与正x轴的夹角来表示。</p>
+<p>点的振幅是到原点的距离。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/gdlearncoding/blogImage@main/202303072157384.png" alt="image-20230307215754332"></p>
+<p>重点在于知道电平级数<code>V</code>(也就是前面那个数)</p>
+<p><img src="https://cdn.jsdelivr.net/gh/gdlearncoding/blogImage@main/202303122233029.png" alt="image-20230312223310994"></p>
+<p>eg:<img src="https://cdn.jsdelivr.net/gh/gdlearncoding/blogImage@main/202303072215023.png" alt="image-20230307221530991"></p>
+<p>C&#x3D;Baud*log2 64答案正确</p>
+<h3 id="模拟数据-数字信号"><a href="#模拟数据-数字信号" class="headerlink" title="模拟数据-&gt;数字信号"></a>模拟数据-&gt;数字信号</h3><p><img src="https://cdn.jsdelivr.net/gh/gdlearncoding/blogImage@main/202303072208826.png" alt="image-20230307220824787"></p>
+<ul>
+<li>Sampling(采样)采样频率还是信号最高频的两倍</li>
+<li>Quantizing(量化)产生量化误差无法避免</li>
+<li>Encoding(编码)可压缩</li>
+</ul>
+<p>Device:Codec:编码解码器</p>
+<p><img src="https://cdn.jsdelivr.net/gh/gdlearncoding/blogImage@main/202303072202847.png" alt="image-20230307220225797"></p>
+<h3 id="信道复用"><a href="#信道复用" class="headerlink" title="信道复用"></a>信道复用</h3><p>提高信号利用率</p>
+<ul>
+<li>频分复用FDM(模拟信号):频分复用的所有用户在同样的时间占用不同的频率资源</li>
+<li>时分复用TDM(数字信号):将时间划分为一段段等长的时分复用帧（TDM 帧）。每一个时分复用的用户在每一个 TDM 帧中占用固定序号的时隙。</li>
+<li>波分复用WDM:波分复用就是光的频分复用。使用一根光纤来同时传输多个光载波信号</li>
+<li>码分复用CDM:各用户使用经过特殊挑选的不同码型，因此彼此不会造成干扰</li>
+</ul>
+<p><img src="https://cdn.jsdelivr.net/gh/gdlearncoding/blogImage@main/202303072203144.png" alt="image-20230307220336077"></p>
+<p>同步TDM就算该用户没发数据别的用户也不能用该时隙</p>
+<p>统计TDM是可以用了,但是每一段前必须加上标识</p>
+<p>TDM 包括：同步时分复用 ATDM(公用交换电话网使用，即 PSTN 网使用)和统计时分复用 STDM（计算机网络使用)</p>
+<h2 id="交换网"><a href="#交换网" class="headerlink" title="交换网"></a>交换网</h2><p>PSTN Public Switched Telephone Network 公众交换电话网络</p>
+<table>
+<thead>
+<tr>
+<th>种类</th>
+<th>调制解调器 Modem</th>
+<th>ADSL Modem</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>功能</td>
+<td>拨号上网，将数字信号调制成适合带宽传输的模拟信号</td>
+<td>拨号上网，将数字信号调制成适合带宽传输的模拟信号</td>
+</tr>
+<tr>
+<td>带宽</td>
+<td>3100Hz(引入滤波器，限制带宽在300-3400Hz 之间)</td>
+<td>1.1MHz（物理介质 UTP3 的带宽，不存在滤波器）</td>
+</tr>
+<tr>
+<td>通信方式</td>
+<td>全双工调制传输，以字符为单位</td>
+<td>全双工调制传输，以字符为单位，PPP 协议</td>
+</tr>
+<tr>
+<td>调制速度</td>
+<td>2400 波特，QAM</td>
+<td>4000 波特,DMT-离散多音调制技术</td>
+</tr>
+<tr>
+<td>最大速率</td>
+<td>33.6kbps（两个本回路的信道条件下，香农极限 35kbps）</td>
+<td>256 条信道(每条子信道带宽约4.3KHz)<br/>0：语音，1-5：空闲，250 条数据和控制</td>
+</tr>
+<tr>
+<td></td>
+<td>56kbps（只使用一个本地环路，提高信噪比）</td>
+<td>8M 下行，1M 上行</td>
+</tr>
+</tbody></table>
+<h3 id="从电话网讲起"><a href="#从电话网讲起" class="headerlink" title="从电话网讲起"></a>从电话网讲起</h3><p>上网一开始使用的就是电话线</p>
+<h4 id="结构"><a href="#结构" class="headerlink" title="结构"></a>结构</h4><p><img src="https://cdn.jsdelivr.net/gh/gdlearncoding/blogImage@main/202303122147711.png" alt="image-20230312214710628"></p>
+<h4 id="电话传输"><a href="#电话传输" class="headerlink" title="电话传输"></a>电话传输</h4><p><img src="https://cdn.jsdelivr.net/gh/gdlearncoding/blogImage@main/202303122148148.png" alt="image-20230312214825085"></p>
+<h4 id="电话改网线"><a href="#电话改网线" class="headerlink" title="电话改网线"></a>电话改网线</h4><p><img src="https://cdn.jsdelivr.net/gh/gdlearncoding/blogImage@main/202303122148003.png" alt="image-20230312214856941"></p>
+<p>无奈之举,引入滤波器控制住了带宽,最高4KHz</p>
+<h3 id="数字用户环线"><a href="#数字用户环线" class="headerlink" title="数字用户环线"></a>数字用户环线</h3><p>DSL: Digital Subscriber Lines</p>
+<p>DSLAM:Digital Subscriber Line Access Multiplexer 数字用户环线接入复用器</p>
+<ul>
+<li>DSL在较短距离内可提供较高带宽.随着距离增加，带宽急剧下降</li>
+<li>应用:xDSL Services(UTP3,不影响通话,比56kbps快)</li>
+<li>ADSL: Asymmetric DSL(非对称数字用户线)</li>
+<li><img src="https://cdn.jsdelivr.net/gh/gdlearncoding/blogImage@main/202303122200359.png" alt="image-20230312220025314"></li>
+<li>FDM(频分复用),ADSL 有 256 个子信道，其中 6 个用于电话，2 个用于控制，还剩下 248 个数据信道，每个子信道为 4000 波特。</li>
+<li>监控每个通道的线路质量，并持续调整数据速率</li>
+<li>ADSL 用户环路相关设备：ADSL Modem（用户端设备），DSLAM（局端设备）, Codec,Splitter（用户端和局端均有，分离语音信号和数据</li>
+</ul>
+<h3 id="离散多音调制"><a href="#离散多音调制" class="headerlink" title="离散多音调制"></a>离散多音调制</h3><p>DMT: Discrete Multitone Modulation</p>
+<p><img src="https://cdn.jsdelivr.net/gh/gdlearncoding/blogImage@main/202303122208732.png" alt="image-20230312220817669"></p>
+<h3 id="光纤入户"><a href="#光纤入户" class="headerlink" title="光纤入户"></a>光纤入户</h3><p>FTTH:Fiber to the Home</p>
+<h3 id="中继线和多路复用"><a href="#中继线和多路复用" class="headerlink" title="中继线和多路复用"></a>中继线和多路复用</h3><p><img src="https://cdn.jsdelivr.net/gh/gdlearncoding/blogImage@main/202303122211414.png" alt="image-20230312221126357"></p>
+<p>知道T1,PCM是什么就行,同步时分复用</p>
+<p><img src="https://cdn.jsdelivr.net/gh/gdlearncoding/blogImage@main/202303122246098.png" alt="image-20230312224601055"></p>
+<h3 id="电路交换与分组交换"><a href="#电路交换与分组交换" class="headerlink" title="电路交换与分组交换"></a>电路交换与分组交换</h3><table>
+<thead>
+<tr>
+<th>种类</th>
+<th>电路交换</th>
+<th>分组交换</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>概述</td>
+<td>3个阶段：<strong>电路建立、数据传输和电路终止</strong></td>
+<td>在每一个节点上，整个数据包被接收，简短地存储，然后转发到下一个节点。</td>
+</tr>
+<tr>
+<td>特点</td>
+<td><strong>预先分配固定</strong>的资源,2个点之间的专用通信路径</td>
+<td><strong>动态</strong>资源分配,<strong>存储-转发</strong>,每个包被独立路由,有控制信息</td>
+</tr>
+<tr>
+<td>例子</td>
+<td>电话</td>
+<td>邮件</td>
+</tr>
+<tr>
+<td>优点</td>
+<td>延时小，质量好,开关中的简单控制</td>
+<td>Line efficiency生产线效率,速率适配,排队</td>
+</tr>
+<tr>
+<td>缺点</td>
+<td>呼叫时间,固定带宽,沉默浪费</td>
+<td>无QoS保证(人多可能就慢),延迟可能大</td>
+</tr>
+</tbody></table>
+<p><img src="https://cdn.jsdelivr.net/gh/gdlearncoding/blogImage@main/202303122222177.png" alt="image-20230312222208123"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/gdlearncoding/blogImage@main/202303122222376.png" alt="image-20230312222235308"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/gdlearncoding/blogImage@main/202303122250460.png" alt="image-20230312225002410"></p>
+<h2 id="物理接口特性"><a href="#物理接口特性" class="headerlink" title="物理接口特性"></a>物理接口特性</h2><p><img src="https://cdn.jsdelivr.net/gh/gdlearncoding/blogImage@main/202303122225636.png" alt="image-20230312222516587"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/gdlearncoding/blogImage@main/202303122225453.png" alt="image-20230312222545380"></p>
+</div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/gdBlog/img/touxiang.jpg" onerror="this.onerror=null;this.src='/gdBlog/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">GuoDong</div><div class="author-info-description">碎碎念念 岁岁年年</div><div class="site-data"><a href="/gdBlog/archives/"><div class="headline">文章</div><div class="length-num">10</div></a><a href="/gdBlog/tags/"><div class="headline">标签</div><div class="length-num">4</div></a><a href="/gdBlog/categories/"><div class="headline">分类</div><div class="length-num">2</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/gaoguodong03"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/gaoguodong03" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">有重要的事情 得去趟南京!</div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/gdBlog/2025/10/01/RAG/" title="RAG（Retrieval-AugmentedGeneration检索增强生成">RAG（Retrieval-AugmentedGeneration检索增强生成</a><time datetime="2025-09-30T16:00:00.000Z" title="发表于 2025-10-01 00:00:00">2025-10-01</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/gdBlog/2025/09/30/Docker/" title="Docker">Docker</a><time datetime="2025-09-29T16:00:00.000Z" title="发表于 2025-09-30 00:00:00">2025-09-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/gdBlog/2025/09/30/JSON/" title="JSON">JSON</a><time datetime="2025-09-29T16:00:00.000Z" title="发表于 2025-09-30 00:00:00">2025-09-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/gdBlog/2025/09/30/MCP/" title="MCP(Model Context Protocol模型上下文协议)">MCP(Model Context Protocol模型上下文协议)</a><time datetime="2025-09-29T16:00:00.000Z" title="发表于 2025-09-30 00:00:00">2025-09-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/gdBlog/2025/09/30/MVC/" title="MVC">MVC</a><time datetime="2025-09-29T16:00:00.000Z" title="发表于 2025-09-30 00:00:00">2025-09-30</time></div></div></div></div><div class="card-widget card-categories"><div class="item-headline">
+            <i class="fas fa-folder-open"></i>
+            <span>分类</span>
+            
+          </div>
+          <ul class="card-category-list" id="aside-cat-list">
+            <li class="card-category-list-item "><a class="card-category-list-link" href="/gdBlog/categories/Hexo/"><span class="card-category-list-name">Hexo</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/gdBlog/categories/%E6%9E%9C%E5%86%BB%E7%9A%84%E8%88%AA%E6%B5%B7%E6%97%A5%E5%BF%97/"><span class="card-category-list-name">果冻的航海日志</span><span class="card-category-list-count">9</span></a></li>
+          </ul></div><div class="card-widget card-tags"><div class="item-headline"><i class="fas fa-tags"></i><span>标签</span></div><div class="card-tag-cloud"><a href="/gdBlog/tags/LLM/" style="font-size: 1.37em; color: #99a4b2">LLM</a> <a href="/gdBlog/tags/Hexo/" style="font-size: 1.1em; color: #999">Hexo</a> <a href="/gdBlog/tags/%E5%85%83%E8%8A%B3/" style="font-size: 1.23em; color: #999ea6">元芳</a> <a href="/gdBlog/tags/tools/" style="font-size: 1.5em; color: #99a9bf">tools</a></div></div><div class="card-widget card-archives">
+    <div class="item-headline">
+      <i class="fas fa-archive"></i>
+      <span>归档</span>
+      
+    </div>
+  
+    <ul class="card-archive-list">
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/gdBlog/archives/2025/10/">
+            <span class="card-archive-list-date">
+              十月 2025
+            </span>
+            <span class="card-archive-list-count">1</span>
+          </a>
+        </li>
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/gdBlog/archives/2025/09/">
+            <span class="card-archive-list-date">
+              九月 2025
+            </span>
+            <span class="card-archive-list-count">8</span>
+          </a>
+        </li>
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/gdBlog/archives/2023/05/">
+            <span class="card-archive-list-date">
+              五月 2023
+            </span>
+            <span class="card-archive-list-count">1</span>
+          </a>
+        </li>
+      
+    </ul>
+  </div><div class="card-widget card-webinfo"><div class="item-headline"><i class="fas fa-chart-line"></i><span>网站信息</span></div><div class="webinfo"><div class="webinfo-item"><div class="item-name">文章数目 :</div><div class="item-count">10</div></div><div class="webinfo-item"><div class="item-name">本站访客数 :</div><div class="item-count" id="busuanzi_value_site_uv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">本站总浏览量 :</div><div class="item-count" id="busuanzi_value_site_pv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">最后更新时间 :</div><div class="item-count" id="last-push-date" data-lastPushDate="2025-10-01T03:49:07.467Z"><i class="fa-solid fa-spinner fa-spin"></i></div></div></div></div></div></div></main><footer id="footer" style="background: transparent;"><div class="footer-other"><div class="footer-copyright"></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/gdBlog/js/utils.js"></script><script src="/gdBlog/js/main.js"></script><div class="js-pjax"></div><script src="/config/js/happy-title.js" async></script><script src="/config/js/foot.js" async></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><!-- hexo injector body_end start --><script data-pjax>
+    function butterfly_categories_card_injector_config(){
+      var parent_div_git = document.getElementById('recent-posts');
+      var item_html = '<style>li.categoryBar-list-item{width:32.3%;}.categoryBar-list{max-height: 380px;overflow:auto;}.categoryBar-list::-webkit-scrollbar{width:0!important}@media screen and (max-width: 650px){.categoryBar-list{max-height: 320px;}}</style><div class="recent-post-item" style="height:auto;width:100%;padding:0px;"><div id="categoryBar"><ul class="categoryBar-list"><li class="categoryBar-list-item" style="background:url(https://npm.elemecdn.com/akilar-candyassets/image/cover1.webp);"> <a class="categoryBar-list-link" href="categories/果冻的航海日志/">果冻的航海日志</a><span class="categoryBar-list-count">9</span><span class="categoryBar-list-descr">果冻的航海日记</span></li><li class="categoryBar-list-item" style="background:url(undefined);"> <a class="categoryBar-list-link" href="categories/Hexo/">Hexo</a><span class="categoryBar-list-count">1</span><span class="categoryBar-list-descr"></span></li></ul></div></div>';
+      console.log('已挂载butterfly_categories_card')
+      parent_div_git.insertAdjacentHTML("afterbegin",item_html)
+      }
+    if( document.getElementById('recent-posts') && (location.pathname ==='/'|| '/' ==='all')){
+    butterfly_categories_card_injector_config()
+    }
+  </script><div class="js-pjax"><script async="async">var arr = document.getElementsByClassName('recent-post-item');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__zoomIn');
+    arr[i].setAttribute('data-wow-duration', '1500ms');
+    arr[i].setAttribute('data-wow-delay', '0ms');
+    arr[i].setAttribute('data-wow-offset', '0');
+    arr[i].setAttribute('data-wow-iteration', '1');
+  }</script><script async="async">var arr = document.getElementsByClassName('card-widget');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__zoomIn');
+    arr[i].setAttribute('data-wow-duration', '1500ms');
+    arr[i].setAttribute('data-wow-delay', '0ms');
+    arr[i].setAttribute('data-wow-offset', '0');
+    arr[i].setAttribute('data-wow-iteration', '1');
+  }</script><script async="async">var arr = document.getElementsByClassName('container');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__zoomIn');
+    arr[i].setAttribute('data-wow-duration', '1500ms');
+    arr[i].setAttribute('data-wow-delay', '0ms');
+    arr[i].setAttribute('data-wow-offset', '0');
+    arr[i].setAttribute('data-wow-iteration', '1');
+  }</script></div><script defer src="https://npm.elemecdn.com/hexo-butterfly-wowjs/lib/wow.min.js"></script><script defer src="https://npm.elemecdn.com/hexo-butterfly-wowjs/lib/wow_init.js"></script><!-- hexo injector body_end end --></body></html>

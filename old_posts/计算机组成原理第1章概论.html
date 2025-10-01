@@ -1,0 +1,292 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>机算机组成概论 | 果冻小配方</title><meta name="author" content="GuoDong"><meta name="copyright" content="GuoDong"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="以CSAPP为主,计算机组成原理第一章">
+<meta property="og:type" content="website">
+<meta property="og:title" content="机算机组成概论">
+<meta property="og:url" content="https://gaoguodong03.github.io/gdBlog/old_posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86%E7%AC%AC1%E7%AB%A0%E6%A6%82%E8%AE%BA.html">
+<meta property="og:site_name" content="果冻小配方">
+<meta property="og:description" content="以CSAPP为主,计算机组成原理第一章">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://gaoguodong03.github.io/gdBlog/img/touxiang.jpg">
+<meta property="article:published_time" content="2025-09-29T09:11:46.899Z">
+<meta property="article:modified_time" content="2025-09-29T09:11:46.899Z">
+<meta property="article:author" content="GuoDong">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://gaoguodong03.github.io/gdBlog/img/touxiang.jpg"><script type="application/ld+json"></script><link rel="shortcut icon" href="/gdBlog/img/logo.jpg"><link rel="canonical" href="https://gaoguodong03.github.io/gdBlog/old_posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86%E7%AC%AC1%E7%AB%A0%E6%A6%82%E8%AE%BA.html"><link rel="preconnect"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/gdBlog/css/index.css"><link rel="stylesheet" href="/gdBlog/pluginsSrc/@fortawesome/fontawesome-free/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/gdBlog/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: '/gdBlog/pluginsSrc/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '机算机组成概论',
+  isHighlightShrink: false,
+  isToc: false,
+  pageType: 'page'
+}</script><style>#article-container.post-content h1:before, h2:before, h3:before, h4:before, h5:before, h6:before { -webkit-animation: avatar_turn_around 1s linear infinite; -moz-animation: avatar_turn_around 1s linear infinite; -o-animation: avatar_turn_around 1s linear infinite; -ms-animation: avatar_turn_around 1s linear infinite; animation: avatar_turn_around 1s linear infinite; }</style><!-- hexo injector head_end start --><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-categories-card@1.0.0/lib/categorybar.css"><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-wowjs/lib/animate.min.css" media="print" onload="this.media='screen'"><!-- hexo injector head_end end --><meta name="generator" content="Hexo 8.0.0"></head><body><div id="web_bg" style="background-image: url(/gdBlog/img/bg1.jpg);"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/gdBlog/img/touxiang.jpg" onerror="this.onerror=null;this.src='/gdBlog/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/gdBlog/archives/"><div class="headline">文章</div><div class="length-num">10</div></a><a href="/gdBlog/tags/"><div class="headline">标签</div><div class="length-num">4</div></a><a href="/gdBlog/categories/"><div class="headline">分类</div><div class="length-num">2</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/gdBlog/search/"><i class="fa-fw fas fa-search"></i><span> 搜索</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div></div></div></div><div class="page" id="body-wrap"><header class="not-home-page" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/gdBlog/"><img class="site-icon" src="/gdBlog/img/logo.jpg" alt="Logo"><span class="site-name">果冻小配方</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/gdBlog/search/"><i class="fa-fw fas fa-search"></i><span> 搜索</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="page-site-info"><h1 id="site-title">机算机组成概论</h1></div></header><main class="layout" id="content-inner"><div id="page"><div class="container" id="article-container"><h2 id="授课老师"><a href="#授课老师" class="headerlink" title="授课老师"></a>授课老师</h2><p>裴颂伟 计算机体系结构中心 <a href="mailto:&#x70;&#101;&#105;&#115;&#111;&#110;&#103;&#119;&#x65;&#x69;&#64;&#98;&#x75;&#112;&#x74;&#x2e;&#x65;&#x64;&#117;&#x2e;&#x63;&#110;">peisongwei@bupt.edu.cn</a> 手机：15810262768，办公室：教三1014 硬件方面</p>
+<ul>
+<li><p>前年竞赛+毕设学生季禹城？二战清华学硕</p>
+</li>
+<li><p>研究方向：问题：1）存储墙（cpu功率高但存储器效率低）</p>
+<p>　　　　　　　　2）计算机功耗强</p>
+<pre><code>  　　　　　　　　解决办法：存的计算（直接在存储器里计算）RRAM阻变存储器（掉电也不消失）
+</code></pre>
+</li>
+</ul>
+<h2 id="课程安排"><a href="#课程安排" class="headerlink" title="课程安排"></a>课程安排</h2><p>　　成绩：期中10(开闭卷未定) 平时10 实验20 期末60 实验16h 课程48h</p>
+<p>　　推荐教材：计算机原理与设计（Verilog HDL版）李亚民</p>
+<h1 id="第一章计算机系统概论"><a href="#第一章计算机系统概论" class="headerlink" title="第一章计算机系统概论"></a>第一章计算机系统概论</h1><p><img src="https://cdn.jsdelivr.net/gh/gdlearncoding/blogImage@main/202303252148630.png" alt="image-20230325214820519"></p>
+<h2 id="计算机分类"><a href="#计算机分类" class="headerlink" title="计算机分类"></a>计算机分类</h2><h3 id="电子数字计算机"><a href="#电子数字计算机" class="headerlink" title="电子数字计算机"></a>电子数字计算机</h3><p>按位运算,并且不连续跳动,又名电子计算机,电脑.</p>
+<h3 id="电子模拟计算机"><a href="#电子模拟计算机" class="headerlink" title="电子模拟计算机"></a>电子模拟计算机</h3><p>模拟也就是相似,数值用连续量表示,运算过程也是连续的.危险流浪者号用的就是模拟电路哦~</p>
+<p><img src="https://cdn.jsdelivr.net/gh/gdlearncoding/blogImage@main/202303012237182.png" alt="image-20230301223718115"></p>
+<h3 id="数字计算机分类"><a href="#数字计算机分类" class="headerlink" title="数字计算机分类"></a>数字计算机分类</h3><p>　　　　专用计算机　　		通用计算机</p>
+<p>　　　　最有效经济快速　　适应性很大</p>
+<p>　　<img src="https://cdn.jsdelivr.net/gh/gdlearncoding/blogImage@main/202303012237898.png" alt="image-20230301223734843"></p>
+<h2 id="计算机发展史"><a href="#计算机发展史" class="headerlink" title="计算机发展史"></a>计算机发展史</h2><h3 id="第一代：真空管"><a href="#第一代：真空管" class="headerlink" title="第一代：真空管"></a>第一代：真空管</h3><p>　　冯诺依曼结构 　“存储程序”思想：运数据到主存，自动进行程序，按地址自动执行指令　　<img src="https://cdn.jsdelivr.net/gh/gdlearncoding/blogImage@main/202303252149764.png" alt="image-20230325214919716"></p>
+<p>&#x3D;&#x3D;存储器为中心&#x3D;&#x3D;（每个数据都要经过存储器）</p>
+<p><img src="https://cdn.jsdelivr.net/gh/gdlearncoding/blogImage@main/202303252150725.png" alt="image-20230325215013683"></p>
+<p><code>中心</code>的转换原因：</p>
+<p>现代计算机通常把运算器和控制器集成在一个芯片上，合称为中央处理器。而在微处理器面世之前(早期的冯·诺依曼机)，运算器和控制器分离，而且存储器的容量很小，因此设计成以运算器为中心的结构，其他部件都通过运算器完成信息的传递。<br>随着微电子技术的进步，同时计算机需要处理、加工的信息量也与日俱增，大量IO设备的速度和CPU的速度差距悬殊，因此以运算器为中心的结构不能满足计算机发展的要求。现代计算机已经发展为以存储器为中心，使IO操作尽可能地绕过CPU,直接在IO设备和存储器之间完成，以提高系统的整体运行效率。</p>
+<p>一般将运算器和控制器集成到同一个芯片上，称为&#x3D;&#x3D;中央处理器&#x3D;&#x3D;(CPU),有程序计数器(PC)、指令寄存器(IR)和控制单元(CU)。CPU和主存储器共同构成&#x3D;&#x3D;主机&#x3D;&#x3D;，而除主机外的其他硬件装置(外存、I&#x2F;O设备等)统称为外部设备，简称&#x3D;&#x3D;外设&#x3D;&#x3D;。</p>
+<h3 id="第二代：晶体管"><a href="#第二代：晶体管" class="headerlink" title="第二代：晶体管"></a>第二代：晶体管</h3><h3 id="第三代：SSI、MSI。-中小规模集成电路计算机"><a href="#第三代：SSI、MSI。-中小规模集成电路计算机" class="headerlink" title="第三代：SSI、MSI。　中小规模集成电路计算机"></a>第三代：SSI、MSI。　中小规模集成电路计算机</h3><p>　　　　从此代开始,与集成电路相关,逻辑元件与主存储器均由集成电路（IC）实现。</p>
+<p>　　　　引入总线结构</p>
+<p>　　　　IBM引入兼容机有相同或者相似的指令集，操作系统　　“向后（落后的）兼容”</p>
+<h3 id="第四代：LSI、VLSI：（超）大规模集成电路"><a href="#第四代：LSI、VLSI：（超）大规模集成电路" class="headerlink" title="第四代：LSI、VLSI：（超）大规模集成电路"></a>第四代：LSI、VLSI：（超）大规模集成电路</h3><h3 id="第五代-巨大规模集成电路计算机"><a href="#第五代-巨大规模集成电路计算机" class="headerlink" title="第五代:巨大规模集成电路计算机"></a>第五代:巨大规模集成电路计算机</h3><h2 id="半导体存储器的发展"><a href="#半导体存储器的发展" class="headerlink" title="半导体存储器的发展"></a>半导体存储器的发展</h2><p>&#x3D;&#x3D;摩尔定律&#x3D;&#x3D;：每12个月晶体管数目翻一翻，-》18个月,进入后摩尔时代</p>
+<h2 id="性能指标"><a href="#性能指标" class="headerlink" title="性能指标"></a>性能指标</h2><p>1B byte&#x3D; 8b bit</p>
+<h3 id="机器字长"><a href="#机器字长" class="headerlink" title="机器字长"></a>机器字长</h3><p>计算机的位数（机器字长），表示计算机进行一次整数运算(即定点整数运算)所能处理的二进制数据的位数。计算机字长通常选定为字节(8位)的整数倍，通常是2,4,8倍。不同的计算机，字节可能不同</p>
+<p>机器字长、指令字长、存储字长的区别和联系是什么？</p>
+<ul>
+<li><p>机器字长：计算机能直接处理的二进制数据的位数，机器字长一般等于内部寄存器的大小，它决定了计算机的运算精度。</p>
+</li>
+<li><p>指令字长：一个指令字中包含的二进制代码的位数。</p>
+</li>
+<li><p>存储字长：一个存储单元存储的二进制代码的长度。等于MDR的位数， 它们都必须是字节的整数倍。</p>
+</li>
+<li><p>数据字长：数据总线一次能传送信息的位数，它可以不等于MDR的位数。</p>
+</li>
+</ul>
+<h3 id="CPI"><a href="#CPI" class="headerlink" title="CPI"></a>CPI</h3><p>Cycles Per Instruction 每个指令要多少时钟 &#x3D; CPU时钟周期数</p>
+<p>可以用来衡量以下效果</p>
+<ul>
+<li><p>ISA 简单指令集和复杂指令集（x86）</p>
+</li>
+<li><p>器件的实现（implementation of that architecture）</p>
+</li>
+<li><p>　项目（compiler，algorithm）</p>
+</li>
+</ul>
+<h3 id="IPC"><a href="#IPC" class="headerlink" title="IPC"></a>IPC</h3><h3 id="CPU执行时间-CPU时钟周期数-时钟周期数"><a href="#CPU执行时间-CPU时钟周期数-时钟周期数" class="headerlink" title="CPU执行时间&#x3D;CPU时钟周期数*时钟周期数"></a>CPU执行时间&#x3D;CPU时钟周期数*时钟周期数</h3><p>&#x3D;CPU时钟周期数%时钟频率</p>
+<p>&#x3D;指令条数<em>CPI</em>时钟周期数</p>
+<h3 id="CPU时钟周期数：指令条数-CPI"><a href="#CPU时钟周期数：指令条数-CPI" class="headerlink" title="CPU时钟周期数：指令条数*CPI"></a>CPU时钟周期数：指令条数*CPI</h3><h3 id="MIPS：单位时间内的执行指令数-指令条数-（程序执行时间-10-6）M是百万"><a href="#MIPS：单位时间内的执行指令数-指令条数-（程序执行时间-10-6）M是百万" class="headerlink" title="MIPS：单位时间内的执行指令数&#x3D;指令条数%（程序执行时间*10^6）M是百万"></a>MIPS：单位时间内的执行指令数&#x3D;指令条数%（程序执行时间*10^6）M是百万</h3><h3 id="MFLOPS：每秒百万次浮点操作次数-浮点操作次数-（程序执行时间-10-6）"><a href="#MFLOPS：每秒百万次浮点操作次数-浮点操作次数-（程序执行时间-10-6）" class="headerlink" title="MFLOPS：每秒百万次浮点操作次数&#x3D;浮点操作次数%（程序执行时间*10^6）"></a>MFLOPS：每秒百万次浮点操作次数&#x3D;浮点操作次数%（程序执行时间*10^6）</h3><h2 id="计算机硬件"><a href="#计算机硬件" class="headerlink" title="计算机硬件"></a>计算机硬件</h2><p><img src="https://cdn.jsdelivr.net/gh/gdlearncoding/blogImage@main/202303012237298.png" alt="image-20230301223759240"></p>
+<h4 id="工作过程"><a href="#工作过程" class="headerlink" title="工作过程"></a>工作过程</h4><p><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1BE411D7ii?p=5">(点击链接，视频20min处有详细讲解)</a></p>
+<p>IR存放当下欲执行的指令；PC存放下一条指令的地址；</p>
+<p>MAR存放欲访问的存储单元地址；MDR存放从存储单元取来的数据！</p>
+<p>地址译码器是主存的构成部分，不属于CPU；地址寄存器虽然一般属于主存，但是现代计算机中绝大多数CPU内集成了地址寄存器！</p>
+<p>关于CPU存取速度的比较：寄存器（CPU内部）&gt; Cache(高速的SRAM) &gt; 内存 （SDRAM）</p>
+<h2 id="一些其他问题"><a href="#一些其他问题" class="headerlink" title="一些其他问题"></a>一些其他问题</h2><h3 id="主频高的CPU一定比主频低的CPU快吗？为什么？"><a href="#主频高的CPU一定比主频低的CPU快吗？为什么？" class="headerlink" title="主频高的CPU一定比主频低的CPU快吗？为什么？"></a>主频高的CPU一定比主频低的CPU快吗？为什么？</h3><p>衡量CPU运算速度的指标有很多，不能以单独的某个指标来判断CPU的好坏。CPU的主频，即CPU内核工作的时钟频率。CPU的主频表示CPU内数字脉冲信号振荡的速度，主频和实际的运算速度存在一定的关系，但目前还没有一个确定的公式能够定量两者的数值关系，因为CPU的运算速度还要看CPU的流水线的各方面的性能指标（架构、缓存、指令集、CPU的位数、 Cache大小等）。由于主频并不直接代表运算速度，因此在一定情况下很可能会出现主频较高的CPU实际运算速度较低的现象</p>
+<h3 id="翻译程序、汇编程序、编译程序、解释程序有什么差别？各自的特性是什么？"><a href="#翻译程序、汇编程序、编译程序、解释程序有什么差别？各自的特性是什么？" class="headerlink" title="翻译程序、汇编程序、编译程序、解释程序有什么差别？各自的特性是什么？"></a>翻译程序、汇编程序、编译程序、解释程序有什么差别？各自的特性是什么？</h3><p><code>翻译程序</code>是指把高级语言源程序翻译成机器语言程序（目标代码）的软件。<br>翻译程序有两种：一种是编译程序，它将高级语言源程序一次全部翻译成目标程序，每次执行程序时，只需执行目标程序，因此只要源程序不变，就无须重新翻译，请注意同一种高级语言在不同体系结构下，编译成目标程序是不一样的，目标程序与体系结构相关，但仍不是计算机硬件能够直接执行的程序。另一种是解释程序，它将源程序的一条语句翻译成对应的机器目标代码，并立即执行，然后翻译下一条源程序语句并执行，直至所有源程序语句全部被翻译并执行完。所以解释程序的执行过程是翻译一句执行一句，并且不会生成目标程序。</p>
+<p><code>汇编程序</code>也是一种语言翻译程序，它把汇编语言源程序翻译为机器语言程序。汇编语言是种面向机器的低级语言，是机器语言的符号表示，与机器语言一一对应。</p>
+<p>编译程序与汇编程序的区別：若源语言是诸如C、C++、Java等“高级语言”，而目标语言是诸如汇编语言或机器语言之类的“低级语言”，则这样的一个翻译程序称为编译程序。若源语言是汇编语言，而目标语言是机器语言，则这样的一个翻译程序称为汇编程序。</p>
+<h3 id="同一个功能既可以由软件实现又可以由硬件实现吗？"><a href="#同一个功能既可以由软件实现又可以由硬件实现吗？" class="headerlink" title="同一个功能既可以由软件实现又可以由硬件实现吗？"></a>同一个功能既可以由软件实现又可以由硬件实现吗？</h3><p>软件和硬件是两种完全不同的形态，硬件是实体，是物质基础；软件是一种信息，看不见、摸不到。<code>但在逻辑功能上，软件和硬件是等效的</code>。因此，在计算机系统中，许多功能既可以由硬件直接实现，又可以在硬件的配合下由软件实现。<br>一个最大的区别就是，<code>硬件实现比软件实现的速度快很多，但是成本也高！</code>所以，芯片在流片之后，如果发现bug可以用软件修复就用软件修复！<br>例如，乘法运算既可用专门的乘法器（主要由加法器和移位器组成）实现，也可用乘法子程序（主要由加法指令和移位指令等组成）来实现。</p>
+<h3 id="计算机体系结构和计算机组成的区别和联系是什么？"><a href="#计算机体系结构和计算机组成的区别和联系是什么？" class="headerlink" title="计算机体系结构和计算机组成的区别和联系是什么？"></a>计算机体系结构和计算机组成的区别和联系是什么？</h3><p><code>计算机体系结构</code>是指机器语言或汇编语言程序员所看得到的传统机器的属性，包括指令集、数据类型、存储器寻址技术等，大都属于抽象的属性。</p>
+<p><code>计算机组成</code>是指如何实现计算机体系结构所体现的属性，它包含对许多对程序员来说透明的硬件细节。例如，指令系统属于结构的问题，但指令的实现即如何取指令、分析指令、取操作数如何运算等都属于组成的问题。因此，当两台机器指令系统相同时，只能认为它们具有相同的结构，至于这两台机器如何实现其指令，完全可以不同，即可以认为它们的组成方式是不同的。例如，一台机器是否具备乘法指令是一个结构的问题，但实现乘法指令采用什么方式则是一个组成的问题。（<code>简言之，看有没有这个属性，就是结构问题；看怎么实现，就是组成问题</code>）</p>
+<p>许多计算机厂商提供一系列体系结构相同的计算机，而它们的组成却有相当大的差别，即使是同一系列的不同型号机器，其性能和价格差异也很大。例如， IBM System&#x2F;370结构就包含了多种价位和性能的机型。</p>
+</div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/gdBlog/img/touxiang.jpg" onerror="this.onerror=null;this.src='/gdBlog/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">GuoDong</div><div class="author-info-description">碎碎念念 岁岁年年</div><div class="site-data"><a href="/gdBlog/archives/"><div class="headline">文章</div><div class="length-num">10</div></a><a href="/gdBlog/tags/"><div class="headline">标签</div><div class="length-num">4</div></a><a href="/gdBlog/categories/"><div class="headline">分类</div><div class="length-num">2</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/gaoguodong03"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/gaoguodong03" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">有重要的事情 得去趟南京!</div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/gdBlog/2025/10/01/RAG/" title="RAG（Retrieval-AugmentedGeneration检索增强生成">RAG（Retrieval-AugmentedGeneration检索增强生成</a><time datetime="2025-09-30T16:00:00.000Z" title="发表于 2025-10-01 00:00:00">2025-10-01</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/gdBlog/2025/09/30/Docker/" title="Docker">Docker</a><time datetime="2025-09-29T16:00:00.000Z" title="发表于 2025-09-30 00:00:00">2025-09-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/gdBlog/2025/09/30/JSON/" title="JSON">JSON</a><time datetime="2025-09-29T16:00:00.000Z" title="发表于 2025-09-30 00:00:00">2025-09-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/gdBlog/2025/09/30/MCP/" title="MCP(Model Context Protocol模型上下文协议)">MCP(Model Context Protocol模型上下文协议)</a><time datetime="2025-09-29T16:00:00.000Z" title="发表于 2025-09-30 00:00:00">2025-09-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/gdBlog/2025/09/30/MVC/" title="MVC">MVC</a><time datetime="2025-09-29T16:00:00.000Z" title="发表于 2025-09-30 00:00:00">2025-09-30</time></div></div></div></div><div class="card-widget card-categories"><div class="item-headline">
+            <i class="fas fa-folder-open"></i>
+            <span>分类</span>
+            
+          </div>
+          <ul class="card-category-list" id="aside-cat-list">
+            <li class="card-category-list-item "><a class="card-category-list-link" href="/gdBlog/categories/Hexo/"><span class="card-category-list-name">Hexo</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/gdBlog/categories/%E6%9E%9C%E5%86%BB%E7%9A%84%E8%88%AA%E6%B5%B7%E6%97%A5%E5%BF%97/"><span class="card-category-list-name">果冻的航海日志</span><span class="card-category-list-count">9</span></a></li>
+          </ul></div><div class="card-widget card-tags"><div class="item-headline"><i class="fas fa-tags"></i><span>标签</span></div><div class="card-tag-cloud"><a href="/gdBlog/tags/LLM/" style="font-size: 1.37em; color: #99a4b2">LLM</a> <a href="/gdBlog/tags/Hexo/" style="font-size: 1.1em; color: #999">Hexo</a> <a href="/gdBlog/tags/%E5%85%83%E8%8A%B3/" style="font-size: 1.23em; color: #999ea6">元芳</a> <a href="/gdBlog/tags/tools/" style="font-size: 1.5em; color: #99a9bf">tools</a></div></div><div class="card-widget card-archives">
+    <div class="item-headline">
+      <i class="fas fa-archive"></i>
+      <span>归档</span>
+      
+    </div>
+  
+    <ul class="card-archive-list">
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/gdBlog/archives/2025/10/">
+            <span class="card-archive-list-date">
+              十月 2025
+            </span>
+            <span class="card-archive-list-count">1</span>
+          </a>
+        </li>
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/gdBlog/archives/2025/09/">
+            <span class="card-archive-list-date">
+              九月 2025
+            </span>
+            <span class="card-archive-list-count">8</span>
+          </a>
+        </li>
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/gdBlog/archives/2023/05/">
+            <span class="card-archive-list-date">
+              五月 2023
+            </span>
+            <span class="card-archive-list-count">1</span>
+          </a>
+        </li>
+      
+    </ul>
+  </div><div class="card-widget card-webinfo"><div class="item-headline"><i class="fas fa-chart-line"></i><span>网站信息</span></div><div class="webinfo"><div class="webinfo-item"><div class="item-name">文章数目 :</div><div class="item-count">10</div></div><div class="webinfo-item"><div class="item-name">本站访客数 :</div><div class="item-count" id="busuanzi_value_site_uv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">本站总浏览量 :</div><div class="item-count" id="busuanzi_value_site_pv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">最后更新时间 :</div><div class="item-count" id="last-push-date" data-lastPushDate="2025-10-01T03:49:07.467Z"><i class="fa-solid fa-spinner fa-spin"></i></div></div></div></div></div></div></main><footer id="footer" style="background: transparent;"><div class="footer-other"><div class="footer-copyright"></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/gdBlog/js/utils.js"></script><script src="/gdBlog/js/main.js"></script><div class="js-pjax"></div><script src="/config/js/happy-title.js" async></script><script src="/config/js/foot.js" async></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><!-- hexo injector body_end start --><script data-pjax>
+    function butterfly_categories_card_injector_config(){
+      var parent_div_git = document.getElementById('recent-posts');
+      var item_html = '<style>li.categoryBar-list-item{width:32.3%;}.categoryBar-list{max-height: 380px;overflow:auto;}.categoryBar-list::-webkit-scrollbar{width:0!important}@media screen and (max-width: 650px){.categoryBar-list{max-height: 320px;}}</style><div class="recent-post-item" style="height:auto;width:100%;padding:0px;"><div id="categoryBar"><ul class="categoryBar-list"><li class="categoryBar-list-item" style="background:url(https://npm.elemecdn.com/akilar-candyassets/image/cover1.webp);"> <a class="categoryBar-list-link" href="categories/果冻的航海日志/">果冻的航海日志</a><span class="categoryBar-list-count">9</span><span class="categoryBar-list-descr">果冻的航海日记</span></li><li class="categoryBar-list-item" style="background:url(undefined);"> <a class="categoryBar-list-link" href="categories/Hexo/">Hexo</a><span class="categoryBar-list-count">1</span><span class="categoryBar-list-descr"></span></li></ul></div></div>';
+      console.log('已挂载butterfly_categories_card')
+      parent_div_git.insertAdjacentHTML("afterbegin",item_html)
+      }
+    if( document.getElementById('recent-posts') && (location.pathname ==='/'|| '/' ==='all')){
+    butterfly_categories_card_injector_config()
+    }
+  </script><div class="js-pjax"><script async="async">var arr = document.getElementsByClassName('recent-post-item');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__zoomIn');
+    arr[i].setAttribute('data-wow-duration', '1500ms');
+    arr[i].setAttribute('data-wow-delay', '0ms');
+    arr[i].setAttribute('data-wow-offset', '0');
+    arr[i].setAttribute('data-wow-iteration', '1');
+  }</script><script async="async">var arr = document.getElementsByClassName('card-widget');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__zoomIn');
+    arr[i].setAttribute('data-wow-duration', '1500ms');
+    arr[i].setAttribute('data-wow-delay', '0ms');
+    arr[i].setAttribute('data-wow-offset', '0');
+    arr[i].setAttribute('data-wow-iteration', '1');
+  }</script><script async="async">var arr = document.getElementsByClassName('container');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__zoomIn');
+    arr[i].setAttribute('data-wow-duration', '1500ms');
+    arr[i].setAttribute('data-wow-delay', '0ms');
+    arr[i].setAttribute('data-wow-offset', '0');
+    arr[i].setAttribute('data-wow-iteration', '1');
+  }</script></div><script defer src="https://npm.elemecdn.com/hexo-butterfly-wowjs/lib/wow.min.js"></script><script defer src="https://npm.elemecdn.com/hexo-butterfly-wowjs/lib/wow_init.js"></script><!-- hexo injector body_end end --></body></html>

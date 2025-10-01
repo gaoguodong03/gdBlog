@@ -1,0 +1,330 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>储存器层次结构 | 果冻小配方</title><meta name="author" content="GuoDong"><meta name="copyright" content="GuoDong"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="CSAPP,还差一点点学完这一章">
+<meta property="og:type" content="website">
+<meta property="og:title" content="储存器层次结构">
+<meta property="og:url" content="https://gaoguodong03.github.io/gdBlog/old_posts/CSAPP%E5%82%A8%E5%AD%98%E5%99%A8%E5%B1%82%E6%AC%A1%E7%BB%93%E6%9E%84.html">
+<meta property="og:site_name" content="果冻小配方">
+<meta property="og:description" content="CSAPP,还差一点点学完这一章">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://gaoguodong03.github.io/gdBlog/img/touxiang.jpg">
+<meta property="article:published_time" content="2025-09-29T09:11:46.939Z">
+<meta property="article:modified_time" content="2025-09-29T09:11:46.939Z">
+<meta property="article:author" content="GuoDong">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://gaoguodong03.github.io/gdBlog/img/touxiang.jpg"><script type="application/ld+json"></script><link rel="shortcut icon" href="/gdBlog/img/logo.jpg"><link rel="canonical" href="https://gaoguodong03.github.io/gdBlog/old_posts/CSAPP%E5%82%A8%E5%AD%98%E5%99%A8%E5%B1%82%E6%AC%A1%E7%BB%93%E6%9E%84.html"><link rel="preconnect"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/gdBlog/css/index.css"><link rel="stylesheet" href="/gdBlog/pluginsSrc/@fortawesome/fontawesome-free/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/gdBlog/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: '/gdBlog/pluginsSrc/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '储存器层次结构',
+  isHighlightShrink: false,
+  isToc: false,
+  pageType: 'page'
+}</script><style>#article-container.post-content h1:before, h2:before, h3:before, h4:before, h5:before, h6:before { -webkit-animation: avatar_turn_around 1s linear infinite; -moz-animation: avatar_turn_around 1s linear infinite; -o-animation: avatar_turn_around 1s linear infinite; -ms-animation: avatar_turn_around 1s linear infinite; animation: avatar_turn_around 1s linear infinite; }</style><!-- hexo injector head_end start --><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-categories-card@1.0.0/lib/categorybar.css"><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-wowjs/lib/animate.min.css" media="print" onload="this.media='screen'"><!-- hexo injector head_end end --><meta name="generator" content="Hexo 8.0.0"></head><body><div id="web_bg" style="background-image: url(/gdBlog/img/bg1.jpg);"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/gdBlog/img/touxiang.jpg" onerror="this.onerror=null;this.src='/gdBlog/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/gdBlog/archives/"><div class="headline">文章</div><div class="length-num">10</div></a><a href="/gdBlog/tags/"><div class="headline">标签</div><div class="length-num">4</div></a><a href="/gdBlog/categories/"><div class="headline">分类</div><div class="length-num">2</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/gdBlog/search/"><i class="fa-fw fas fa-search"></i><span> 搜索</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div></div></div></div><div class="page" id="body-wrap"><header class="not-home-page" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/gdBlog/"><img class="site-icon" src="/gdBlog/img/logo.jpg" alt="Logo"><span class="site-name">果冻小配方</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/gdBlog/search/"><i class="fa-fw fas fa-search"></i><span> 搜索</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="page-site-info"><h1 id="site-title">储存器层次结构</h1></div></header><main class="layout" id="content-inner"><div id="page"><div class="container" id="article-container"><h1 id="存储技术"><a href="#存储技术" class="headerlink" title="存储技术"></a>存储技术</h1><blockquote>
+<p>如果你的程序需要的数据是存储在 CPU 寄存器中的，那么在指令的执行期间，在 0个周期内就能访问到它们。如果存储在高速缓存中，需要 4〜75 个周期。如果存储在主存中，需要上百个周期。而如果存储在磁盘上，需要大约几千万个周期！</p>
+</blockquote>
+<h3 id="RAM-随机访问寄存器"><a href="#RAM-随机访问寄存器" class="headerlink" title="RAM 随机访问寄存器"></a>RAM 随机访问寄存器</h3><p>SRAM(静态)vs. DRAM(动态)</p>
+<p><img src="https://cdn.jsdelivr.net/gh/gdlearncoding/blogImage@main/image-20230222211223586.png" alt="image-20230222211223586"></p>
+<h4 id="SRAM-静态"><a href="#SRAM-静态" class="headerlink" title="SRAM(静态)"></a>SRAM(静态)</h4><p>将每个位存储在一个&#x3D;&#x3D;双稳态&#x3D;&#x3D;存储器单元,如同倒钟摆</p>
+<img src="https://cdn.jsdelivr.net/gh/gdlearncoding/blogImage@main/image-20230222210937421.png" alt="image-20230222210937421" style="zoom: 50%;" />
+
+<p>原则上，钟摆也能在垂直的位置无限期地保持平衡，但是这个状态是亚稳态的(metastable)最细微的扰动也能使它倒下，而且一旦倒下就永远不会再恢复到垂直的位置</p>
+<p>由于 SRAM 存储器单元的双稳态特性，只要有电，它就会永远地保持它的值。即使有干扰（例如电子噪音)来扰乱电压，当干扰消除时，电路就会恢复到稳定值</p>
+<h4 id="DRAM"><a href="#DRAM" class="headerlink" title="DRAM"></a>DRAM</h4><p>DRAM 存储器单元对干扰非常敏感。当电容的电压被扰乱之后，它就永远不会恢复了。暴露在光线下会导致电容电压改变。</p>
+<h4 id="传统的DRAM"><a href="#传统的DRAM" class="headerlink" title="传统的DRAM"></a>传统的DRAM</h4><p>结构:</p>
+<img src="https://cdn.jsdelivr.net/gh/gdlearncoding/blogImage@main/image-20230222211637172.png" alt="image-20230222211637172" style="zoom:50%;" />
+
+<p><img src="https://cdn.jsdelivr.net/gh/gdlearncoding/blogImage@main/image-20230222212157353.png" alt="image-20230222212157353"></p>
+<p>读取方式:</p>
+<img src="https://cdn.jsdelivr.net/gh/gdlearncoding/blogImage@main/image-20230222212455476.png" alt="image-20230222212455476" style="zoom:50%;" />
+
+<p>设计成二维阵列降低了芯片上地址引脚数目,但增加了访问时间</p>
+<h4 id="内存模块"><a href="#内存模块" class="headerlink" title="内存模块"></a>内存模块</h4><p>将DRAM封装,每个超单元存储主存的一个字节,在内存控制器控制下聚合成主存</p>
+<img src="https://cdn.jsdelivr.net/gh/gdlearncoding/blogImage@main/image-20230222213115548.png" alt="image-20230222213115548" style="zoom:50%;" />
+
+<h3 id="磁盘存储"><a href="#磁盘存储" class="headerlink" title="磁盘存储"></a>磁盘存储</h3><h4 id="构造"><a href="#构造" class="headerlink" title="构造"></a>构造</h4><img src="https://cdn.jsdelivr.net/gh/gdlearncoding/blogImage@main/image-20230222215215706.png" alt="image-20230222215215706" style="zoom: 50%;" />
+
+<p>磁盘驱动器(磁盘)-&gt; 盘片-&gt; 盘面表面-&gt; 磁道-&gt; 扇区和间隙</p>
+<h4 id="容量"><a href="#容量" class="headerlink" title="容量"></a>容量</h4><img src="https://cdn.jsdelivr.net/gh/gdlearncoding/blogImage@main/image-20230222215723641.png" alt="image-20230222215723641" style="zoom:50%;" />
+
+<img src="https://cdn.jsdelivr.net/gh/gdlearncoding/blogImage@main/image-20230222215737995.png" alt="image-20230222215737995" style="zoom:50%;" />
+
+<p>这里的1GB&#x3D;10^9^字节，1TB&#x3D;10^12^字节</p>
+<h4 id="磁盘操作"><a href="#磁盘操作" class="headerlink" title="磁盘操作"></a>磁盘操作</h4><p>寻道</p>
+<img src="https://cdn.jsdelivr.net/gh/gdlearncoding/blogImage@main/image-20230222215925323.png" alt="image-20230222215925323" style="zoom:50%;" />
+
+<p>访问时间&#x3D;寻道时间+ 旋转时间+传送时间</p>
+<img src="https://cdn.jsdelivr.net/gh/gdlearncoding/blogImage@main/image-20230222221606499.png" alt="image-20230222221606499" style="zoom:50%;" />
+
+<p>逻辑上在磁盘控制器下分成一个B 个扇区大小的逻辑块的序列,维护着逻辑块号和实际（物理）磁盘扇区之间的映射关系,具体读写操作:</p>
+<img src="https://cdn.jsdelivr.net/gh/gdlearncoding/blogImage@main/image-20230222221744826.png" alt="image-20230222221744826" style="zoom: 67%;" />
+
+<h3 id="固态硬盘SSD"><a href="#固态硬盘SSD" class="headerlink" title="固态硬盘SSD"></a>固态硬盘SSD</h3><img src="https://cdn.jsdelivr.net/gh/gdlearncoding/blogImage@main/image-20230223125754310.png" alt="image-20230223125754310" style="zoom:50%;" />
+
+<ul>
+<li><p>读 SSD 比写要快</p>
+</li>
+<li><p>数据是以页为单位读写的</p>
+</li>
+<li><p>闪存编程原理的限制，只能将1改为0，不能将0改为1.所以只有在一页所属的块整个被擦除之后，才能写这一页。写入的本质就是将某系1变成0.</p>
+</li>
+<li><p>磨损坏一个block就不能用了，所以使用平均磨损算法尽量延长寿命</p>
+</li>
+</ul>
+<h3 id="比较"><a href="#比较" class="headerlink" title="比较"></a>比较</h3><table>
+<thead>
+<tr>
+<th>种类</th>
+<th>读写速度</th>
+<th>能耗</th>
+<th>结实</th>
+<th>价格</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>SSD</td>
+<td>快</td>
+<td>低</td>
+<td>高</td>
+<td>高</td>
+</tr>
+<tr>
+<td>旋转磁盘</td>
+<td>慢</td>
+<td>高</td>
+<td>低</td>
+<td>低</td>
+</tr>
+</tbody></table>
+<h3 id="存储技术趋势"><a href="#存储技术趋势" class="headerlink" title="存储技术趋势"></a>存储技术趋势</h3><img src="https://cdn.jsdelivr.net/gh/gdlearncoding/blogImage@main/image-20230223131412659.png" alt="image-20230223131412659" style="zoom:50%;" />
+
+<h2 id="局部性"><a href="#局部性" class="headerlink" title="局部性"></a>局部性</h2><p>局部性原理：倾向于引用邻近于其他最近引用过的数据项的数据项，或者最近引用过的数据项本身。</p>
+<p>对于取指令来说，循环有好的时间和空间局部性。循环体越小，循环迭代次数越多，局部性越好</p>
+<h3 id="时间局部性（下一刻时间的同一个位置）"><a href="#时间局部性（下一刻时间的同一个位置）" class="headerlink" title="时间局部性（下一刻时间的同一个位置）"></a>时间局部性（下一刻时间的同一个位置）</h3><p>被引用过一次的内存位置很可能在不远的将来再被多次引用</p>
+<p>eg：重复引用相同变量的程序</p>
+<h3 id="空间局部性（下一刻时间的附近位置）"><a href="#空间局部性（下一刻时间的附近位置）" class="headerlink" title="空间局部性（下一刻时间的附近位置）"></a>空间局部性（下一刻时间的附近位置）</h3><p>如果一个内存位置被引用了一次，那么程序很可能在不远的将来引用附近的一个内存位置</p>
+<p>eg：双重嵌套循环按照行优先顺序读数组的元素</p>
+<h2 id="储存器层次结构"><a href="#储存器层次结构" class="headerlink" title="储存器层次结构"></a>储存器层次结构</h2><img src="https://cdn.jsdelivr.net/gh/gdlearncoding/blogImage@main/image-20230223132904775.png" alt="image-20230223132904775" style="zoom:50%;" />
+
+<h3 id="缓存"><a href="#缓存" class="headerlink" title="缓存"></a>缓存</h3><p>使用高速缓存（cache）的过程称为缓存</p>
+<p>中心思想是，对于每个k，位于k层的更快更小的存储设备作为位于k+1层的更大更慢的存储设备的缓存。也就是说，层次结构中的每一层都缓存来自较低一层的数据对象。</p>
+<img src="https://cdn.jsdelivr.net/gh/gdlearncoding/blogImage@main/image-20230223185041120.png" alt="image-20230223185041120" style="zoom:50%;" />
+
+<h4 id="缓存命中"><a href="#缓存命中" class="headerlink" title="缓存命中"></a>缓存命中</h4><p>当程序需要第k+1层的某个数据对象d时，它首先在当前存储在第k层的一个块中査找d.如果d刚好缓存在第k层中，那就是缓存命中.程序可以直接从第k层读取d,比k+1快</p>
+<h5 id="缓存不命中"><a href="#缓存不命中" class="headerlink" title="缓存不命中"></a>缓存不命中</h5><p>第k层的缓存从第k+1层缓存中取出包含d的那个块，如果第k层的缓存已经满了,可能就会覆盖现存的一个块.</p>
+<p>覆盖一个现存的块的过程称为替换或驱逐这个块,被驱逐的这个块有时也称为牺牲块</p>
+<h5 id="种类"><a href="#种类" class="headerlink" title="种类"></a>种类</h5><ul>
+<li>强制性不命中&#x2F;冷不命中:如果第k层的缓存是空的，那么对任何数据对象的访问都会不命中</li>
+<li>冲突不命中:因为这些对象会映射到同一个缓存块，缓存会一直不命中。</li>
+</ul>
+<h2 id="高速缓存存储器"><a href="#高速缓存存储器" class="headerlink" title="高速缓存存储器"></a>高速缓存存储器</h2><img src="https://cdn.jsdelivr.net/gh/gdlearncoding/blogImage@main/image-20230223205826772.png" alt="image-20230223205826772" style="zoom: 80%;" />
+
+<p>一般而言，高速缓存的结构可以用元组（S, E，B,m)来描述。高速缓存的大小(或容量）C 指的是所有块的大小的和。标记位和有效位不包括在内。因此，<br>$$<br>C&#x3D;S<em>E</em>B<br>$$<br><img src="https://cdn.jsdelivr.net/gh/gdlearncoding/blogImage@main/image-20230223210356630.png" alt="image-20230223210356630"></p>
+<p>抽取出被请求的字的过程:</p>
+<ol>
+<li>组选择</li>
+<li>行匹配</li>
+<li>字抽取</li>
+</ol>
+<h3 id="直接映射高速缓存-E-1"><a href="#直接映射高速缓存-E-1" class="headerlink" title="直接映射高速缓存 E&#x3D;1"></a>直接映射高速缓存 E&#x3D;1</h3></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/gdBlog/img/touxiang.jpg" onerror="this.onerror=null;this.src='/gdBlog/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">GuoDong</div><div class="author-info-description">碎碎念念 岁岁年年</div><div class="site-data"><a href="/gdBlog/archives/"><div class="headline">文章</div><div class="length-num">10</div></a><a href="/gdBlog/tags/"><div class="headline">标签</div><div class="length-num">4</div></a><a href="/gdBlog/categories/"><div class="headline">分类</div><div class="length-num">2</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/gaoguodong03"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/gaoguodong03" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">有重要的事情 得去趟南京!</div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/gdBlog/2025/10/01/RAG/" title="RAG（Retrieval-AugmentedGeneration检索增强生成">RAG（Retrieval-AugmentedGeneration检索增强生成</a><time datetime="2025-09-30T16:00:00.000Z" title="发表于 2025-10-01 00:00:00">2025-10-01</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/gdBlog/2025/09/30/Docker/" title="Docker">Docker</a><time datetime="2025-09-29T16:00:00.000Z" title="发表于 2025-09-30 00:00:00">2025-09-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/gdBlog/2025/09/30/JSON/" title="JSON">JSON</a><time datetime="2025-09-29T16:00:00.000Z" title="发表于 2025-09-30 00:00:00">2025-09-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/gdBlog/2025/09/30/MCP/" title="MCP(Model Context Protocol模型上下文协议)">MCP(Model Context Protocol模型上下文协议)</a><time datetime="2025-09-29T16:00:00.000Z" title="发表于 2025-09-30 00:00:00">2025-09-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/gdBlog/2025/09/30/MVC/" title="MVC">MVC</a><time datetime="2025-09-29T16:00:00.000Z" title="发表于 2025-09-30 00:00:00">2025-09-30</time></div></div></div></div><div class="card-widget card-categories"><div class="item-headline">
+            <i class="fas fa-folder-open"></i>
+            <span>分类</span>
+            
+          </div>
+          <ul class="card-category-list" id="aside-cat-list">
+            <li class="card-category-list-item "><a class="card-category-list-link" href="/gdBlog/categories/Hexo/"><span class="card-category-list-name">Hexo</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/gdBlog/categories/%E6%9E%9C%E5%86%BB%E7%9A%84%E8%88%AA%E6%B5%B7%E6%97%A5%E5%BF%97/"><span class="card-category-list-name">果冻的航海日志</span><span class="card-category-list-count">9</span></a></li>
+          </ul></div><div class="card-widget card-tags"><div class="item-headline"><i class="fas fa-tags"></i><span>标签</span></div><div class="card-tag-cloud"><a href="/gdBlog/tags/LLM/" style="font-size: 1.37em; color: #99a4b2">LLM</a> <a href="/gdBlog/tags/Hexo/" style="font-size: 1.1em; color: #999">Hexo</a> <a href="/gdBlog/tags/%E5%85%83%E8%8A%B3/" style="font-size: 1.23em; color: #999ea6">元芳</a> <a href="/gdBlog/tags/tools/" style="font-size: 1.5em; color: #99a9bf">tools</a></div></div><div class="card-widget card-archives">
+    <div class="item-headline">
+      <i class="fas fa-archive"></i>
+      <span>归档</span>
+      
+    </div>
+  
+    <ul class="card-archive-list">
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/gdBlog/archives/2025/10/">
+            <span class="card-archive-list-date">
+              十月 2025
+            </span>
+            <span class="card-archive-list-count">1</span>
+          </a>
+        </li>
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/gdBlog/archives/2025/09/">
+            <span class="card-archive-list-date">
+              九月 2025
+            </span>
+            <span class="card-archive-list-count">8</span>
+          </a>
+        </li>
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/gdBlog/archives/2023/05/">
+            <span class="card-archive-list-date">
+              五月 2023
+            </span>
+            <span class="card-archive-list-count">1</span>
+          </a>
+        </li>
+      
+    </ul>
+  </div><div class="card-widget card-webinfo"><div class="item-headline"><i class="fas fa-chart-line"></i><span>网站信息</span></div><div class="webinfo"><div class="webinfo-item"><div class="item-name">文章数目 :</div><div class="item-count">10</div></div><div class="webinfo-item"><div class="item-name">本站访客数 :</div><div class="item-count" id="busuanzi_value_site_uv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">本站总浏览量 :</div><div class="item-count" id="busuanzi_value_site_pv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">最后更新时间 :</div><div class="item-count" id="last-push-date" data-lastPushDate="2025-10-01T03:49:07.467Z"><i class="fa-solid fa-spinner fa-spin"></i></div></div></div></div></div></div></main><footer id="footer" style="background: transparent;"><div class="footer-other"><div class="footer-copyright"></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/gdBlog/js/utils.js"></script><script src="/gdBlog/js/main.js"></script><div class="js-pjax"></div><script src="/config/js/happy-title.js" async></script><script src="/config/js/foot.js" async></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><!-- hexo injector body_end start --><script data-pjax>
+    function butterfly_categories_card_injector_config(){
+      var parent_div_git = document.getElementById('recent-posts');
+      var item_html = '<style>li.categoryBar-list-item{width:32.3%;}.categoryBar-list{max-height: 380px;overflow:auto;}.categoryBar-list::-webkit-scrollbar{width:0!important}@media screen and (max-width: 650px){.categoryBar-list{max-height: 320px;}}</style><div class="recent-post-item" style="height:auto;width:100%;padding:0px;"><div id="categoryBar"><ul class="categoryBar-list"><li class="categoryBar-list-item" style="background:url(https://npm.elemecdn.com/akilar-candyassets/image/cover1.webp);"> <a class="categoryBar-list-link" href="categories/果冻的航海日志/">果冻的航海日志</a><span class="categoryBar-list-count">9</span><span class="categoryBar-list-descr">果冻的航海日记</span></li><li class="categoryBar-list-item" style="background:url(undefined);"> <a class="categoryBar-list-link" href="categories/Hexo/">Hexo</a><span class="categoryBar-list-count">1</span><span class="categoryBar-list-descr"></span></li></ul></div></div>';
+      console.log('已挂载butterfly_categories_card')
+      parent_div_git.insertAdjacentHTML("afterbegin",item_html)
+      }
+    if( document.getElementById('recent-posts') && (location.pathname ==='/'|| '/' ==='all')){
+    butterfly_categories_card_injector_config()
+    }
+  </script><div class="js-pjax"><script async="async">var arr = document.getElementsByClassName('recent-post-item');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__zoomIn');
+    arr[i].setAttribute('data-wow-duration', '1500ms');
+    arr[i].setAttribute('data-wow-delay', '0ms');
+    arr[i].setAttribute('data-wow-offset', '0');
+    arr[i].setAttribute('data-wow-iteration', '1');
+  }</script><script async="async">var arr = document.getElementsByClassName('card-widget');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__zoomIn');
+    arr[i].setAttribute('data-wow-duration', '1500ms');
+    arr[i].setAttribute('data-wow-delay', '0ms');
+    arr[i].setAttribute('data-wow-offset', '0');
+    arr[i].setAttribute('data-wow-iteration', '1');
+  }</script><script async="async">var arr = document.getElementsByClassName('container');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__zoomIn');
+    arr[i].setAttribute('data-wow-duration', '1500ms');
+    arr[i].setAttribute('data-wow-delay', '0ms');
+    arr[i].setAttribute('data-wow-offset', '0');
+    arr[i].setAttribute('data-wow-iteration', '1');
+  }</script></div><script defer src="https://npm.elemecdn.com/hexo-butterfly-wowjs/lib/wow.min.js"></script><script defer src="https://npm.elemecdn.com/hexo-butterfly-wowjs/lib/wow_init.js"></script><!-- hexo injector body_end end --></body></html>
