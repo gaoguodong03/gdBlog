@@ -17,7 +17,22 @@ dickerfile脚本 是可以通过下载文件的一些来创建脚本
       </tags>
   </entry>
   <entry>
-    <title>MVC</title>
+    <title>JSON</title>
+    <url>/gdBlog/2025/09/30/JSON/</url>
+    <content><![CDATA[JSON是一种文本数据格式!
+json和xml之间一般可以转换json文本实际上是一条字符串json的四种类型不允许嵌套,字符串,数值,布尔,null(你也没法嵌套)两种可以嵌套:哈希值:「“字符串”:剩下六种随便,“”:“”」最后一个键值对后不能加“,”数组:[],用“,”隔开,最后一个不加,六种随便一种,不用统一类型
+空格和换行无所谓
+一般数据量不大,大了的话一般用xml,比较方便.
+]]></content>
+      <categories>
+        <category>果冻的航海日志</category>
+      </categories>
+      <tags>
+        <tag>tools</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>MVC（Model-View-Controller，模型 - 视图 - 控制器）</title>
     <url>/gdBlog/2025/09/30/MVC/</url>
     <content><![CDATA[简介MVC（Model-View-Controller，模型 - 视图 - 控制器）是一种软件架构设计模式，其核心思想是分离关注点，通过将应用程序划分为三个相互关联但功能独立的组件.
 各组件的具体作用模型（Model）模型是应用程序的数据中心和业务逻辑核心，负责管理应用程序的数据和处理业务规则，是整个应用的 “大脑”。
@@ -57,52 +72,6 @@ MVC 工作流程
       <categories>
         <category>果冻的航海日志</category>
       </categories>
-  </entry>
-  <entry>
-    <title>MCP(Model Context Protocol模型上下文协议)</title>
-    <url>/gdBlog/2025/09/30/MCP/</url>
-    <content><![CDATA[MCP 起源于 2024 年 11 月 25 日, 定义了应用程序和 AI 模型之间交换上下文信息的方式。这使得开发者能够以一致的方式将各种数据源、工具和功能连接到 AI 模型（一个中间协议层），就像 USB-C 让不同设备能够通过相同的接口连接一样。MCP 的目标是创建一个通用标准，使 AI 应用程序的开发和集成变得更加简单和统一。
-起源思考我认为 MCP 的出现是 prompt engineering 发展的产物。更结构化的上下文信息对模型的 performance 提升是显著的。在构造 prompt 时，希望能提供一些更 specific 的信息（比如本地文件，数据库，一些网络实时信息等）给模型，这样模型更容易理解真实场景中的问题。
-第一阶段手工输入. 想象一下没有 MCP 之前我们会怎么做？我们可能会人工从数据库中筛选或者使用工具检索可能需要的信息，手动的粘贴到 prompt 中。随着我们要解决的问题越来越复杂，手工把信息引入到 prompt 中会变得越来越困难。
-第二阶段 function call. 为了克服手工 prompt 的局限性，许多 LLM 平台（如 OpenAI、Google）引入了 function call 功能。这一机制允许模型在需要时调用预定义的函数来获取数据或执行操作。但是 function call 依赖平台, 不同 LLM 平台的 function call API 实现差异较大。例如，OpenAI 的函数调用方式与 Google 的不兼容，开发者在切换模型时需要重写代码.
-第三阶段 MCP. 数据与工具本身是客观存在的，只不过我们希望将数据连接到模型的这个环节可以更智能更统一。Anthropic 基于这样的痛点设计了 MCP，充当 AI 模型的”万能转接头”，让 LLM 能轻松的获取数据或者调用工具.
-原理先说过程:用户在 Claude 客户端（如 Claude Desktop、Cursor）输入问题后，客户端会先将问题发送给 Claude 大模型；Claude 接收问题后，会分析当前可用的工具（如文档解析、数据查询等）并确定需调用的工具类型及数量；接着客户端通过 MCP Server（模型上下文协议服务端），以标准化方式执行 Claude 选定的工具；工具执行完成后，其处理结果会通过 MCP 回传给 Claude；Claude 再结合用户原始问题与工具执行结果，构建最终的 Prompt 并生成自然语言回应；最后，客户端将这份回应展示给用户，完成整个交互流程。
-关于模型如何选择工具模型是通过 prompt 来确定当前有哪些工具。我们通过将工具的具体使用描述以文本的形式传递给模型，供模型了解有哪些工具以及结合实时情况进行选择。参考代码中的注释：
-... # 省略了无关的代码async def start(self):    # 初始化所有的 mcp server    for server in self.servers:        await server.initialize()​    # 获取所有的 tools 命名为 all_tools    all_tools = []    for server in self.servers:        tools = await server.list_tools()        all_tools.extend(tools)​    # 将所有的 tools 的功能描述格式化成字符串供 LLM 使用    # tool.format_for_llm() 我放到了这段代码最后，方便阅读。    tools_description = &quot;\n&quot;.join(        [tool.format_for_llm() for tool in all_tools]    )​    # 这里就不简化了，以供参考，实际上就是基于 prompt 和当前所有工具的信息    # 询问 LLM（Claude） 应该使用哪些工具。    system_message = (        &quot;You are a helpful assistant with access to these tools:\n\n&quot;        f&quot;&#123;tools_description&#125;\n&quot;        &quot;Choose the appropriate tool based on the user&#x27;s question. &quot;        &quot;If no tool is needed, reply directly.\n\n&quot;        &quot;IMPORTANT: When you need to use a tool, you must ONLY respond with &quot;        &quot;the exact JSON object format below, nothing else:\n&quot;        &quot;&#123;\n&quot;        &#x27;    &quot;tool&quot;: &quot;tool-name&quot;,\n&#x27;        &#x27;    &quot;arguments&quot;: &#123;\n&#x27;        &#x27;        &quot;argument-name&quot;: &quot;value&quot;\n&#x27;        &quot;    &#125;\n&quot;        &quot;&#125;\n\n&quot;        &quot;After receiving a tool&#x27;s response:\n&quot;        &quot;1. Transform the raw data into a natural, conversational response\n&quot;        &quot;2. Keep responses concise but informative\n&quot;        &quot;3. Focus on the most relevant information\n&quot;        &quot;4. Use appropriate context from the user&#x27;s question\n&quot;        &quot;5. Avoid simply repeating the raw data\n\n&quot;        &quot;Please use only the tools that are explicitly defined above.&quot;    )    messages = [&#123;&quot;role&quot;: &quot;system&quot;, &quot;content&quot;: system_message&#125;]​    while True:        # Final... 假设这里已经处理了用户消息输入.        messages.append(&#123;&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: user_input&#125;)​        # 将 system_message 和用户消息输入一起发送给 LLM        llm_response = self.llm_client.get_response(messages)​    ... # 后面和确定使用哪些工具无关    ​class Tool:    &quot;&quot;&quot;Represents a tool with its properties and formatting.&quot;&quot;&quot;​    def __init__(        self, name: str, description: str, input_schema: dict[str, Any]    ) -&gt; None:        self.name: str = name        self.description: str = description        self.input_schema: dict[str, Any] = input_schema​    # 把工具的名字 / 工具的用途（description）和工具所需要的参数（args_desc）转化为文本    def format_for_llm(self) -&gt; str:        &quot;&quot;&quot;Format tool information for LLM.​        Returns:            A formatted string describing the tool.        &quot;&quot;&quot;        args_desc = []        if &quot;properties&quot; in self.input_schema:            for param_name, param_info in self.input_schema[&quot;properties&quot;].items():                arg_desc = (                    f&quot;- &#123;param_name&#125;: &#123;param_info.get(&#x27;description&#x27;, &#x27;No description&#x27;)&#125;&quot;                )                if param_name in self.input_schema.get(&quot;required&quot;, []):                    arg_desc += &quot; (required)&quot;                args_desc.append(arg_desc)​        return f&quot;&quot;&quot;Tool: &#123;self.name&#125;Description: &#123;self.description&#125;Arguments:&#123;chr(10).join(args_desc)&#125;&quot;&quot;&quot;
-因此 描述工具的文本input_schema是我们要写的.  大部分情况下，当使用装饰器 @mcp.tool() 来装饰函数时，对应的 name 和 description 等其实直接源自用户定义函数的函数名以及函数的 docstring 等。
-@classmethoddef from_function(    cls,    fn: Callable,    name: str | None = None,    description: str | None = None,    context_kwarg: str | None = None,) -&gt; &quot;Tool&quot;:    &quot;&quot;&quot;Create a Tool from a function.&quot;&quot;&quot;    func_name = name or fn.__name__ # 获取函数名​    if func_name == &quot;&lt;lambda&gt;&quot;:        raise ValueError(&quot;You must provide a name for lambda functions&quot;)​    func_doc = description or fn.__doc__ or &quot;&quot; # 获取函数 docstring    is_async = inspect.iscoroutinefunction(fn)        ... # 更多请参考原始代码...
-模型是通过 prompt engineering，即提供所有工具的结构化描述和 few-shot 的 example 来确定该使用哪些工具。
-工具执行与结果反馈机制其实工具的执行就比较简单和直接了。承接上一步，我们把 system prompt（指令与工具调用描述）和用户消息一起发送给模型，然后接收模型的回复。当模型分析用户请求后，它会决定是否需要调用工具：
-
-无需工具时：模型直接生成自然语言回复。
-需要工具时：模型输出结构化 JSON 格式的工具调用请求。
-
-如果回复中包含结构化 JSON 格式的工具调用请求，则客户端会根据这个 json 代码执行对应的工具。具体的实现逻辑都在 process_llm_response 中，代码，逻辑非常简单。
-如果模型执行了 tool call，则工具执行的结果 result 会和 system prompt 和用户消息一起重新发送给模型，请求模型生成最终回复。
-如果 tool call 的 json 代码存在问题或者模型产生了幻觉怎么办呢？通过阅读代码 发现，我们会 skip 掉无效的调用请求。
-]]></content>
-      <categories>
-        <category>果冻的航海日志</category>
-      </categories>
-      <tags>
-        <tag>tools</tag>
-        <tag>LLM</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>JSON</title>
-    <url>/gdBlog/2025/09/30/JSON/</url>
-    <content><![CDATA[JSON是一种文本数据格式!
-json和xml之间一般可以转换json文本实际上是一条字符串json的四种类型不允许嵌套,字符串,数值,布尔,null(你也没法嵌套)两种可以嵌套:哈希值:「“字符串”:剩下六种随便,“”:“”」最后一个键值对后不能加“,”数组:[],用“,”隔开,最后一个不加,六种随便一种,不用统一类型
-空格和换行无所谓
-一般数据量不大,大了的话一般用xml,比较方便.
-]]></content>
-      <categories>
-        <category>果冻的航海日志</category>
-      </categories>
-      <tags>
-        <tag>tools</tag>
-      </tags>
   </entry>
   <entry>
     <title>RAG（Retrieval-AugmentedGeneration检索增强生成</title>
@@ -154,11 +123,42 @@ Modular RAG：它将 RAG 的各个部分进行模块化，您可以根据自己�
       </tags>
   </entry>
   <entry>
-    <title>yuanfang</title>
+    <title>MCP(Model Context Protocol模型上下文协议)</title>
+    <url>/gdBlog/2025/09/30/MCP/</url>
+    <content><![CDATA[MCP 起源于 2024 年 11 月 25 日, 定义了应用程序和 AI 模型之间交换上下文信息的方式。这使得开发者能够以一致的方式将各种数据源、工具和功能连接到 AI 模型（一个中间协议层），就像 USB-C 让不同设备能够通过相同的接口连接一样。MCP 的目标是创建一个通用标准，使 AI 应用程序的开发和集成变得更加简单和统一。
+起源思考我认为 MCP 的出现是 prompt engineering 发展的产物。更结构化的上下文信息对模型的 performance 提升是显著的。在构造 prompt 时，希望能提供一些更 specific 的信息（比如本地文件，数据库，一些网络实时信息等）给模型，这样模型更容易理解真实场景中的问题。
+第一阶段手工输入. 想象一下没有 MCP 之前我们会怎么做？我们可能会人工从数据库中筛选或者使用工具检索可能需要的信息，手动的粘贴到 prompt 中。随着我们要解决的问题越来越复杂，手工把信息引入到 prompt 中会变得越来越困难。
+第二阶段 function call. 为了克服手工 prompt 的局限性，许多 LLM 平台（如 OpenAI、Google）引入了 function call 功能。这一机制允许模型在需要时调用预定义的函数来获取数据或执行操作。但是 function call 依赖平台, 不同 LLM 平台的 function call API 实现差异较大。例如，OpenAI 的函数调用方式与 Google 的不兼容，开发者在切换模型时需要重写代码.
+第三阶段 MCP. 数据与工具本身是客观存在的，只不过我们希望将数据连接到模型的这个环节可以更智能更统一。Anthropic 基于这样的痛点设计了 MCP，充当 AI 模型的”万能转接头”，让 LLM 能轻松的获取数据或者调用工具.
+原理先说过程:用户在 Claude 客户端（如 Claude Desktop、Cursor）输入问题后，客户端会先将问题发送给 Claude 大模型；Claude 接收问题后，会分析当前可用的工具（如文档解析、数据查询等）并确定需调用的工具类型及数量；接着客户端通过 MCP Server（模型上下文协议服务端），以标准化方式执行 Claude 选定的工具；工具执行完成后，其处理结果会通过 MCP 回传给 Claude；Claude 再结合用户原始问题与工具执行结果，构建最终的 Prompt 并生成自然语言回应；最后，客户端将这份回应展示给用户，完成整个交互流程。
+关于模型如何选择工具模型是通过 prompt 来确定当前有哪些工具。我们通过将工具的具体使用描述以文本的形式传递给模型，供模型了解有哪些工具以及结合实时情况进行选择。参考代码中的注释：
+... # 省略了无关的代码async def start(self):    # 初始化所有的 mcp server    for server in self.servers:        await server.initialize()​    # 获取所有的 tools 命名为 all_tools    all_tools = []    for server in self.servers:        tools = await server.list_tools()        all_tools.extend(tools)​    # 将所有的 tools 的功能描述格式化成字符串供 LLM 使用    # tool.format_for_llm() 我放到了这段代码最后，方便阅读。    tools_description = &quot;\n&quot;.join(        [tool.format_for_llm() for tool in all_tools]    )​    # 这里就不简化了，以供参考，实际上就是基于 prompt 和当前所有工具的信息    # 询问 LLM（Claude） 应该使用哪些工具。    system_message = (        &quot;You are a helpful assistant with access to these tools:\n\n&quot;        f&quot;&#123;tools_description&#125;\n&quot;        &quot;Choose the appropriate tool based on the user&#x27;s question. &quot;        &quot;If no tool is needed, reply directly.\n\n&quot;        &quot;IMPORTANT: When you need to use a tool, you must ONLY respond with &quot;        &quot;the exact JSON object format below, nothing else:\n&quot;        &quot;&#123;\n&quot;        &#x27;    &quot;tool&quot;: &quot;tool-name&quot;,\n&#x27;        &#x27;    &quot;arguments&quot;: &#123;\n&#x27;        &#x27;        &quot;argument-name&quot;: &quot;value&quot;\n&#x27;        &quot;    &#125;\n&quot;        &quot;&#125;\n\n&quot;        &quot;After receiving a tool&#x27;s response:\n&quot;        &quot;1. Transform the raw data into a natural, conversational response\n&quot;        &quot;2. Keep responses concise but informative\n&quot;        &quot;3. Focus on the most relevant information\n&quot;        &quot;4. Use appropriate context from the user&#x27;s question\n&quot;        &quot;5. Avoid simply repeating the raw data\n\n&quot;        &quot;Please use only the tools that are explicitly defined above.&quot;    )    messages = [&#123;&quot;role&quot;: &quot;system&quot;, &quot;content&quot;: system_message&#125;]​    while True:        # Final... 假设这里已经处理了用户消息输入.        messages.append(&#123;&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: user_input&#125;)​        # 将 system_message 和用户消息输入一起发送给 LLM        llm_response = self.llm_client.get_response(messages)​    ... # 后面和确定使用哪些工具无关    ​class Tool:    &quot;&quot;&quot;Represents a tool with its properties and formatting.&quot;&quot;&quot;​    def __init__(        self, name: str, description: str, input_schema: dict[str, Any]    ) -&gt; None:        self.name: str = name        self.description: str = description        self.input_schema: dict[str, Any] = input_schema​    # 把工具的名字 / 工具的用途（description）和工具所需要的参数（args_desc）转化为文本    def format_for_llm(self) -&gt; str:        &quot;&quot;&quot;Format tool information for LLM.​        Returns:            A formatted string describing the tool.        &quot;&quot;&quot;        args_desc = []        if &quot;properties&quot; in self.input_schema:            for param_name, param_info in self.input_schema[&quot;properties&quot;].items():                arg_desc = (                    f&quot;- &#123;param_name&#125;: &#123;param_info.get(&#x27;description&#x27;, &#x27;No description&#x27;)&#125;&quot;                )                if param_name in self.input_schema.get(&quot;required&quot;, []):                    arg_desc += &quot; (required)&quot;                args_desc.append(arg_desc)​        return f&quot;&quot;&quot;Tool: &#123;self.name&#125;Description: &#123;self.description&#125;Arguments:&#123;chr(10).join(args_desc)&#125;&quot;&quot;&quot;
+因此 描述工具的文本input_schema是我们要写的.  大部分情况下，当使用装饰器 @mcp.tool() 来装饰函数时，对应的 name 和 description 等其实直接源自用户定义函数的函数名以及函数的 docstring 等。
+@classmethoddef from_function(    cls,    fn: Callable,    name: str | None = None,    description: str | None = None,    context_kwarg: str | None = None,) -&gt; &quot;Tool&quot;:    &quot;&quot;&quot;Create a Tool from a function.&quot;&quot;&quot;    func_name = name or fn.__name__ # 获取函数名​    if func_name == &quot;&lt;lambda&gt;&quot;:        raise ValueError(&quot;You must provide a name for lambda functions&quot;)​    func_doc = description or fn.__doc__ or &quot;&quot; # 获取函数 docstring    is_async = inspect.iscoroutinefunction(fn)        ... # 更多请参考原始代码...
+模型是通过 prompt engineering，即提供所有工具的结构化描述和 few-shot 的 example 来确定该使用哪些工具。
+工具执行与结果反馈机制其实工具的执行就比较简单和直接了。承接上一步，我们把 system prompt（指令与工具调用描述）和用户消息一起发送给模型，然后接收模型的回复。当模型分析用户请求后，它会决定是否需要调用工具：
+
+无需工具时：模型直接生成自然语言回复。
+需要工具时：模型输出结构化 JSON 格式的工具调用请求。
+
+如果回复中包含结构化 JSON 格式的工具调用请求，则客户端会根据这个 json 代码执行对应的工具。具体的实现逻辑都在 process_llm_response 中，代码，逻辑非常简单。
+如果模型执行了 tool call，则工具执行的结果 result 会和 system prompt 和用户消息一起重新发送给模型，请求模型生成最终回复。
+如果 tool call 的 json 代码存在问题或者模型产生了幻觉怎么办呢？通过阅读代码 发现，我们会 skip 掉无效的调用请求。
+]]></content>
+      <categories>
+        <category>果冻的航海日志</category>
+      </categories>
+      <tags>
+        <tag>tools</tag>
+        <tag>LLM</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>元芳</title>
     <url>/gdBlog/2025/09/29/%E5%85%83%E8%8A%B3/</url>
     <content><![CDATA[分为studio和chat,准确来说,就是只有studio,其中的一些功能可以发布在chat上,chat只是作为和chatGPT对应的一个页面,可以用来进一步的页面优化.
 应用应用作为工作流式的智能体,可以展示具体的页面,通过子任务的顺序执行,并且可以通过前置代码和后置代码以及一些工具也能优化输出格式.可以选择变量的格式,包括codeVar变量,inputVar输入变量,singleSelect单选框,mutipulSeclect多选框还有下拉框.实现了工具的接口和应用的接口解耦合.
-我实现的应用[[接入Gemini大模型]],输入具体的问题,调用Gemini工具,询问Gemini后返回回答[[元芳接入MCP]],根据自然语言输入,自动调用元芳工具中的工具,并将对应参数直接填入工具中
+我实现的应用[[元芳接入Gemini]],输入具体的问题,调用Gemini工具,询问Gemini后返回回答[[元芳接入MCP]],根据自然语言输入,自动调用元芳工具中的工具,并将对应参数直接填入工具中
 方法这方面好像是和方法论相关,主要作用应该是在”创建应用“时的智能创建使用的,,这里是添加一些专业知识,使得方法创建有一定依据.也就是和[[RAG]]相关,有时间可以问问潇龚师兄.
 工具相当于一个个API接口,有固定的格式,修改url,head,body等,建议学习一下http的具体格式返回的时候返回所有的内容,后续可以在应用中提取需要的内容我的大部分工具都部署在[[虎符]]上
 ]]></content>
@@ -167,37 +167,6 @@ Modular RAG：它将 RAG 的各个部分进行模块化，您可以根据自己�
       </categories>
       <tags>
         <tag>元芳</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>外链播放器</title>
-    <url>/gdBlog/2023/05/05/%E5%A4%96%E9%93%BE%E6%92%AD%E6%94%BE%E5%99%A8/</url>
-    <content><![CDATA[
-
-
-
-
-
-
-
-&lt;div style=&quot;position: relative; padding: 30% 45%;&quot;&gt;&lt;iframe style=&quot;position: absolute; width: 100%; height: 100%; left: 0; top: 0;&quot; src=&quot;https://player.bilibili.com/player.html?aid=76053337&amp;;bvid=BV11J41127DF&amp;cid=130096191&amp;page=1&amp;as_wide=1&amp;high_quality=1&amp;danmaku=0&quot; frameborder=&quot;no&quot; scrolling=&quot;no&quot;&gt;&lt;/iframe&gt;&lt;/div&gt;
-稍微解释一下上面代码的含义：
-page -&gt; 起始下标为 1 (默认值也是为1)
-as_wide -&gt; 是否宽屏 【1: 宽屏, 0: 小屏】
-high_quality -&gt; 是否高清 【1: 高清(最高1080p) &#x2F; 0: 最低视频质量(默认)】
-danmaku -&gt; 是否开启弹幕 【1: 开启(默认), 0: 关闭】
-allowfullscreen -&gt; allowfullscreen&#x3D; “ture” 允许全屏，使用该参数可以在浏览器中全屏播放 作者：Mackxin https://www.bilibili.com/read/cv6775208/ 出处：bilibili
-
-&lt;iframe src=&quot;//player.bilibili.com/player.html?bvid=BV1PC4y1t77X&amp;page=1&amp;danmaku=0&amp;high_quality=1&quot; scrolling=&quot;no&quot; border=&quot;0&quot; frameborder=&quot;no&quot; framespacing=&quot;0&quot; allowfullscreen=&quot;true&quot;&gt;&lt;/iframe&gt;
-
-&lt;div style=&quot;position: relative; width: 100%; height: 0; padding-bottom: 75%;&quot;&gt;    &lt;iframe src=&quot;//player.bilibili.com/player.html?bvid=BV1PC4y1t77X&amp;page=1&amp;danmaku=0&amp;high_quality=1&quot; scrolling=&quot;no&quot; border=&quot;0&quot; frameborder=&quot;no&quot; framespacing=&quot;0&quot; allowfullscreen=&quot;true&quot; style=&quot;position: absolute; width: 100%; height: 100%; left: 0; top: 0;&quot;&gt;&lt;/iframe&gt;&lt;/div&gt;
-
-&lt;div style=&quot;position: relative; width: 100%; height: 0; padding-bottom: 75%;&quot;&gt;    &lt;iframe src=&quot;//player.bilibili.com/player.html?bvid=BV1PC4y1t77X&amp;page=1&amp;danmaku=0&amp;high_quality=1&quot; scrolling=&quot;no&quot; border=&quot;0&quot; frameborder=&quot;no&quot; framespacing=&quot;0&quot; allowfullscreen=&quot;true&quot; style=&quot;position: absolute; width: 100%; height: 100%; left: 0; top: 0;&quot; sandbox=&quot;allow-top-navigation allow-same-origin allow-forms allow-scripts&quot;&gt;&lt;/iframe&gt;&lt;/div&gt;]]></content>
-      <categories>
-        <category>Hexo</category>
-      </categories>
-      <tags>
-        <tag>Hexo</tag>
       </tags>
   </entry>
   <entry>
@@ -262,11 +231,77 @@ Qwen的MCP格式final_response&#123;    &quot;status_code&quot;: 200,           
       </tags>
   </entry>
   <entry>
-    <title>元芳接入Gemini大模型</title>
-    <url>/gdBlog/2025/09/29/%E6%8E%A5%E5%85%A5Gemini%E5%A4%A7%E6%A8%A1%E5%9E%8B/</url>
-    <content><![CDATA[了解Geminigemini是google的 所以需要注册google对应的账号,由于需要翻墙再加上需要资金往来,所以放弃这条路了最后选择使用国内的代理网站 ,调用了一个 API 接口, 确实挺好用的
-未完待续…
+    <title>外链播放器</title>
+    <url>/gdBlog/2023/05/05/%E5%A4%96%E9%93%BE%E6%92%AD%E6%94%BE%E5%99%A8/</url>
+    <content><![CDATA[
 
+
+
+
+
+
+
+&lt;div style=&quot;position: relative; padding: 30% 45%;&quot;&gt;&lt;iframe style=&quot;position: absolute; width: 100%; height: 100%; left: 0; top: 0;&quot; src=&quot;https://player.bilibili.com/player.html?aid=76053337&amp;;bvid=BV11J41127DF&amp;cid=130096191&amp;page=1&amp;as_wide=1&amp;high_quality=1&amp;danmaku=0&quot; frameborder=&quot;no&quot; scrolling=&quot;no&quot;&gt;&lt;/iframe&gt;&lt;/div&gt;
+稍微解释一下上面代码的含义：
+page -&gt; 起始下标为 1 (默认值也是为1)
+as_wide -&gt; 是否宽屏 【1: 宽屏, 0: 小屏】
+high_quality -&gt; 是否高清 【1: 高清(最高1080p) &#x2F; 0: 最低视频质量(默认)】
+danmaku -&gt; 是否开启弹幕 【1: 开启(默认), 0: 关闭】
+allowfullscreen -&gt; allowfullscreen&#x3D; “ture” 允许全屏，使用该参数可以在浏览器中全屏播放 作者：Mackxin https://www.bilibili.com/read/cv6775208/ 出处：bilibili
+
+&lt;iframe src=&quot;//player.bilibili.com/player.html?bvid=BV1PC4y1t77X&amp;page=1&amp;danmaku=0&amp;high_quality=1&quot; scrolling=&quot;no&quot; border=&quot;0&quot; frameborder=&quot;no&quot; framespacing=&quot;0&quot; allowfullscreen=&quot;true&quot;&gt;&lt;/iframe&gt;
+
+&lt;div style=&quot;position: relative; width: 100%; height: 0; padding-bottom: 75%;&quot;&gt;    &lt;iframe src=&quot;//player.bilibili.com/player.html?bvid=BV1PC4y1t77X&amp;page=1&amp;danmaku=0&amp;high_quality=1&quot; scrolling=&quot;no&quot; border=&quot;0&quot; frameborder=&quot;no&quot; framespacing=&quot;0&quot; allowfullscreen=&quot;true&quot; style=&quot;position: absolute; width: 100%; height: 100%; left: 0; top: 0;&quot;&gt;&lt;/iframe&gt;&lt;/div&gt;
+
+&lt;div style=&quot;position: relative; width: 100%; height: 0; padding-bottom: 75%;&quot;&gt;    &lt;iframe src=&quot;//player.bilibili.com/player.html?bvid=BV1PC4y1t77X&amp;page=1&amp;danmaku=0&amp;high_quality=1&quot; scrolling=&quot;no&quot; border=&quot;0&quot; frameborder=&quot;no&quot; framespacing=&quot;0&quot; allowfullscreen=&quot;true&quot; style=&quot;position: absolute; width: 100%; height: 100%; left: 0; top: 0;&quot; sandbox=&quot;allow-top-navigation allow-same-origin allow-forms allow-scripts&quot;&gt;&lt;/iframe&gt;&lt;/div&gt;]]></content>
+      <categories>
+        <category>Hexo</category>
+      </categories>
+      <tags>
+        <tag>Hexo</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>元芳接入Gemini大模型</title>
+    <url>/gdBlog/2025/10/01/%E5%85%83%E8%8A%B3%E6%8E%A5%E5%85%A5Gemini/</url>
+    <content><![CDATA[写在前面 我的实现方式gemini是google的 所以需要注册google对应的账号,由于需要翻墙再加上需要资金往来,所以放弃这条路了.最后选择使用国内的代理网站 简易,调用了一个 API 接口, 确实挺好用的.注册链接https://jeniya.top/register?aff=tUUD
+了解Gemini历程2023 年 4 月，谷歌母公司 Alphabet 首席执行官桑达尔・皮查伊合并了两个大型人工智能团队，开启 OpenAI 计划。2023 年 12 月 6 日，谷歌正式推出 Gemini 1.0 版本，包括 Gemini Ultra、Gemini Pro 和 Gemini Nano 三个不同规格。2024 年 2 月 15 日，谷歌发布 Gemini 1.5，后续又不断对其进行升级和优化，如 2024 年 5 月 15 日更新升级 Gemini 1.5 Pro 版本，同时推出 Gemini 1.5 Flash 轻量化小模型。2025 年 3 月 26 日，谷歌正式推出新一代人工智能推理模型 Gemini 2.5。
+模型规格及特点Gemini Ultra：是 Gemini 中能力最强的模型，适用于处理高度复杂的任务，如在各种推理和多模态任务中表现出色。它在 MMLU 基准测试中的得分率高达 90.0%，首次超越了人类专家。
+ Gemini Pro：适用于多任务，在成本和延迟方面进行了性能优化，具有推理功能和广泛的多模态能力，可在广泛的任务范围内提供显著的性能。
+Gemini Nano：是最高效的模型，用于特定任务和移动设备。该模型训练了两个版本的 Nano，参数分别为 1.8B（Nano-1）和 3.25B（Nano-2），分别针对低内存和高内存器件，采用 4 位量化部署。
+本次接入Gemini 2.5 系列模型🔥 gemini-2.5-flash-lite
+速度: 最快响应时间
+成本: 最经济实惠
+能力: 基础文本理解和生成
+最佳用途: 聊天机器人、简单问答、内容摘要
+
+⚡ gemini-2.5-flash
+速度: 快速响应
+成本: 平衡性价比
+能力: 文本+图像理解，多模态基础任务
+最佳用途: 通用AI应用、客户服务、内容创作
+
+🎯 gemini-2.5-pro
+速度: 响应较慢但质量最高
+成本: 最高定价
+能力: 复杂推理、专业分析、多模态高级任务
+最佳用途: 研究分析、代码生成、复杂问题解决
+
+🖼️ gemini-2.5-flash-image-preview
+速度: 针对图像优化
+成本: 中等定价
+能力: 专业图像识别、视觉分析
+最佳用途: 图像描述、OCR、视觉内容分析
+
+选择建议
+预算敏感: 选择 flash-lite
+平衡需求: 选择 flash
+高质量要求: 选择 pro
+图像处理: 选择 flash-image-preview
+
+输出接口&#123;  &quot;system_instruction&quot;: &#123;    &quot;parts&quot;: [      &#123;        &quot;text&quot;: &quot;You are an asistant.&quot;      &#125;    ]  &#125;,  &quot;contents&quot;: [    &#123;      &quot;role&quot;: &quot;user&quot;,      &quot;parts&quot;: [        &#123;          &quot;text&quot;: &quot;$&#123;content&#125;&quot;        &#125;      ]    &#125;  ]&#125;
+
+官方接口官方文档：https://ai.google.dev/gemini-api/docs/text-generation?hl=zh-cn#multi-turn-conversations
 ]]></content>
       <categories>
         <category>果冻的航海日志</category>
