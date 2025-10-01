@@ -1,18 +1,261 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>Github自动同步脚本</title>
-    <url>/gdBlog/2025/10/01/Github%E8%87%AA%E5%8A%A8%E5%90%8C%E6%AD%A5%E8%84%9A%E6%9C%AC/</url>
-    <content><![CDATA[实施步骤进入要同步的库中，切换至 Actions，点击后面的 New workflow 项
-打开新页面后，点击篮字的 set up a workflow yourself
-设置文件名 sync.yml「可自定义，不与其它脚本同名即可」
-将下面的脚本填到输入框中，点击右上方 Commit changes 即可：
-name: Upstream Syncpermissions:  contents: writeon:  schedule:    - cron: &quot;0 0 * * *&quot; # every day  workflow_dispatch:jobs:  sync_latest_from_upstream:    name: Sync latest commits from upstream repo    runs-on: ubuntu-latest    if: $&#123;&#123; github.event.repository.fork &#125;&#125;    steps:      # Step 1: run a standard checkout action      - name: Checkout target repo        uses: actions/checkout@v4      # Step 2: run the sync action      - name: Sync upstream changes        id: sync        uses: aormsby/Fork-Sync-With-Upstream-action@v3.4        with:          upstream_sync_repo: arnidan/nsfw-api          upstream_sync_branch: main          target_sync_branch: main          target_repo_token: $&#123;&#123; secrets.GITHUB_TOKEN &#125;&#125; # automatically generated, no need to set          # Set test_mode true to run tests instead of the true action!!          test_mode: false      - name: Sync check        if: failure()        run: |          echo &quot;[Error] 由于上游仓库的 workflow 文件变更，导致 GitHub 自动暂停了本次自动更新，您需要手动 Sync Fork 一次。&quot;          echo &quot;[Error] Due to a change in the workflow file of the upstream repository, GitHub has automatically suspended the scheduled automatic update. You need to manually sync your fork.&quot;          exit 1]]></content>
+    <title>DeepSearch的论文调研</title>
+    <url>/gdBlog/2025/10/01/DeepSearch/</url>
+    <content><![CDATA[论文调研综述论文A Comprehensive Survey of Deep Research: Systems, Methodologies, and Applications该综述由浙江大学徐仁军和彭静雯撰写，系统研究了Deep Research 系统这一快速发展的领域 —— 这类系统通过整合大型语言模型（LLMs）、先进信息检索技术和自主推理能力，实现复杂研究工作流的自动化；综述分析了 2023 年以来出现的80 多个商业和非商业系统（如 OpenAI&#x2F;DeepResearch、Gemini&#x2F;DeepResearch 等），提出了基于 “基础模型与推理引擎、工具利用与环境交互、任务规划与执行控制、知识合成与输出生成” 的四层技术分类体系，探讨了系统在学术、科学、商业、教育等领域的架构模式与应用适配性，指出当前系统在信息准确性、隐私、知识产权等方面的技术与伦理挑战，并明确了先进推理架构、多模态融合、领域专业化等未来研究方向，同时提供了相关资源库（https://github.com/scienceaix/deepresearch）支持进一步研究
+![[ObsidianPicture&#x2F;Pasted image 20251001221837.png]]
+## **综述基础信息**- 作者：浙江大学 Renjun Xu、Jingwen Peng- 核心对象：Deep Research系统- 研究范围：2023年以来80+商业/非商业系统- 资源库：https://github.com/scienceaix/deepresearch## **Deep Research定义与边界**- 核心维度  - 智能知识发现：自动化文献检索、假设生成  - 端到端工作流自动化：实验设计-数据收集-分析-解读  - 协作智能增强：人机协作接口、可视化- 边界区分  - ≠通用AI助手（缺自主工作流能力）  - ≠单功能研究工具（缺跨功能整合）  - ≠纯LLM应用（缺工具集成与环境交互）## **技术框架与演进**- 基础模型与推理引擎  - 演进：通用LLM→研究专用模型（如OpenAI o3、Gemini 2.5 Pro）  - 关键能力：百万级token上下文窗口、链/树状推理- 工具利用与环境交互  - 网页交互：从API搜索→动态内容处理（如Nanobrowser）  - 内容处理：从文本提取→多模态解析（PDF、表格、可视化）  - 工具集成：从通用API→16000+专用API（ToolLLM支持）- 任务规划与执行控制  - 规划：线性分解→分层动态规划（如OpenAI/AgentsSDK）  - 执行： sequential执行→并发监控+故障恢复（如Agent-RL/ReSearch）  - 协作：单智能体→多智能体分工（如smolagents/open_deep_research）- 知识合成与输出生成  - 信息评估：源信誉→多维度质量验证（如grapeot/deep_research_agent）  - 报告生成：简单总结→结构化报告+引用（如mshumer/OpenDeepResearcher）  - 交互呈现：静态文本→动态探索界面（如HKUDS/Auto-Deep-Research）## **系统比较与评估**- 技术维度比较  - 基础模型：上下文长度（Gemini 2.5 Pro达1M tokens）、推理方式  - 环境交互：网页/API/文档/GUI支持能力  - 规划执行：任务分解、错误处理、多智能体协作  - 知识合成：源评估、输出结构、用户交互- 应用适配分析  - 学术研究：文献综述、假设生成（OpenAI/DeepResearch适配）  - 商业智能：市场分析、战略决策（Gemini/DeepResearch适配）  - 个人知识管理：信息整理、学习规划（Perplexity/DeepResearch适配）- 性能基准  - 定量：HLE（OpenAI/DeepResearch达26.6%）、GAIA（Manus达86.5%）、MMLU（Grok3Beta达92.7%）  - 定性：输出连贯性、信息多样性、验证机制## **挑战与未来方向**- 关键挑战  - 信息准确性：幻觉、事实一致性  - 隐私安全：用户数据隔离、敏感信息保护  - 知识产权：引用完整性、版权合规  - 可及性：计算资源依赖、技术门槛- 未来方向  - 先进推理：神经符号融合、因果推理、不确定性建模  - 多模态：视觉/音频/视频整合、跨模态推理  - 领域专业化：科学/法律/医疗定制优化  - 人机协作：交互工作流、标准接口、联合知识创建
+
+一、综述基础与研究背景核心定义
+Deep Research 系统是一类 AI 驱动应用，通过整合大型语言模型（LLMs）、先进信息检索技术和自主推理能力，实现复杂研究工作流的自动化，核心覆盖 “智能知识发现、端到端工作流自动化、协作智能增强” 三大维度，需与通用 AI 助手（如 ChatGPT）、单功能工具（如文献管理器）、纯 LLM 应用区分 —— 后者缺乏跨功能整合与自主工作流能力。
+ 研究意义
+学术创新：加速假设验证（如 HotpotQA 基准任务），挖掘跨学科关联企业转型：支持大规模数据驱动决策（如 Agent-RL&#x2F;ReSearch 分析市场趋势）知识民主化：通过开源系统（如 grapeot&#x2F;deep_research_agent）降低技术门槛
+二、Deep Research 系统的技术框架与演进2.1 四层技术分类体系（核心框架）
+
+
+技术维度
+核心能力演进
+代表系统 &#x2F; 技术
+
+
+
+基础模型与推理引擎
+通用 LLM→研究专用模型；有限上下文→百万级 token 窗口；零样本推理→链 &#x2F; 树状推理
+OpenAI o3（200k tokens）、Gemini 2.5 Pro（1M tokens）、AutoGLM-Research
+
+
+工具利用与环境交互
+API 搜索→动态网页导航；文本提取→多模态处理；通用工具→16000 + 专用 API 集成
+Nanobrowser（AI 专用浏览器）、dzhng&#x2F;deep-research（多格式文档处理）、ToolLLM
+
+
+任务规划与执行控制
+线性任务分解→分层动态规划； sequential 执行→并发监控；单智能体→多智能体协作
+OpenAI&#x2F;AgentsSDK（分层规划）、Agent-RL&#x2F;ReSearch（强化学习执行）、TARS（多智能体）
+
+
+知识合成与输出生成
+源信誉判断→多维度验证；简单总结→结构化报告；静态文本→动态交互呈现
+grapeot&#x2F;deep_research_agent（证据评估）、mshumer&#x2F;OpenDeepResearcher（报告生成）、HKUDS&#x2F;Auto-Deep-Research（交互探索）
+
+
+2.2 系统演进三阶段（2023-2025）
+起源与早期探索（2023-2025.2）
+
+技术基础：基于 n8n（工作流自动化）、AutoGPT（智能体框架）等现有工具
+里程碑：2024.12 Google Gemini 推出首个 Deep Research 功能，支持基础多步推理
+代表系统：cline2024（集成研究工作流）、open_operator（浏览器自动化）
+
+
+技术突破与竞争（2025.2-2025.3）
+
+关键事件：DeepSeek 开源模型（高效推理）、OpenAI&#x2F;DeepResearch（o3 模型驱动，准确率超基准）、Perplexity&#x2F;DeepResearch（免费开放，侧重快速响应）
+开源生态：nickscamara&#x2F;open-deepresearch、mshumer&#x2F;OpenDeepResearcher、GPT-researcher
+
+
+生态扩展与多模态融合（2025.3 - 至今）
+
+核心进展：本地化部署（Jina-AI&#x2F;node-DeepResearch）、多模态支持（Gemini&#x2F;DeepResearch）、多智能体协作（Camel-AI&#x2F;OWL）
+新参与者：Anthropic Claude&#x2F;Research（2025.4，支持可验证引用）、Manus、AutoGLM-Research
+
+
+
+三、系统比较与评估分析3.1 核心系统技术参数对比
+
+
+系统名称
+基础模型
+上下文长度
+关键能力亮点
+典型应用场景
+
+
+
+OpenAI&#x2F;DeepResearch
+o3
+最高 200k tokens
+多步推理、学术数据库集成、高准确率报告
+学术研究、金融分析
+
+
+Gemini&#x2F;DeepResearch
+Gemini 2.5 Pro
+1M tokens
+多模态处理、多智能体协作、长文本分析
+科学发现、商业智能
+
+
+Perplexity&#x2F;DeepResearch
+DeepSeek-R1
+128K tokens
+实时源聚合、免费访问、快速响应
+个人知识管理、市场趋势
+
+
+Manus
+未明确
+未明确
+150 + 服务集成、战略决策支持
+企业商业分析
+
+
+AutoGLM-Research
+ChatGLM
+依赖模型（DOM）
+GUI 交互、移动端支持、本地部署
+个性化学习、小范围研究
+
+
+3.2 性能基准表现（定量指标）
+
+
+系统名称
+HLE 得分（%）
+MMLU 得分（%）
+GAIA（pass@1，%）
+HotpotQA 得分（%）
+
+
+
+OpenAI&#x2F;DeepResearch
+26.6
+-
+67.36
+-
+
+
+Gemini 2.5 Pro
+18.8
+-
+-
+-
+
+
+Perplexity&#x2F;DeepResearch
+21.1
+-
+-
+-
+
+
+Grok3Beta
+-
+92.7
+-
+-
+
+
+Manus
+-
+-
+86.5
+-
+
+
+Agent-RL&#x2F;ReSearch
+-
+-
+-
+37.51
+
+
+3.3 应用领域适配性
+学术研究：OpenAI&#x2F;DeepResearch、Camel-AI&#x2F;OWL 表现突出，支持 ArXiv、PubMed 等数据库集成，能识别研究方法、生成 IEEE&#x2F;APA 格式引用，适配文献综述、假设生成场景。
+商业智能：Gemini&#x2F;DeepResearch、Manus 擅长市场分析（SEC 文件、行业报告）、SWOT 框架应用，输出可直接用于战略决策的 executive summary。
+教育领域：HKUDS&#x2F;Auto-Deep-Research、OpenManus 提供个性化学习路径，支持多难度解释（适配不同知识水平学习者），辅助课程设计与研究技能培训。
+个人知识管理：Perplexity&#x2F;DeepResearch（多设备支持）、nickscamara&#x2F;open-deep-research（本地文件集成），适配信息整理、兴趣驱动学习场景。
+
+四、技术挑战与伦理考量
+技术挑战
+
+信息准确性：LLM 幻觉问题，需通过多源验证（如 Perplexity 的源多样性过滤）、矛盾检测（如 Gemini 的不确定性建模）缓解
+计算效率：商业系统（如 OpenAI）响应时间 5-30 分钟，开源系统（如 nickscamara&#x2F;open-deepresearch）资源需求高，本地部署需优化
+系统集成：工具链兼容性（如 API 版本差异）、跨平台部署（桌面 &#x2F; 移动端适配）
+
+
+伦理问题
+
+隐私安全：用户查询隔离（商业系统）、本地部署支持（开源系统如 OpenManus），需合规 GDPR、CCPA 等法规
+知识产权：引用完整性（如 OpenAI 的语句级引用链接）、版权合规（如 Jina-AI 的许可证分类）
+可及性：计算资源门槛（需 GPU 支持）、技术 expertise 要求（开源系统部署复杂），可能加剧数字鸿沟
+
+
+
+五、未来研究方向
+先进推理架构：神经符号融合（结合逻辑推理与 LLM）、因果推理（干预建模）、外部记忆框架（突破上下文限制）
+多模态融合：科学图像分析（图表 &#x2F; 实验图像）、视频 &#x2F; 音频内容处理（学术讲座、实验演示）、跨模态一致性验证
+领域专业化：科学领域（物理 &#x2F; 化学专用模型）、法律领域（案例推理、合规分析）、医疗领域（临床证据合成、个性化适配）
+人机协作与标准化：交互工作流（动态查询优化）、通用接口协议（如 Anthropic MCP、Google A2A）、联合知识创建（人机协同报告生成）
+
+
+一些思考问题 1：Deep Research 系统与传统 AI 助手（如 ChatGPT）的核心区别是什么？这些区别如何影响其在学术研究中的应用价值？核心区别体现在三个维度：
+
+工作流能力：Deep Research 系统支持 “文献检索 - 实验设计 - 数据分析 - 报告生成” 的端到端自动化，如 OpenAI&#x2F;DeepResearch 可整合 ArXiv 文献与统计工具；传统 AI 助手仅能响应单次查询，无法自主串联多步研究任务。
+工具与环境交互：Deep Research 可集成 16000 + 专用 API（ToolLLM 支持）、动态网页导航（如 Nanobrowser）、多格式文档处理（PDF &#x2F; 表格）；传统 AI 助手缺乏工具调用能力，依赖用户手动输入信息。
+推理深度：Deep Research 采用链 &#x2F; 树状推理（如 Gemini 的树状推理）、百万级 token 上下文（Gemini 2.5 Pro 达 1M tokens），能处理长文本与复杂逻辑；传统 AI 助手推理链短，上下文窗口有限（如 ChatGPT 免费版 4k tokens）。
+
+这些区别使 Deep Research 在学术研究中更具价值：可自动化系统综述（处理数千篇文献）、识别研究方法漏洞、生成带可验证引用的报告，大幅降低手动工作量，如 OpenAI&#x2F;DeepResearch 在医学研究中分析数千篇论文以识别干预 efficacy 模式。
+问题 2：当前主流 Deep Research 系统（商业与开源）在技术性能与应用适配性上有何差异？企业与学术用户应如何选择？答案：商业与开源系统的差异及选择建议如下：
+（1）技术性能差异
+
+
+维度
+商业系统（如 OpenAI&#x2F;DeepResearch）
+开源系统（如 dzhng&#x2F;deepresearch）
+
+
+
+基础模型
+专用模型（o3、Gemini 2.5 Pro），性能领先
+通用模型（ChatGLM、DeepSeek-R1），需优化
+
+
+响应时间
+5-30 分钟（复杂任务）
+更长（依赖本地硬件，需 10 + 分钟）
+
+
+准确率（HLE 基准）
+26.6%（OpenAI）、21.1%（Perplexity）
+未公开，实测低于商业系统
+
+
+维护与更新
+自动迭代（如 OpenAI o3→o4-mini）
+依赖社区贡献，更新频率低
+
+
+（2）应用适配性差异
+商业系统：适配大规模学术研究（多数据库集成）、企业商业分析（实时市场数据），适合对准确率、稳定性要求高的场景，如药企的临床文献综述、跨国企业的竞品分析。
+开源系统：支持本地化部署（数据隐私敏感场景）、定制化开发（如添加领域专用工具），适合预算有限的学术团队（小范围课题研究）、企业内部敏感数据处理（如内部报告生成）。
+
+（3）选择建议
+学术用户：若需处理大规模文献（如系统综述）、依赖高准确率（如假设验证），选择商业系统（如 OpenAI&#x2F;DeepResearch）；若数据敏感（如未发表实验数据）、需定制工具链，选择开源系统（如 HKUDS&#x2F;Auto-Deep-Research）。
+企业用户：若需实时市场分析（如 Perplexity 的快速响应）、多部门协作（如 Gemini 的多智能体功能），选择商业系统；若需本地化部署（合规要求）、低成本扩展，选择开源系统（如 Jina-AI&#x2F;node-DeepResearch）。
+
+问题 3：当前 Deep Research 系统在解决 “信息准确性” 与 “幻觉” 问题上有哪些关键技术手段？这些手段的局限性是什么？未来可如何改进？答案：当前关键技术手段、局限性及改进方向如下：
+（1）当前技术手段
+多源验证：商业系统（如 OpenAI&#x2F;DeepResearch）要求关键结论需 2 + 独立源支持，Perplexity&#x2F;DeepResearch 通过 “源多样性过滤”（跨平台聚合信息）降低单一源偏差；开源系统（如 grapeot&#x2F;deep_research_agent）采用源可信度评分（基于发布机构、引用量）。
+引用与溯源：OpenAI&#x2F;DeepResearch 实现 “语句级引用链接”，每个结论可跳转至原始文献 &#x2F; 数据；mshumer&#x2F;OpenDeepResearcher 生成结构化报告，明确标注引用来源与 DOI。
+不确定性建模：Gemini&#x2F;DeepResearch 区分 “确认信息” 与 “推测内容”，用置信度指标（如高 &#x2F; 中 &#x2F; 低）标注结论可靠性；Agent-RL&#x2F;ReSearch 通过 “矛盾检测算法” 识别冲突信息并提示用户。
+
+（2）局限性
+多源验证：依赖源的可用性（如小众领域文献少，无法多源交叉），且无法识别 “同源信息重复”（如不同平台转载同一研究）。
+引用机制：仅覆盖公开源（如 ArXiv、PubMed），企业内部报告、未发表数据等私有信息无法溯源；引用格式易出错（如开源系统的 BibTeX 导出可能遗漏字段）。
+不确定性建模：置信度指标缺乏统一标准（商业系统各自定义），用户难以判断 “低置信度” 是否需进一步验证；无法处理 “证据不足” 场景（如新兴研究领域无足够数据支持结论）。
+
+（3）未来改进方向
+证据质量评估细化：引入领域专用指标，如学术研究中结合 “研究方法严谨性”（样本量、随机对照设计）、商业分析中结合 “数据时效性”（市场数据发布时间）评估源质量。
+动态溯源框架：支持私有源（如企业数据库、实验室内部系统）的权限管理与溯源，通过区块链技术确保引用不可篡改。
+人机协同验证：设计交互接口，如 HKUDS&#x2F;Auto-Deep-Research 的 “矛盾提示 - 用户决策” 流程，让用户参与高不确定性结论的验证，同时记录反馈以优化模型判断。
+
+]]></content>
       <categories>
-        <category>果冻的奇妙小工具</category>
+        <category>果冻的航海日志</category>
       </categories>
       <tags>
-        <tag>tools</tag>
+        <tag>LLM</tag>
       </tags>
   </entry>
   <entry>
@@ -26,6 +269,21 @@ dickerfile脚本 是可以通过下载文件的一些来创建脚本
 ]]></content>
       <categories>
         <category>果冻的航海日志</category>
+      </categories>
+      <tags>
+        <tag>tools</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Github自动同步脚本</title>
+    <url>/gdBlog/2025/10/01/Github%E8%87%AA%E5%8A%A8%E5%90%8C%E6%AD%A5%E8%84%9A%E6%9C%AC/</url>
+    <content><![CDATA[实施步骤进入要同步的库中，切换至 Actions，点击后面的 New workflow 项
+打开新页面后，点击篮字的 set up a workflow yourself
+设置文件名 sync.yml「可自定义，不与其它脚本同名即可」
+将下面的脚本填到输入框中，点击右上方 Commit changes 即可：
+name: Upstream Syncpermissions:  contents: writeon:  schedule:    - cron: &quot;0 0 * * *&quot; # every day  workflow_dispatch:jobs:  sync_latest_from_upstream:    name: Sync latest commits from upstream repo    runs-on: ubuntu-latest    if: $&#123;&#123; github.event.repository.fork &#125;&#125;    steps:      # Step 1: run a standard checkout action      - name: Checkout target repo        uses: actions/checkout@v4      # Step 2: run the sync action      - name: Sync upstream changes        id: sync        uses: aormsby/Fork-Sync-With-Upstream-action@v3.4        with:          upstream_sync_repo: arnidan/nsfw-api          upstream_sync_branch: main          target_sync_branch: main          target_repo_token: $&#123;&#123; secrets.GITHUB_TOKEN &#125;&#125; # automatically generated, no need to set          # Set test_mode true to run tests instead of the true action!!          test_mode: false      - name: Sync check        if: failure()        run: |          echo &quot;[Error] 由于上游仓库的 workflow 文件变更，导致 GitHub 自动暂停了本次自动更新，您需要手动 Sync Fork 一次。&quot;          echo &quot;[Error] Due to a change in the workflow file of the upstream repository, GitHub has automatically suspended the scheduled automatic update. You need to manually sync your fork.&quot;          exit 1]]></content>
+      <categories>
+        <category>果冻的奇妙小工具</category>
       </categories>
       <tags>
         <tag>tools</tag>
@@ -73,8 +331,8 @@ json和xml之间一般可以转换json文本实际上是一条字符串json的�
         <category>果冻的航海日志</category>
       </categories>
       <tags>
-        <tag>tools</tag>
         <tag>LLM</tag>
+        <tag>tools</tag>
       </tags>
   </entry>
   <entry>
@@ -118,6 +376,96 @@ MVC 工作流程
       <categories>
         <category>果冻的航海日志</category>
       </categories>
+  </entry>
+  <entry>
+    <title>RAG（Retrieval-AugmentedGeneration检索增强生成</title>
+    <url>/gdBlog/2025/10/01/RAG/</url>
+    <content><![CDATA[写在前面RAG 是一种新兴的 AI 技术，它结合了信息检索和生成式 AI 的优势，能够在处理复杂任务时提供更准确和相关的答案。RAG 的实现过程相对简单，但是它的核心在于如何检索到相关的信息，以及如何将这些信息与 LLM 结合，这就是 RAG 的关键所在。
+LLM的局限性RAG（Retrieval-Augmented Generation 检索增强生成）正如其字面意思，是通过检索信息来增强 LLM生成的能力。RAG 是一种新兴的 AI 技术，它结合了信息检索和生成式 AI 的优势，能够在处理复杂任务时提供更准确和相关的答案。
+RAG 的工作原理是：首先通过检索引擎从一个大型知识库中获取相关信息，然后将这些信息通过 Prompt 工程与 LLM 结合，生成最终的答案。
+为什么需要这样做呢？ LLM的特点：
+
+会回答你很多不存在的东西，编造一些不存在的事实，或者是对事实进行错误的推理，LLM 回答不存在的东西的现象被称为幻觉（Hallucination）。
+尤其不擅长于最新的技术和最近的热点事件（注：这里排除掉能够使用联网能力的产品），因为 LLM 训练时使用的数据集是有截止日期的。
+
+RAG实现流程是: 用户输入问题-检索相关信息-将信息与LLM结合-生成最后答案
+实现就是这么简单，但是它的核心在于如何检索到相关的信息，以及如何将这些信息与 LLM 结合，这就是 RAG 的关键所在. 对于一个RAG 产品来说，检索的质量和 LLM 的生成能力是两个最重要的指标，它们直接决定了给用户呈现的最终效果，而对 AI 落地产品来说，检索的质量更是重中之重，因为 AI 落地产品的核心就是要解决用户的问题，而不是让用户来解决 AI 的问题。
+那么，如何提高检索的质量呢？
+模糊搜索&#x2F;关键词匹配？那肯定不行，用户输入的问题可能是抽象的，常规的模糊搜索算法可能在用户一长段问题中找不到任何相关的内容，或者是找到的内容和用户的问题完全不相关，自然语言暗藏了太多的语义信息，模糊搜索和关键词匹配都无法捕捉到这些信息。
+大语言模型的核心就是语言模型，语言模型的核心就是概率分布，RAG 的检索过程其实就是一个概率分布的过程，但是 LLM 是需要经过训练的，训练的过程就是不断的调整模型参数，使得模型能够更好的拟合数据集中的概率分布
+自然语言检索核心: EmbeddingEmbedding模型就是用来解决这类自然语言检索问题的，它的核心思想就是将自然语言转换成向量（Vector），然后通过计算向量之间的距离来判断它们之间的相似度。
+实例假设我们有一个问题：“你能给我推荐一个用一个红色水果做品牌名称的科技公司出的产品吗？”
+假设我们有一个 Embedding 模型，它能够将这些自然语言转换成抽象高维度向量，向量的每一个维度都代表了一个特征，比如颜色、形状、大小等等。
+假设我们有一个知识库，里面有很多关于水果的品牌名称，比如“手机”、“电动汽车”、“智能台灯”，“苹果”、“香蕉”、“西瓜”等等。
+假设我们有一个检索算法，它能够计算向量之间的距离，比如欧几里得距离、余弦相似度等。
+我们使用余弦相似度来计算向量之间的距离，那么我们可以将问题转换成向量，比如“你能给我推荐一个用一个红色水果做品牌名称的科技公司出的产品吗？”可以转换成一个向量 A，而知识库中的“苹果”，“手机”，“电动汽车”，“智能台灯”等等也可以转换成向量 B，C，D 等等。
+对于文本类问题，我们通常使用余弦相似度来计算向量之间的距离，余弦相似度的公式如下：
+![[ObsidianPicture&#x2F;Pasted image 20251001091142.png]]
+通过此公式，我们可以计算出向量 A 和 B 等之间的余弦相似度，余弦相似度的值在-1~1之间，值越大表示两个向量越相似。 如果余弦相似度的值大于某个阈值，比如 0.8 ，那么我们就可以认为这两个向量是相似的，也就是问题和知识库中的内容是相关的。
+这个时候，我们将检索内容通过 Prompt 工程再喂给 LLM，LLM 就会根据检索到的内容生成最终的答案。
+在实际开发中，Embedding 模型(这个也有不同的模型, 效果和性能上有差别)可能是超高维度的，通常在 512 维以上，因此对于传统关系型数据库来说，存储和检索的成本都非常高，因此我们通常会使用一些专门的向量数据库来存储和检索向量，比如 Milvus、Pinecone、Weaviate 等等。
+这些向量数据库通常会使用一些高效的索引算法来加速向量的检索，比如 HNSW、IVF、PQ 等等。向量数据库通常已处理好了这些算法，你只需要调用相关 API 即可。
+Embedding前的分块在预处理阶段，在Embdding前还有一个文档解析与分块的过程，因为在通常情况下，你所使用的Embedding 模型能够处理的文本长度是有限制的，而构建知识库的过程就是将文档解析成小块，然后将这些小块进行向量化，存入向量数据库中.
+在分块时，你可以使用不同的算法，你可以固定大小分块，比如说每 512 字符分成一块，但是这样可能会导致语义不连贯，或者是分块过小，导致向量数据库存储的向量数量过多，成本过高。
+基于内容意图分块，可以根据内容的语义和上下文进行分块，这样可以更好的保留语义信息，提高检索的质量。
+RAG 分类上述提到的是 Naive RAG
+还有其他的RAG:
+
+Advanced RAG：它在 Naive RAG 的基础上，增加了一些优化，在检索前、检索中、检索后都增加了一些优化，比如使用多种检索算法进行组合，使用多种 LLM 进行组合，使用多种 Prompt 模板进行组合等等，这样可以提高检索的质量和生成的效果。
+
+Modular RAG：它将 RAG 的各个部分进行模块化，您可以根据自己的需求选择合适的模块进行组合，比如使用不同的检索算法、不同的 LLM、不同的 Prompt 模板等等，这样可以提高 RAG 的灵活性和可扩展性。
+
+
+使用传统的 Naive RAG 可能会导致检索的质量和生成的效果不理想，也有可能使用 Rerank（重排序）算法来对检索的结果进行重排序，或者使用 Chain of Thought（思维链）来对生成的结果进行优化，这些都是 RAG 的变种实现方式。
+]]></content>
+      <categories>
+        <category>果冻的航海日志</category>
+      </categories>
+      <tags>
+        <tag>LLM</tag>
+        <tag>tools</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>元芳接入DeepSearch</title>
+    <url>/gdBlog/2025/10/01/%E5%85%83%E8%8A%B3%E6%8E%A5%E5%85%A5DeepSearch/</url>
+    <content><![CDATA[实现过程部署在虎符上, 因此Flask Web服务, 最后提供HTTP API接口.在元芳上新增工具为[MCP]问答_DeepResearch深度思考_服务,[MCP]问答_arXiv_服务(并没有用到在应用上), 新增应用为Deep Research应用.
+
+首先使用了DashScope翻译服务完成中译英, 因为arXiv的中文搜索不太行
+使用官方提供的arXiv库实现arXiv论文检索
+最后使用DeepSeek推理模型, 将论文检索的内容作为输入再加上用户原本的输入作为最终的输入给DeepSeekR1模型(在元芳上)
+返回1.论文 2.深度思考 3.最后回答 作为输出.相当于实现了[[DeepSearch]]
+
+备份在github上了Deepsearch
+流程核心功能1. 多语言智能处理
+中文检测与翻译 ：自动检测用户查询是否为中文，如果是则调用DashScope API翻译为英文
+翻译容错机制 ：翻译失败时回退到原始查询，确保系统稳定性
+
+2. 学术资源搜索
+arXiv论文检索 ：将翻译后的英文查询用于搜索相关学术论文
+结果格式化 ：提取论文标题和PDF链接，生成易读的参考信息
+
+3. AI深度推理
+DeepSeek Reasoner模型 ：使用专门的推理模型进行深度思考
+上下文增强 ：结合用户查询和论文信息生成全面回答
+结构化响应 ：提取角色、内容和推理过程三个维度的信息
+
+4. 完整响应返回
+双数据源 ：同时返回论文搜索结果和AI生成的回答
+错误处理 ：完善的异常捕获机制，确保服务稳定性
+
+技术亮点
+多API集成 ：DashScope翻译 + arXiv搜索 + DeepSeek推理
+智能语言处理 ：中英文无缝切换
+学术级回答 ：基于最新研究论文提供权威解答这个DeepSearch系统特别适合需要学术背景知识的深度问答场景，能够为用户提供基于最新研究的专业回答。
+
+]]></content>
+      <categories>
+        <category>果冻的航海日志</category>
+      </categories>
+      <tags>
+        <tag>元芳</tag>
+      </tags>
   </entry>
   <entry>
     <title>元芳接入Gemini大模型</title>
@@ -167,104 +515,6 @@ Gemini Nano：是最高效的模型，用于特定任务和移动设备。该模
       <tags>
         <tag>LLM</tag>
         <tag>元芳</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>外链播放器</title>
-    <url>/gdBlog/2023/05/05/%E5%A4%96%E9%93%BE%E6%92%AD%E6%94%BE%E5%99%A8/</url>
-    <content><![CDATA[为Hexo添加外链播放器
-
-
-
-
-
-
-
-
-&lt;div style=&quot;position: relative; padding: 30% 45%;&quot;&gt;&lt;iframe style=&quot;position: absolute; width: 100%; height: 100%; left: 0; top: 0;&quot; src=&quot;https://player.bilibili.com/player.html?aid=76053337&amp;;bvid=BV11J41127DF&amp;cid=130096191&amp;page=1&amp;as_wide=1&amp;high_quality=1&amp;danmaku=0&quot; frameborder=&quot;no&quot; scrolling=&quot;no&quot;&gt;&lt;/iframe&gt;&lt;/div&gt;
-稍微解释一下上面代码的含义：
-page -&gt; 起始下标为 1 (默认值也是为1)
-as_wide -&gt; 是否宽屏 【1: 宽屏, 0: 小屏】
-high_quality -&gt; 是否高清 【1: 高清(最高1080p) &#x2F; 0: 最低视频质量(默认)】
-danmaku -&gt; 是否开启弹幕 【1: 开启(默认), 0: 关闭】
-allowfullscreen -&gt; allowfullscreen&#x3D; “ture” 允许全屏，使用该参数可以在浏览器中全屏播放 作者：Mackxin https://www.bilibili.com/read/cv6775208/ 出处：bilibili
-
-&lt;iframe src=&quot;//player.bilibili.com/player.html?bvid=BV1PC4y1t77X&amp;page=1&amp;danmaku=0&amp;high_quality=1&quot; scrolling=&quot;no&quot; border=&quot;0&quot; frameborder=&quot;no&quot; framespacing=&quot;0&quot; allowfullscreen=&quot;true&quot;&gt;&lt;/iframe&gt;
-
-&lt;div style=&quot;position: relative; width: 100%; height: 0; padding-bottom: 75%;&quot;&gt;    &lt;iframe src=&quot;//player.bilibili.com/player.html?bvid=BV1PC4y1t77X&amp;page=1&amp;danmaku=0&amp;high_quality=1&quot; scrolling=&quot;no&quot; border=&quot;0&quot; frameborder=&quot;no&quot; framespacing=&quot;0&quot; allowfullscreen=&quot;true&quot; style=&quot;position: absolute; width: 100%; height: 100%; left: 0; top: 0;&quot;&gt;&lt;/iframe&gt;&lt;/div&gt;
-
-&lt;div style=&quot;position: relative; width: 100%; height: 0; padding-bottom: 75%;&quot;&gt;    &lt;iframe src=&quot;//player.bilibili.com/player.html?bvid=BV1PC4y1t77X&amp;page=1&amp;danmaku=0&amp;high_quality=1&quot; scrolling=&quot;no&quot; border=&quot;0&quot; frameborder=&quot;no&quot; framespacing=&quot;0&quot; allowfullscreen=&quot;true&quot; style=&quot;position: absolute; width: 100%; height: 100%; left: 0; top: 0;&quot; sandbox=&quot;allow-top-navigation allow-same-origin allow-forms allow-scripts&quot;&gt;&lt;/iframe&gt;&lt;/div&gt;]]></content>
-      <categories>
-        <category>Hexo</category>
-      </categories>
-      <tags>
-        <tag>Hexo</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>正则表达式</title>
-    <url>/gdBlog/2025/09/29/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/</url>
-    <content><![CDATA[正则表达式（Regular Expression，简称 regex 或 regexp）是一种用于匹配、查找和处理文本的强大模式描述语言。它通过一系列预定义的字符和规则，构建出能够精确匹配特定文本模式的表达式，广泛应用于文本搜索、验证、替换、提取等场景（如表单验证、日志分析、代码解析等）。
-正则表达式的入门门槛稍高，但掌握后能极大提升文本处理效率。实际使用时，可借助在线工具（如 Regex101）实时测试和调试表达式。
-高级版关键字搜索性能一般,但无所谓不差这点,功能强大,易于维护
-字符集合g[ a o]t&#x3D;get or got[ a-z]就是a到z ; [^b-c ]除了b到c
-* 出现0或更多 {0}+  1 and more. {1}?  0 or 1            {0,1}{3} 3{3,}. 3 and more{3.6}  3 to 6
-^代表开始  $代表结束
-]]></content>
-      <categories>
-        <category>果冻的航海日志</category>
-      </categories>
-      <tags>
-        <tag>tools</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>RAG（Retrieval-AugmentedGeneration检索增强生成</title>
-    <url>/gdBlog/2025/10/01/RAG/</url>
-    <content><![CDATA[写在前面RAG 是一种新兴的 AI 技术，它结合了信息检索和生成式 AI 的优势，能够在处理复杂任务时提供更准确和相关的答案。RAG 的实现过程相对简单，但是它的核心在于如何检索到相关的信息，以及如何将这些信息与 LLM 结合，这就是 RAG 的关键所在。
-LLM的局限性RAG（Retrieval-Augmented Generation 检索增强生成）正如其字面意思，是通过检索信息来增强 LLM生成的能力。RAG 是一种新兴的 AI 技术，它结合了信息检索和生成式 AI 的优势，能够在处理复杂任务时提供更准确和相关的答案。
-RAG 的工作原理是：首先通过检索引擎从一个大型知识库中获取相关信息，然后将这些信息通过 Prompt 工程与 LLM 结合，生成最终的答案。
-为什么需要这样做呢？ LLM的特点：
-
-会回答你很多不存在的东西，编造一些不存在的事实，或者是对事实进行错误的推理，LLM 回答不存在的东西的现象被称为幻觉（Hallucination）。
-尤其不擅长于最新的技术和最近的热点事件（注：这里排除掉能够使用联网能力的产品），因为 LLM 训练时使用的数据集是有截止日期的。
-
-RAG实现流程是: 用户输入问题-检索相关信息-将信息与LLM结合-生成最后答案
-实现就是这么简单，但是它的核心在于如何检索到相关的信息，以及如何将这些信息与 LLM 结合，这就是 RAG 的关键所在. 对于一个RAG 产品来说，检索的质量和 LLM 的生成能力是两个最重要的指标，它们直接决定了给用户呈现的最终效果，而对 AI 落地产品来说，检索的质量更是重中之重，因为 AI 落地产品的核心就是要解决用户的问题，而不是让用户来解决 AI 的问题。
-那么，如何提高检索的质量呢？
-模糊搜索&#x2F;关键词匹配？那肯定不行，用户输入的问题可能是抽象的，常规的模糊搜索算法可能在用户一长段问题中找不到任何相关的内容，或者是找到的内容和用户的问题完全不相关，自然语言暗藏了太多的语义信息，模糊搜索和关键词匹配都无法捕捉到这些信息。
-大语言模型的核心就是语言模型，语言模型的核心就是概率分布，RAG 的检索过程其实就是一个概率分布的过程，但是 LLM 是需要经过训练的，训练的过程就是不断的调整模型参数，使得模型能够更好的拟合数据集中的概率分布
-自然语言检索核心: EmbeddingEmbedding模型就是用来解决这类自然语言检索问题的，它的核心思想就是将自然语言转换成向量（Vector），然后通过计算向量之间的距离来判断它们之间的相似度。
-实例假设我们有一个问题：“你能给我推荐一个用一个红色水果做品牌名称的科技公司出的产品吗？”
-假设我们有一个 Embedding 模型，它能够将这些自然语言转换成抽象高维度向量，向量的每一个维度都代表了一个特征，比如颜色、形状、大小等等。
-假设我们有一个知识库，里面有很多关于水果的品牌名称，比如“手机”、“电动汽车”、“智能台灯”，“苹果”、“香蕉”、“西瓜”等等。
-假设我们有一个检索算法，它能够计算向量之间的距离，比如欧几里得距离、余弦相似度等。
-我们使用余弦相似度来计算向量之间的距离，那么我们可以将问题转换成向量，比如“你能给我推荐一个用一个红色水果做品牌名称的科技公司出的产品吗？”可以转换成一个向量 A，而知识库中的“苹果”，“手机”，“电动汽车”，“智能台灯”等等也可以转换成向量 B，C，D 等等。
-对于文本类问题，我们通常使用余弦相似度来计算向量之间的距离，余弦相似度的公式如下：
-![[ObsidianPicture&#x2F;Pasted image 20251001091142.png]]
-通过此公式，我们可以计算出向量 A 和 B 等之间的余弦相似度，余弦相似度的值在-1~1之间，值越大表示两个向量越相似。 如果余弦相似度的值大于某个阈值，比如 0.8 ，那么我们就可以认为这两个向量是相似的，也就是问题和知识库中的内容是相关的。
-这个时候，我们将检索内容通过 Prompt 工程再喂给 LLM，LLM 就会根据检索到的内容生成最终的答案。
-在实际开发中，Embedding 模型(这个也有不同的模型, 效果和性能上有差别)可能是超高维度的，通常在 512 维以上，因此对于传统关系型数据库来说，存储和检索的成本都非常高，因此我们通常会使用一些专门的向量数据库来存储和检索向量，比如 Milvus、Pinecone、Weaviate 等等。
-这些向量数据库通常会使用一些高效的索引算法来加速向量的检索，比如 HNSW、IVF、PQ 等等。向量数据库通常已处理好了这些算法，你只需要调用相关 API 即可。
-Embedding前的分块在预处理阶段，在Embdding前还有一个文档解析与分块的过程，因为在通常情况下，你所使用的Embedding 模型能够处理的文本长度是有限制的，而构建知识库的过程就是将文档解析成小块，然后将这些小块进行向量化，存入向量数据库中.
-在分块时，你可以使用不同的算法，你可以固定大小分块，比如说每 512 字符分成一块，但是这样可能会导致语义不连贯，或者是分块过小，导致向量数据库存储的向量数量过多，成本过高。
-基于内容意图分块，可以根据内容的语义和上下文进行分块，这样可以更好的保留语义信息，提高检索的质量。
-RAG 分类上述提到的是 Naive RAG
-还有其他的RAG:
-
-Advanced RAG：它在 Naive RAG 的基础上，增加了一些优化，在检索前、检索中、检索后都增加了一些优化，比如使用多种检索算法进行组合，使用多种 LLM 进行组合，使用多种 Prompt 模板进行组合等等，这样可以提高检索的质量和生成的效果。
-
-Modular RAG：它将 RAG 的各个部分进行模块化，您可以根据自己的需求选择合适的模块进行组合，比如使用不同的检索算法、不同的 LLM、不同的 Prompt 模板等等，这样可以提高 RAG 的灵活性和可扩展性。
-
-
-使用传统的 Naive RAG 可能会导致检索的质量和生成的效果不理想，也有可能使用 Rerank（重排序）算法来对检索的结果进行重排序，或者使用 Chain of Thought（思维链）来对生成的结果进行优化，这些都是 RAG 的变种实现方式。
-]]></content>
-      <categories>
-        <category>果冻的航海日志</category>
-      </categories>
-      <tags>
-        <tag>tools</tag>
-        <tag>LLM</tag>
       </tags>
   </entry>
   <entry>
@@ -325,6 +575,55 @@ Qwen的MCP格式final_response&#123;    &quot;status_code&quot;: 200,           
       <tags>
         <tag>LLM</tag>
         <tag>元芳</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>外链播放器</title>
+    <url>/gdBlog/2023/05/05/%E5%A4%96%E9%93%BE%E6%92%AD%E6%94%BE%E5%99%A8/</url>
+    <content><![CDATA[为Hexo添加外链播放器
+
+
+
+
+
+
+
+
+&lt;div style=&quot;position: relative; padding: 30% 45%;&quot;&gt;&lt;iframe style=&quot;position: absolute; width: 100%; height: 100%; left: 0; top: 0;&quot; src=&quot;https://player.bilibili.com/player.html?aid=76053337&amp;;bvid=BV11J41127DF&amp;cid=130096191&amp;page=1&amp;as_wide=1&amp;high_quality=1&amp;danmaku=0&quot; frameborder=&quot;no&quot; scrolling=&quot;no&quot;&gt;&lt;/iframe&gt;&lt;/div&gt;
+稍微解释一下上面代码的含义：
+page -&gt; 起始下标为 1 (默认值也是为1)
+as_wide -&gt; 是否宽屏 【1: 宽屏, 0: 小屏】
+high_quality -&gt; 是否高清 【1: 高清(最高1080p) &#x2F; 0: 最低视频质量(默认)】
+danmaku -&gt; 是否开启弹幕 【1: 开启(默认), 0: 关闭】
+allowfullscreen -&gt; allowfullscreen&#x3D; “ture” 允许全屏，使用该参数可以在浏览器中全屏播放 作者：Mackxin https://www.bilibili.com/read/cv6775208/ 出处：bilibili
+
+&lt;iframe src=&quot;//player.bilibili.com/player.html?bvid=BV1PC4y1t77X&amp;page=1&amp;danmaku=0&amp;high_quality=1&quot; scrolling=&quot;no&quot; border=&quot;0&quot; frameborder=&quot;no&quot; framespacing=&quot;0&quot; allowfullscreen=&quot;true&quot;&gt;&lt;/iframe&gt;
+
+&lt;div style=&quot;position: relative; width: 100%; height: 0; padding-bottom: 75%;&quot;&gt;    &lt;iframe src=&quot;//player.bilibili.com/player.html?bvid=BV1PC4y1t77X&amp;page=1&amp;danmaku=0&amp;high_quality=1&quot; scrolling=&quot;no&quot; border=&quot;0&quot; frameborder=&quot;no&quot; framespacing=&quot;0&quot; allowfullscreen=&quot;true&quot; style=&quot;position: absolute; width: 100%; height: 100%; left: 0; top: 0;&quot;&gt;&lt;/iframe&gt;&lt;/div&gt;
+
+&lt;div style=&quot;position: relative; width: 100%; height: 0; padding-bottom: 75%;&quot;&gt;    &lt;iframe src=&quot;//player.bilibili.com/player.html?bvid=BV1PC4y1t77X&amp;page=1&amp;danmaku=0&amp;high_quality=1&quot; scrolling=&quot;no&quot; border=&quot;0&quot; frameborder=&quot;no&quot; framespacing=&quot;0&quot; allowfullscreen=&quot;true&quot; style=&quot;position: absolute; width: 100%; height: 100%; left: 0; top: 0;&quot; sandbox=&quot;allow-top-navigation allow-same-origin allow-forms allow-scripts&quot;&gt;&lt;/iframe&gt;&lt;/div&gt;]]></content>
+      <categories>
+        <category>Hexo</category>
+      </categories>
+      <tags>
+        <tag>Hexo</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>正则表达式</title>
+    <url>/gdBlog/2025/09/29/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/</url>
+    <content><![CDATA[正则表达式（Regular Expression，简称 regex 或 regexp）是一种用于匹配、查找和处理文本的强大模式描述语言。它通过一系列预定义的字符和规则，构建出能够精确匹配特定文本模式的表达式，广泛应用于文本搜索、验证、替换、提取等场景（如表单验证、日志分析、代码解析等）。
+正则表达式的入门门槛稍高，但掌握后能极大提升文本处理效率。实际使用时，可借助在线工具（如 Regex101）实时测试和调试表达式。
+高级版关键字搜索性能一般,但无所谓不差这点,功能强大,易于维护
+字符集合g[ a o]t&#x3D;get or got[ a-z]就是a到z ; [^b-c ]除了b到c
+* 出现0或更多 {0}+  1 and more. {1}?  0 or 1            {0,1}{3} 3{3,}. 3 and more{3.6}  3 to 6
+^代表开始  $代表结束
+]]></content>
+      <categories>
+        <category>果冻的航海日志</category>
+      </categories>
+      <tags>
+        <tag>tools</tag>
       </tags>
   </entry>
 </search>
