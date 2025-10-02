@@ -451,50 +451,6 @@ Modular RAG：它将 RAG 的各个部分进行模块化，您可以根据自己�
       </tags>
   </entry>
   <entry>
-    <title>元芳接入DeepSearch</title>
-    <url>/gdBlog/2025/10/02/%E5%85%83%E8%8A%B3%E6%8E%A5%E5%85%A5DeepSearch/</url>
-    <content><![CDATA[实现过程部署在虎符上, 因此Flask Web服务, 最后提供HTTP API接口.在元芳上新增工具为[MCP]问答_DeepResearch深度思考_服务,[MCP]问答_arXiv_服务(并没有用到在应用上), 新增应用为Deep Research应用.
-
-首先使用了DashScope翻译服务完成中译英, 因为arXiv的中文搜索不太行
-使用官方提供的arXiv库实现arXiv论文检索
-最后使用DeepSeek推理模型, 将论文检索的内容作为输入再加上用户原本的输入作为最终的输入给DeepSeekR1模型(在元芳上)
-返回1.论文 2.深度思考 3.最后回答 作为输出.相当于实现了[[DeepSearch]]
-
-备份在github上了Deepsearch
-流程核心功能1. 多语言智能处理
-中文检测与翻译 ：自动检测用户查询是否为中文，如果是则调用DashScope API翻译为英文
-翻译容错机制 ：翻译失败时回退到原始查询，确保系统稳定性
-
-2. 学术资源搜索
-arXiv论文检索 ：将翻译后的英文查询用于搜索相关学术论文
-结果格式化 ：提取论文标题和PDF链接，生成易读的参考信息
-
-3. AI深度推理
-DeepSeek Reasoner模型 ：使用专门的推理模型进行深度思考
-上下文增强 ：结合用户查询和论文信息生成全面回答
-结构化响应 ：提取角色、内容和推理过程三个维度的信息
-
-4. 完整响应返回
-双数据源 ：同时返回论文搜索结果和AI生成的回答
-错误处理 ：完善的异常捕获机制，确保服务稳定性
-
-技术亮点
-多API集成 ：DashScope翻译 + arXiv搜索 + DeepSeek推理
-智能语言处理 ：中英文无缝切换
-学术级回答 ：基于最新研究论文提供权威解答这个DeepSearch系统特别适合需要学术背景知识的深度问答场景，能够为用户提供基于最新研究的专业回答。
-
-]]></content>
-      <categories>
-        <category>果冻的航海日志</category>
-      </categories>
-      <tags>
-        <tag>LLM</tag>
-        <tag>DeepSearch</tag>
-        <tag>tools</tag>
-        <tag>元芳</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>元芳接入Gemini</title>
     <url>/gdBlog/2025/10/02/%E5%85%83%E8%8A%B3%E6%8E%A5%E5%85%A5Gemini/</url>
     <content><![CDATA[写在前面 我的实现方式gemini是google的 所以需要注册google对应的账号,由于需要翻墙再加上需要资金往来,所以放弃这条路了.最后选择使用国内的代理网站 简易,调用了一个 API 接口, 确实挺好用的.注册链接https://jeniya.top/register?aff=tUUD
@@ -541,6 +497,50 @@ Gemini Nano：是最高效的模型，用于特定任务和移动设备。该模
       </categories>
       <tags>
         <tag>LLM</tag>
+        <tag>tools</tag>
+        <tag>元芳</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>元芳接入DeepSearch</title>
+    <url>/gdBlog/2025/10/02/%E5%85%83%E8%8A%B3%E6%8E%A5%E5%85%A5DeepSearch/</url>
+    <content><![CDATA[实现过程部署在虎符上, 因此Flask Web服务, 最后提供HTTP API接口.在元芳上新增工具为[MCP]问答_DeepResearch深度思考_服务,[MCP]问答_arXiv_服务(并没有用到在应用上), 新增应用为Deep Research应用.
+
+首先使用了DashScope翻译服务完成中译英, 因为arXiv的中文搜索不太行
+使用官方提供的arXiv库实现arXiv论文检索
+最后使用DeepSeek推理模型, 将论文检索的内容作为输入再加上用户原本的输入作为最终的输入给DeepSeekR1模型(在元芳上)
+返回1.论文 2.深度思考 3.最后回答 作为输出.相当于实现了[[DeepSearch]]
+
+备份在github上了Deepsearch
+流程核心功能1. 多语言智能处理
+中文检测与翻译 ：自动检测用户查询是否为中文，如果是则调用DashScope API翻译为英文
+翻译容错机制 ：翻译失败时回退到原始查询，确保系统稳定性
+
+2. 学术资源搜索
+arXiv论文检索 ：将翻译后的英文查询用于搜索相关学术论文
+结果格式化 ：提取论文标题和PDF链接，生成易读的参考信息
+
+3. AI深度推理
+DeepSeek Reasoner模型 ：使用专门的推理模型进行深度思考
+上下文增强 ：结合用户查询和论文信息生成全面回答
+结构化响应 ：提取角色、内容和推理过程三个维度的信息
+
+4. 完整响应返回
+双数据源 ：同时返回论文搜索结果和AI生成的回答
+错误处理 ：完善的异常捕获机制，确保服务稳定性
+
+技术亮点
+多API集成 ：DashScope翻译 + arXiv搜索 + DeepSeek推理
+智能语言处理 ：中英文无缝切换
+学术级回答 ：基于最新研究论文提供权威解答这个DeepSearch系统特别适合需要学术背景知识的深度问答场景，能够为用户提供基于最新研究的专业回答。
+
+]]></content>
+      <categories>
+        <category>果冻的航海日志</category>
+      </categories>
+      <tags>
+        <tag>LLM</tag>
+        <tag>DeepSearch</tag>
         <tag>tools</tag>
         <tag>元芳</tag>
       </tags>
@@ -616,38 +616,6 @@ Qwen的MCP格式final_response&#123;    &quot;status_code&quot;: 200,           
       </tags>
   </entry>
   <entry>
-    <title>外链播放器</title>
-    <url>/gdBlog/2023/05/05/%E5%A4%96%E9%93%BE%E6%92%AD%E6%94%BE%E5%99%A8/</url>
-    <content><![CDATA[为Hexo添加外链播放器
-
-
-
-
-
-
-
-
-&lt;div style=&quot;position: relative; padding: 30% 45%;&quot;&gt;&lt;iframe style=&quot;position: absolute; width: 100%; height: 100%; left: 0; top: 0;&quot; src=&quot;https://player.bilibili.com/player.html?aid=76053337&amp;;bvid=BV11J41127DF&amp;cid=130096191&amp;page=1&amp;as_wide=1&amp;high_quality=1&amp;danmaku=0&quot; frameborder=&quot;no&quot; scrolling=&quot;no&quot;&gt;&lt;/iframe&gt;&lt;/div&gt;
-稍微解释一下上面代码的含义：
-page -&gt; 起始下标为 1 (默认值也是为1)
-as_wide -&gt; 是否宽屏 【1: 宽屏, 0: 小屏】
-high_quality -&gt; 是否高清 【1: 高清(最高1080p) &#x2F; 0: 最低视频质量(默认)】
-danmaku -&gt; 是否开启弹幕 【1: 开启(默认), 0: 关闭】
-allowfullscreen -&gt; allowfullscreen&#x3D; “ture” 允许全屏，使用该参数可以在浏览器中全屏播放 作者：Mackxin https://www.bilibili.com/read/cv6775208/ 出处：bilibili
-
-&lt;iframe src=&quot;//player.bilibili.com/player.html?bvid=BV1PC4y1t77X&amp;page=1&amp;danmaku=0&amp;high_quality=1&quot; scrolling=&quot;no&quot; border=&quot;0&quot; frameborder=&quot;no&quot; framespacing=&quot;0&quot; allowfullscreen=&quot;true&quot;&gt;&lt;/iframe&gt;
-
-&lt;div style=&quot;position: relative; width: 100%; height: 0; padding-bottom: 75%;&quot;&gt;    &lt;iframe src=&quot;//player.bilibili.com/player.html?bvid=BV1PC4y1t77X&amp;page=1&amp;danmaku=0&amp;high_quality=1&quot; scrolling=&quot;no&quot; border=&quot;0&quot; frameborder=&quot;no&quot; framespacing=&quot;0&quot; allowfullscreen=&quot;true&quot; style=&quot;position: absolute; width: 100%; height: 100%; left: 0; top: 0;&quot;&gt;&lt;/iframe&gt;&lt;/div&gt;
-
-&lt;div style=&quot;position: relative; width: 100%; height: 0; padding-bottom: 75%;&quot;&gt;    &lt;iframe src=&quot;//player.bilibili.com/player.html?bvid=BV1PC4y1t77X&amp;page=1&amp;danmaku=0&amp;high_quality=1&quot; scrolling=&quot;no&quot; border=&quot;0&quot; frameborder=&quot;no&quot; framespacing=&quot;0&quot; allowfullscreen=&quot;true&quot; style=&quot;position: absolute; width: 100%; height: 100%; left: 0; top: 0;&quot; sandbox=&quot;allow-top-navigation allow-same-origin allow-forms allow-scripts&quot;&gt;&lt;/iframe&gt;&lt;/div&gt;]]></content>
-      <categories>
-        <category>Hexo</category>
-      </categories>
-      <tags>
-        <tag>Hexo</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>搜索效率翻倍小技巧</title>
     <url>/gdBlog/2025/10/02/%E6%90%9C%E7%B4%A2%E6%95%88%E7%8E%87%E7%BF%BB%E5%80%8D%E5%B0%8F%E6%8A%80%E5%B7%A7/</url>
     <content><![CDATA[还在为搜不到精准信息发愁？别再一页页翻找搜索结果了。掌握几个简单的搜索引擎快捷指令，就能把海量信息精准筛选，让你的查找效率直接翻倍。
@@ -708,6 +676,38 @@ allowfullscreen -&gt; allowfullscreen&#x3D; “ture” 允许全屏，使用该�
       </categories>
       <tags>
         <tag>tools</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>外链播放器</title>
+    <url>/gdBlog/2023/05/05/%E5%A4%96%E9%93%BE%E6%92%AD%E6%94%BE%E5%99%A8/</url>
+    <content><![CDATA[为Hexo添加外链播放器
+
+
+
+
+
+
+
+
+&lt;div style=&quot;position: relative; padding: 30% 45%;&quot;&gt;&lt;iframe style=&quot;position: absolute; width: 100%; height: 100%; left: 0; top: 0;&quot; src=&quot;https://player.bilibili.com/player.html?aid=76053337&amp;;bvid=BV11J41127DF&amp;cid=130096191&amp;page=1&amp;as_wide=1&amp;high_quality=1&amp;danmaku=0&quot; frameborder=&quot;no&quot; scrolling=&quot;no&quot;&gt;&lt;/iframe&gt;&lt;/div&gt;
+稍微解释一下上面代码的含义：
+page -&gt; 起始下标为 1 (默认值也是为1)
+as_wide -&gt; 是否宽屏 【1: 宽屏, 0: 小屏】
+high_quality -&gt; 是否高清 【1: 高清(最高1080p) &#x2F; 0: 最低视频质量(默认)】
+danmaku -&gt; 是否开启弹幕 【1: 开启(默认), 0: 关闭】
+allowfullscreen -&gt; allowfullscreen&#x3D; “ture” 允许全屏，使用该参数可以在浏览器中全屏播放 作者：Mackxin https://www.bilibili.com/read/cv6775208/ 出处：bilibili
+
+&lt;iframe src=&quot;//player.bilibili.com/player.html?bvid=BV1PC4y1t77X&amp;page=1&amp;danmaku=0&amp;high_quality=1&quot; scrolling=&quot;no&quot; border=&quot;0&quot; frameborder=&quot;no&quot; framespacing=&quot;0&quot; allowfullscreen=&quot;true&quot;&gt;&lt;/iframe&gt;
+
+&lt;div style=&quot;position: relative; width: 100%; height: 0; padding-bottom: 75%;&quot;&gt;    &lt;iframe src=&quot;//player.bilibili.com/player.html?bvid=BV1PC4y1t77X&amp;page=1&amp;danmaku=0&amp;high_quality=1&quot; scrolling=&quot;no&quot; border=&quot;0&quot; frameborder=&quot;no&quot; framespacing=&quot;0&quot; allowfullscreen=&quot;true&quot; style=&quot;position: absolute; width: 100%; height: 100%; left: 0; top: 0;&quot;&gt;&lt;/iframe&gt;&lt;/div&gt;
+
+&lt;div style=&quot;position: relative; width: 100%; height: 0; padding-bottom: 75%;&quot;&gt;    &lt;iframe src=&quot;//player.bilibili.com/player.html?bvid=BV1PC4y1t77X&amp;page=1&amp;danmaku=0&amp;high_quality=1&quot; scrolling=&quot;no&quot; border=&quot;0&quot; frameborder=&quot;no&quot; framespacing=&quot;0&quot; allowfullscreen=&quot;true&quot; style=&quot;position: absolute; width: 100%; height: 100%; left: 0; top: 0;&quot; sandbox=&quot;allow-top-navigation allow-same-origin allow-forms allow-scripts&quot;&gt;&lt;/iframe&gt;&lt;/div&gt;]]></content>
+      <categories>
+        <category>Hexo</category>
+      </categories>
+      <tags>
+        <tag>Hexo</tag>
       </tags>
   </entry>
   <entry>
