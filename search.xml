@@ -17,42 +17,6 @@ dickerfile脚本 是可以通过下载文件的一些来创建脚本
       </tags>
   </entry>
   <entry>
-    <title>Github自动同步脚本</title>
-    <url>/gdBlog/2025/10/01/Github%E8%87%AA%E5%8A%A8%E5%90%8C%E6%AD%A5%E8%84%9A%E6%9C%AC/</url>
-    <content><![CDATA[实施步骤进入要同步的库中，切换至 Actions，点击后面的 New workflow 项
-打开新页面后，点击篮字的 set up a workflow yourself
-设置文件名 sync.yml「可自定义，不与其它脚本同名即可」
-将下面的脚本填到输入框中，点击右上方 Commit changes 即可：
-name: Upstream Syncpermissions:  contents: writeon:  schedule:    - cron: &quot;0 0 * * *&quot; # every day  workflow_dispatch:jobs:  sync_latest_from_upstream:    name: Sync latest commits from upstream repo    runs-on: ubuntu-latest    if: $&#123;&#123; github.event.repository.fork &#125;&#125;    steps:      # Step 1: run a standard checkout action      - name: Checkout target repo        uses: actions/checkout@v4      # Step 2: run the sync action      - name: Sync upstream changes        id: sync        uses: aormsby/Fork-Sync-With-Upstream-action@v3.4        with:          upstream_sync_repo: arnidan/nsfw-api          upstream_sync_branch: main          target_sync_branch: main          target_repo_token: $&#123;&#123; secrets.GITHUB_TOKEN &#125;&#125; # automatically generated, no need to set          # Set test_mode true to run tests instead of the true action!!          test_mode: false      - name: Sync check        if: failure()        run: |          echo &quot;[Error] 由于上游仓库的 workflow 文件变更，导致 GitHub 自动暂停了本次自动更新，您需要手动 Sync Fork 一次。&quot;          echo &quot;[Error] Due to a change in the workflow file of the upstream repository, GitHub has automatically suspended the scheduled automatic update. You need to manually sync your fork.&quot;          exit 1]]></content>
-      <categories>
-        <category>果冻的奇妙小工具</category>
-      </categories>
-      <tags>
-        <tag>tools</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Hexo通过插件隐藏指定文章</title>
-    <url>/gdBlog/2025/10/02/Hexo%E9%80%9A%E8%BF%87%E6%8F%92%E4%BB%B6%E9%9A%90%E8%97%8F%E6%8C%87%E5%AE%9A%E6%96%87%E7%AB%A0/</url>
-    <content><![CDATA[由于本人感觉记不住昨天或者前几天发生的事情, 因此打算写点日记, 但是又没必要让所有人看到, 不必在首页展示, 因此想添加文章隐藏功能. 同时又不想修改Butterfly主题源代码, 原因在于作为一名开发者，还是想使用增量更新，而不是修改原来的内容. 终于！找到了hexo-hide-posts这个Hexo 插件，它能够隐藏指定的文章，并使它们仅可通过链接访问
-可以直接参考README_ZH | hexo-hide-posts来进行配置，这里记录我的配置步骤。
-安装在项目目录执行以下命令安装插件：
-npm install hexo-hide-posts
-安装完成后在项目根目录的_config.yml中添加如下内容：
-# 文章隐藏：https://github.com/prinsss/hexo-hide-postshide_posts:  enable: true # 是否启用 hexo-hide-posts  filter: hidden # 隐藏文章的 front-matter 标识，也可以改成其他你喜欢的名字  noindex: true # 为隐藏的文章添加 noindex meta 标签，阻止搜索引擎收录  # 设置白名单，白名单中的 generator 可以访问隐藏文章  # 常见的 generators 有：index, tag, category, archive, sitemap, feed, etc.  # allowlist_generators: []  allowlist_generators: [&#x27;*&#x27;]    # 设置黑名单，黑名单中的 generator 不可以访问隐藏文章  # 如果同时设置了黑名单和白名单，白名单的优先级更高  # blocklist_generators: [&#x27;*&#x27;]  blocklist_generators: [&#x27;index&#x27;, &#x27;feed&#x27;]
-使用如果在_config.yml中的配置为filter: hidden，则在文章的 front-matter 中添加 hidden: true 即可隐藏文章，如：
----  title: &#x27;被隐藏的文章&#x27;  date: &#x27;2025-10-02&#x27;  hidden: true  ---
-
-特别鸣谢文章作者: InsectMk原文链接:https://insectmk.cn/posts/9c83ed78/参考文章:README_ZH | hexo-hide-posts
-]]></content>
-      <categories>
-        <category>果冻的奇妙小工具</category>
-      </categories>
-      <tags>
-        <tag>Hexo</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>DeepSearch的论文调研</title>
     <url>/gdBlog/2025/10/01/DeepSearch/</url>
     <content><![CDATA[论文调研综述论文A Comprehensive Survey of Deep Research: Systems, Methodologies, and Applications该综述由浙江大学徐仁军和彭静雯撰写，系统研究了Deep Research 系统这一快速发展的领域 —— 这类系统通过整合大型语言模型（LLMs）、先进信息检索技术和自主推理能力，实现复杂研究工作流的自动化；综述分析了 2023 年以来出现的80 多个商业和非商业系统（如 OpenAI&#x2F;DeepResearch、Gemini&#x2F;DeepResearch 等），提出了基于 “基础模型与推理引擎、工具利用与环境交互、任务规划与执行控制、知识合成与输出生成” 的四层技术分类体系，探讨了系统在学术、科学、商业、教育等领域的架构模式与应用适配性，指出当前系统在信息准确性、隐私、知识产权等方面的技术与伦理挑战，并明确了先进推理架构、多模态融合、领域专业化等未来研究方向，同时提供了相关资源库（https://github.com/scienceaix/deepresearch）支持进一步研究
@@ -311,6 +275,27 @@ Agent-RL&#x2F;ReSearch
       </tags>
   </entry>
   <entry>
+    <title>Hexo通过插件隐藏指定文章</title>
+    <url>/gdBlog/2025/10/02/Hexo%E9%80%9A%E8%BF%87%E6%8F%92%E4%BB%B6%E9%9A%90%E8%97%8F%E6%8C%87%E5%AE%9A%E6%96%87%E7%AB%A0/</url>
+    <content><![CDATA[由于本人感觉记不住昨天或者前几天发生的事情, 因此打算写点日记, 但是又没必要让所有人看到, 不必在首页展示, 因此想添加文章隐藏功能. 同时又不想修改Butterfly主题源代码, 原因在于作为一名开发者，还是想使用增量更新，而不是修改原来的内容. 终于！找到了hexo-hide-posts这个Hexo 插件，它能够隐藏指定的文章，并使它们仅可通过链接访问
+可以直接参考README_ZH | hexo-hide-posts来进行配置，这里记录我的配置步骤。
+安装在项目目录执行以下命令安装插件：
+npm install hexo-hide-posts
+安装完成后在项目根目录的_config.yml中添加如下内容：
+# 文章隐藏：https://github.com/prinsss/hexo-hide-postshide_posts:  enable: true # 是否启用 hexo-hide-posts  filter: hidden # 隐藏文章的 front-matter 标识，也可以改成其他你喜欢的名字  noindex: true # 为隐藏的文章添加 noindex meta 标签，阻止搜索引擎收录  # 设置白名单，白名单中的 generator 可以访问隐藏文章  # 常见的 generators 有：index, tag, category, archive, sitemap, feed, etc.  # allowlist_generators: []  allowlist_generators: [&#x27;*&#x27;]    # 设置黑名单，黑名单中的 generator 不可以访问隐藏文章  # 如果同时设置了黑名单和白名单，白名单的优先级更高  # blocklist_generators: [&#x27;*&#x27;]  blocklist_generators: [&#x27;index&#x27;, &#x27;feed&#x27;]
+使用如果在_config.yml中的配置为filter: hidden，则在文章的 front-matter 中添加 hidden: true 即可隐藏文章，如：
+---  title: &#x27;被隐藏的文章&#x27;  date: &#x27;2025-10-02&#x27;  hidden: true  ---
+
+特别鸣谢文章作者: InsectMk原文链接:https://insectmk.cn/posts/9c83ed78/参考文章:README_ZH | hexo-hide-posts
+]]></content>
+      <categories>
+        <category>果冻的奇妙小工具</category>
+      </categories>
+      <tags>
+        <tag>Hexo</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>JSON</title>
     <url>/gdBlog/2025/09/29/JSON/</url>
     <content><![CDATA[JSON是一种文本数据格式!
@@ -354,6 +339,62 @@ json和xml之间一般可以转换json文本实际上是一条字符串json的�
       <tags>
         <tag>tools</tag>
         <tag>LLM</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Github自动同步脚本</title>
+    <url>/gdBlog/2025/10/01/Github%E8%87%AA%E5%8A%A8%E5%90%8C%E6%AD%A5%E8%84%9A%E6%9C%AC/</url>
+    <content><![CDATA[实施步骤进入要同步的库中，切换至 Actions，点击后面的 New workflow 项
+打开新页面后，点击篮字的 set up a workflow yourself
+设置文件名 sync.yml「可自定义，不与其它脚本同名即可」
+将下面的脚本填到输入框中，点击右上方 Commit changes 即可：
+name: Upstream Syncpermissions:  contents: writeon:  schedule:    - cron: &quot;0 0 * * *&quot; # every day  workflow_dispatch:jobs:  sync_latest_from_upstream:    name: Sync latest commits from upstream repo    runs-on: ubuntu-latest    if: $&#123;&#123; github.event.repository.fork &#125;&#125;    steps:      # Step 1: run a standard checkout action      - name: Checkout target repo        uses: actions/checkout@v4      # Step 2: run the sync action      - name: Sync upstream changes        id: sync        uses: aormsby/Fork-Sync-With-Upstream-action@v3.4        with:          upstream_sync_repo: arnidan/nsfw-api          upstream_sync_branch: main          target_sync_branch: main          target_repo_token: $&#123;&#123; secrets.GITHUB_TOKEN &#125;&#125; # automatically generated, no need to set          # Set test_mode true to run tests instead of the true action!!          test_mode: false      - name: Sync check        if: failure()        run: |          echo &quot;[Error] 由于上游仓库的 workflow 文件变更，导致 GitHub 自动暂停了本次自动更新，您需要手动 Sync Fork 一次。&quot;          echo &quot;[Error] Due to a change in the workflow file of the upstream repository, GitHub has automatically suspended the scheduled automatic update. You need to manually sync your fork.&quot;          exit 1]]></content>
+      <categories>
+        <category>果冻的奇妙小工具</category>
+      </categories>
+      <tags>
+        <tag>tools</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>元芳接入DeepSearch</title>
+    <url>/gdBlog/2025/10/02/%E5%85%83%E8%8A%B3%E6%8E%A5%E5%85%A5DeepSearch/</url>
+    <content><![CDATA[实现过程部署在虎符上, 因此Flask Web服务, 最后提供HTTP API接口.在元芳上新增工具为[MCP]问答_DeepResearch深度思考_服务,[MCP]问答_arXiv_服务(并没有用到在应用上), 新增应用为Deep Research应用.
+
+首先使用了DashScope翻译服务完成中译英, 因为arXiv的中文搜索不太行
+使用官方提供的arXiv库实现arXiv论文检索
+最后使用DeepSeek推理模型, 将论文检索的内容作为输入再加上用户原本的输入作为最终的输入给DeepSeekR1模型(在元芳上)
+返回1.论文 2.深度思考 3.最后回答 作为输出.相当于实现了[[DeepSearch]]
+
+备份在github上了Deepsearch
+流程核心功能1. 多语言智能处理
+中文检测与翻译 ：自动检测用户查询是否为中文，如果是则调用DashScope API翻译为英文
+翻译容错机制 ：翻译失败时回退到原始查询，确保系统稳定性
+
+2. 学术资源搜索
+arXiv论文检索 ：将翻译后的英文查询用于搜索相关学术论文
+结果格式化 ：提取论文标题和PDF链接，生成易读的参考信息
+
+3. AI深度推理
+DeepSeek Reasoner模型 ：使用专门的推理模型进行深度思考
+上下文增强 ：结合用户查询和论文信息生成全面回答
+结构化响应 ：提取角色、内容和推理过程三个维度的信息
+
+4. 完整响应返回
+双数据源 ：同时返回论文搜索结果和AI生成的回答
+错误处理 ：完善的异常捕获机制，确保服务稳定性
+
+技术亮点
+多API集成 ：DashScope翻译 + arXiv搜索 + DeepSeek推理
+智能语言处理 ：中英文无缝切换
+学术级回答 ：基于最新研究论文提供权威解答这个DeepSearch系统特别适合需要学术背景知识的深度问答场景，能够为用户提供基于最新研究的专业回答。
+
+]]></content>
+      <categories>
+        <category>果冻的航海日志</category>
+      </categories>
+      <tags>
+        <tag>元芳</tag>
       </tags>
   </entry>
   <entry>
@@ -448,97 +489,6 @@ Modular RAG：它将 RAG 的各个部分进行模块化，您可以根据自己�
       </tags>
   </entry>
   <entry>
-    <title>元芳接入DeepSearch</title>
-    <url>/gdBlog/2025/10/02/%E5%85%83%E8%8A%B3%E6%8E%A5%E5%85%A5DeepSearch/</url>
-    <content><![CDATA[实现过程部署在虎符上, 因此Flask Web服务, 最后提供HTTP API接口.在元芳上新增工具为[MCP]问答_DeepResearch深度思考_服务,[MCP]问答_arXiv_服务(并没有用到在应用上), 新增应用为Deep Research应用.
-
-首先使用了DashScope翻译服务完成中译英, 因为arXiv的中文搜索不太行
-使用官方提供的arXiv库实现arXiv论文检索
-最后使用DeepSeek推理模型, 将论文检索的内容作为输入再加上用户原本的输入作为最终的输入给DeepSeekR1模型(在元芳上)
-返回1.论文 2.深度思考 3.最后回答 作为输出.相当于实现了[[DeepSearch]]
-
-备份在github上了Deepsearch
-流程核心功能1. 多语言智能处理
-中文检测与翻译 ：自动检测用户查询是否为中文，如果是则调用DashScope API翻译为英文
-翻译容错机制 ：翻译失败时回退到原始查询，确保系统稳定性
-
-2. 学术资源搜索
-arXiv论文检索 ：将翻译后的英文查询用于搜索相关学术论文
-结果格式化 ：提取论文标题和PDF链接，生成易读的参考信息
-
-3. AI深度推理
-DeepSeek Reasoner模型 ：使用专门的推理模型进行深度思考
-上下文增强 ：结合用户查询和论文信息生成全面回答
-结构化响应 ：提取角色、内容和推理过程三个维度的信息
-
-4. 完整响应返回
-双数据源 ：同时返回论文搜索结果和AI生成的回答
-错误处理 ：完善的异常捕获机制，确保服务稳定性
-
-技术亮点
-多API集成 ：DashScope翻译 + arXiv搜索 + DeepSeek推理
-智能语言处理 ：中英文无缝切换
-学术级回答 ：基于最新研究论文提供权威解答这个DeepSearch系统特别适合需要学术背景知识的深度问答场景，能够为用户提供基于最新研究的专业回答。
-
-]]></content>
-      <categories>
-        <category>果冻的航海日志</category>
-      </categories>
-      <tags>
-        <tag>元芳</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>元芳接入Gemini</title>
-    <url>/gdBlog/2025/10/02/%E5%85%83%E8%8A%B3%E6%8E%A5%E5%85%A5Gemini/</url>
-    <content><![CDATA[写在前面 我的实现方式gemini是google的 所以需要注册google对应的账号,由于需要翻墙再加上需要资金往来,所以放弃这条路了.最后选择使用国内的代理网站 简易,调用了一个 API 接口, 确实挺好用的.注册链接https://jeniya.top/register?aff=tUUD
-了解Gemini历程2023 年 4 月，谷歌母公司 Alphabet 首席执行官桑达尔・皮查伊合并了两个大型人工智能团队，开启 OpenAI 计划。2023 年 12 月 6 日，谷歌正式推出 Gemini 1.0 版本，包括 Gemini Ultra、Gemini Pro 和 Gemini Nano 三个不同规格。2024 年 2 月 15 日，谷歌发布 Gemini 1.5，后续又不断对其进行升级和优化，如 2024 年 5 月 15 日更新升级 Gemini 1.5 Pro 版本，同时推出 Gemini 1.5 Flash 轻量化小模型。2025 年 3 月 26 日，谷歌正式推出新一代人工智能推理模型 Gemini 2.5。
-模型规格及特点Gemini Ultra：是 Gemini 中能力最强的模型，适用于处理高度复杂的任务，如在各种推理和多模态任务中表现出色。它在 MMLU 基准测试中的得分率高达 90.0%，首次超越了人类专家。
- Gemini Pro：适用于多任务，在成本和延迟方面进行了性能优化，具有推理功能和广泛的多模态能力，可在广泛的任务范围内提供显著的性能。
-Gemini Nano：是最高效的模型，用于特定任务和移动设备。该模型训练了两个版本的 Nano，参数分别为 1.8B（Nano-1）和 3.25B（Nano-2），分别针对低内存和高内存器件，采用 4 位量化部署。
-本次接入Gemini 2.5 系列模型🔥 gemini-2.5-flash-lite
-速度: 最快响应时间
-成本: 最经济实惠
-能力: 基础文本理解和生成
-最佳用途: 聊天机器人、简单问答、内容摘要
-
-⚡ gemini-2.5-flash
-速度: 快速响应
-成本: 平衡性价比
-能力: 文本+图像理解，多模态基础任务
-最佳用途: 通用AI应用、客户服务、内容创作
-
-🎯 gemini-2.5-pro
-速度: 响应较慢但质量最高
-成本: 最高定价
-能力: 复杂推理、专业分析、多模态高级任务
-最佳用途: 研究分析、代码生成、复杂问题解决
-
-🖼️ gemini-2.5-flash-image-preview
-速度: 针对图像优化
-成本: 中等定价
-能力: 专业图像识别、视觉分析
-最佳用途: 图像描述、OCR、视觉内容分析
-
-选择建议
-预算敏感: 选择 flash-lite
-平衡需求: 选择 flash
-高质量要求: 选择 pro
-图像处理: 选择 flash-image-preview
-
-输出接口&#123;  &quot;system_instruction&quot;: &#123;    &quot;parts&quot;: [      &#123;        &quot;text&quot;: &quot;You are an asistant.&quot;      &#125;    ]  &#125;,  &quot;contents&quot;: [    &#123;      &quot;role&quot;: &quot;user&quot;,      &quot;parts&quot;: [        &#123;          &quot;text&quot;: &quot;$&#123;content&#125;&quot;        &#125;      ]    &#125;  ]&#125;
-
-官方接口官方文档：https://ai.google.dev/gemini-api/docs/text-generation?hl=zh-cn#multi-turn-conversations
-]]></content>
-      <categories>
-        <category>果冻的航海日志</category>
-      </categories>
-      <tags>
-        <tag>LLM</tag>
-        <tag>元芳</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>元芳接入MCP</title>
     <url>/gdBlog/2025/10/02/%E5%85%83%E8%8A%B3%E6%8E%A5%E5%85%A5MCP/</url>
     <content><![CDATA[项目特点(写在前面)基于 Flask + MySQL + ChromaDB 的 工具管理系统 ,部署在虎符上,为元芳mcp-client工具提供服务，主要用于管理和搜索各种元芳工具，并集成MCP,向量检索,内含元芳执行器不依赖其他元芳版本只依赖数据库。
@@ -607,20 +557,53 @@ Qwen的MCP格式final_response&#123;    &quot;status_code&quot;: 200,           
       </tags>
   </entry>
   <entry>
-    <title>正则表达式</title>
-    <url>/gdBlog/2025/09/29/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/</url>
-    <content><![CDATA[正则表达式（Regular Expression，简称 regex 或 regexp）是一种用于匹配、查找和处理文本的强大模式描述语言。它通过一系列预定义的字符和规则，构建出能够精确匹配特定文本模式的表达式，广泛应用于文本搜索、验证、替换、提取等场景（如表单验证、日志分析、代码解析等）。
-正则表达式的入门门槛稍高，但掌握后能极大提升文本处理效率。实际使用时，可借助在线工具（如 Regex101）实时测试和调试表达式。
-高级版关键字搜索性能一般,但无所谓不差这点,功能强大,易于维护
-字符集合g[ a o]t&#x3D;get or got[ a-z]就是a到z ; [^b-c ]除了b到c
-* 出现0或更多 {0}+  1 and more. {1}?  0 or 1            {0,1}{3} 3{3,}. 3 and more{3.6}  3 to 6
-^代表开始  $代表结束
+    <title>元芳接入Gemini</title>
+    <url>/gdBlog/2025/10/02/%E5%85%83%E8%8A%B3%E6%8E%A5%E5%85%A5Gemini/</url>
+    <content><![CDATA[写在前面 我的实现方式gemini是google的 所以需要注册google对应的账号,由于需要翻墙再加上需要资金往来,所以放弃这条路了.最后选择使用国内的代理网站 简易,调用了一个 API 接口, 确实挺好用的.注册链接https://jeniya.top/register?aff=tUUD
+了解Gemini历程2023 年 4 月，谷歌母公司 Alphabet 首席执行官桑达尔・皮查伊合并了两个大型人工智能团队，开启 OpenAI 计划。2023 年 12 月 6 日，谷歌正式推出 Gemini 1.0 版本，包括 Gemini Ultra、Gemini Pro 和 Gemini Nano 三个不同规格。2024 年 2 月 15 日，谷歌发布 Gemini 1.5，后续又不断对其进行升级和优化，如 2024 年 5 月 15 日更新升级 Gemini 1.5 Pro 版本，同时推出 Gemini 1.5 Flash 轻量化小模型。2025 年 3 月 26 日，谷歌正式推出新一代人工智能推理模型 Gemini 2.5。
+模型规格及特点Gemini Ultra：是 Gemini 中能力最强的模型，适用于处理高度复杂的任务，如在各种推理和多模态任务中表现出色。它在 MMLU 基准测试中的得分率高达 90.0%，首次超越了人类专家。
+ Gemini Pro：适用于多任务，在成本和延迟方面进行了性能优化，具有推理功能和广泛的多模态能力，可在广泛的任务范围内提供显著的性能。
+Gemini Nano：是最高效的模型，用于特定任务和移动设备。该模型训练了两个版本的 Nano，参数分别为 1.8B（Nano-1）和 3.25B（Nano-2），分别针对低内存和高内存器件，采用 4 位量化部署。
+本次接入Gemini 2.5 系列模型🔥 gemini-2.5-flash-lite
+速度: 最快响应时间
+成本: 最经济实惠
+能力: 基础文本理解和生成
+最佳用途: 聊天机器人、简单问答、内容摘要
+
+⚡ gemini-2.5-flash
+速度: 快速响应
+成本: 平衡性价比
+能力: 文本+图像理解，多模态基础任务
+最佳用途: 通用AI应用、客户服务、内容创作
+
+🎯 gemini-2.5-pro
+速度: 响应较慢但质量最高
+成本: 最高定价
+能力: 复杂推理、专业分析、多模态高级任务
+最佳用途: 研究分析、代码生成、复杂问题解决
+
+🖼️ gemini-2.5-flash-image-preview
+速度: 针对图像优化
+成本: 中等定价
+能力: 专业图像识别、视觉分析
+最佳用途: 图像描述、OCR、视觉内容分析
+
+选择建议
+预算敏感: 选择 flash-lite
+平衡需求: 选择 flash
+高质量要求: 选择 pro
+图像处理: 选择 flash-image-preview
+
+输出接口&#123;  &quot;system_instruction&quot;: &#123;    &quot;parts&quot;: [      &#123;        &quot;text&quot;: &quot;You are an asistant.&quot;      &#125;    ]  &#125;,  &quot;contents&quot;: [    &#123;      &quot;role&quot;: &quot;user&quot;,      &quot;parts&quot;: [        &#123;          &quot;text&quot;: &quot;$&#123;content&#125;&quot;        &#125;      ]    &#125;  ]&#125;
+
+官方接口官方文档：https://ai.google.dev/gemini-api/docs/text-generation?hl=zh-cn#multi-turn-conversations
 ]]></content>
       <categories>
         <category>果冻的航海日志</category>
       </categories>
       <tags>
-        <tag>tools</tag>
+        <tag>LLM</tag>
+        <tag>元芳</tag>
       </tags>
   </entry>
   <entry>
@@ -653,6 +636,23 @@ allowfullscreen -&gt; allowfullscreen&#x3D; “ture” 允许全屏，使用该�
       </categories>
       <tags>
         <tag>Hexo</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>正则表达式</title>
+    <url>/gdBlog/2025/09/29/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/</url>
+    <content><![CDATA[正则表达式（Regular Expression，简称 regex 或 regexp）是一种用于匹配、查找和处理文本的强大模式描述语言。它通过一系列预定义的字符和规则，构建出能够精确匹配特定文本模式的表达式，广泛应用于文本搜索、验证、替换、提取等场景（如表单验证、日志分析、代码解析等）。
+正则表达式的入门门槛稍高，但掌握后能极大提升文本处理效率。实际使用时，可借助在线工具（如 Regex101）实时测试和调试表达式。
+高级版关键字搜索性能一般,但无所谓不差这点,功能强大,易于维护
+字符集合g[ a o]t&#x3D;get or got[ a-z]就是a到z ; [^b-c ]除了b到c
+* 出现0或更多 {0}+  1 and more. {1}?  0 or 1            {0,1}{3} 3{3,}. 3 and more{3.6}  3 to 6
+^代表开始  $代表结束
+]]></content>
+      <categories>
+        <category>果冻的航海日志</category>
+      </categories>
+      <tags>
+        <tag>tools</tag>
       </tags>
   </entry>
 </search>
