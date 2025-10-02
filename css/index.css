@@ -2677,40 +2677,18 @@ figure.highlight pre .javascript .function {
   position: relative;
   overflow: hidden;
   margin-bottom: 20px;
-  display: -webkit-box;
-  display: -moz-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: box;
-  display: flex;
-  -webkit-box-orient: horizontal;
-  -moz-box-orient: horizontal;
-  -o-box-orient: horizontal;
-  -webkit-flex-direction: row;
-  -ms-flex-direction: row;
-  flex-direction: row;
-  -webkit-box-align: center;
-  -moz-box-align: center;
-  -o-box-align: center;
-  -ms-flex-align: center;
-  -webkit-align-items: center;
-  align-items: center;
-  height: 16.8em;
+  display: inline-block;
+  width: calc(100% / 2 - 8px);
+  vertical-align: top;
 }
 @media screen and (max-width: 768px) {
   #recent-posts .recent-post-item {
-    -webkit-box-orient: vertical;
-    -moz-box-orient: vertical;
-    -o-box-orient: vertical;
-    -webkit-flex-direction: column;
-    -ms-flex-direction: column;
-    flex-direction: column;
-    height: auto;
+    width: 100%;
   }
 }
 @media screen and (min-width: 2000px) {
   #recent-posts .recent-post-item {
-    height: 18.8em;
+    width: calc(100% / 3 - 8px);
   }
 }
 #recent-posts .recent-post-item:hover .post-bg {
@@ -2726,8 +2704,8 @@ figure.highlight pre .javascript .function {
 }
 #recent-posts .recent-post-item .post_cover {
   overflow: hidden;
-  width: 42%;
-  height: 100%;
+  width: 100%;
+  height: 230px;
 }
 @media screen and (max-width: 768px) {
   #recent-posts .recent-post-item .post_cover {
@@ -2735,30 +2713,11 @@ figure.highlight pre .javascript .function {
     height: 230px;
   }
 }
-#recent-posts .recent-post-item .post_cover.right {
-  -webkit-box-ordinal-group: 1;
-  -moz-box-ordinal-group: 1;
-  -o-box-ordinal-group: 1;
-  -ms-flex-order: 1;
-  -webkit-order: 1;
-  order: 1;
-}
-@media screen and (max-width: 768px) {
-  #recent-posts .recent-post-item .post_cover.right {
-    -webkit-box-ordinal-group: 0;
-    -moz-box-ordinal-group: 0;
-    -o-box-ordinal-group: 0;
-    -ms-flex-order: 0;
-    -webkit-order: 0;
-    order: 0;
-  }
-}
 #recent-posts .recent-post-item .post_cover .post-bg {
   z-index: -4;
 }
 #recent-posts .recent-post-item >.recent-post-info {
-  padding: 0 40px;
-  width: 58%;
+  padding: 30px 30px 25px;
 }
 @media screen and (max-width: 768px) {
   #recent-posts .recent-post-item >.recent-post-info {
@@ -2767,7 +2726,7 @@ figure.highlight pre .javascript .function {
   }
 }
 #recent-posts .recent-post-item >.recent-post-info.no-cover {
-  width: 100%;
+  padding: 35px 30px;
 }
 @media screen and (max-width: 768px) {
   #recent-posts .recent-post-item >.recent-post-info.no-cover {
@@ -4640,6 +4599,12 @@ figure.highlight pre .javascript .function {
   display: -ms-flexbox;
   display: box;
   display: flex;
+  -webkit-box-pack: center;
+  -moz-box-pack: center;
+  -o-box-pack: center;
+  -ms-flex-pack: center;
+  -webkit-justify-content: center;
+  justify-content: center;
   -webkit-box-align: center;
   -moz-box-align: center;
   -o-box-align: center;
@@ -4658,6 +4623,8 @@ figure.highlight pre .javascript .function {
   -o-transition: all 0.5s;
   -ms-transition: all 0.5s;
   transition: all 0.5s;
+  font-family: 'Comic Sans MS', '幼圆', 'Yuanti SC', cursive, sans-serif;
+  letter-spacing: 0.5px;
 }
 @media screen and (max-width: 768px) {
   #nav {
@@ -4670,14 +4637,22 @@ figure.highlight pre .javascript .function {
   filter: none;
 }
 #nav #blog-info {
+  position: absolute;
+  left: 36px;
   -webkit-box-flex: 1;
   -moz-box-flex: 1;
   -o-box-flex: 1;
   box-flex: 1;
-  -webkit-flex: 1;
-  -ms-flex: 1;
-  flex: 1;
+  -webkit-flex: 0;
+  -ms-flex: 0;
+  flex: 0;
+  font-size: 1.5em;
   color: var(--light-grey);
+}
+@media screen and (max-width: 768px) {
+  #nav #blog-info {
+    left: 16px;
+  }
 }
 #nav #blog-info .site-icon {
   margin-right: 6px;
@@ -4708,7 +4683,9 @@ figure.highlight pre .javascript .function {
   font-weight: bold;
 }
 #nav .menus_items {
-  display: inline;
+  display: inline-block;
+  margin: 0 auto;
+  text-align: center;
 }
 #nav .menus_items .menus_item {
   position: relative;
@@ -4793,7 +4770,18 @@ figure.highlight pre .javascript .function {
 }
 #nav #search-button {
   display: inline;
-  padding: 0 0 0 14px;
+  position: absolute;
+  right: 36px;
+  padding: 0;
+  color: var(--light-grey);
+}
+@media screen and (max-width: 768px) {
+  #nav #search-button {
+    right: 16px;
+  }
+}
+#nav #search-button:hover {
+  color: var(--white);
 }
 #nav .site-page {
   position: relative;
@@ -4820,52 +4808,6 @@ figure.highlight pre .javascript .function {
 }
 #nav .site-page:not(.child):hover:after {
   width: 100%;
-}
-#nav .nav-page-title {
-  position: relative;
-  overflow: hidden;
-}
-#nav .nav-page-title > :first-child,
-#nav .nav-page-title > :last-child {
-  display: inline-block;
-  -webkit-transition: all 0.3s ease-in-out;
-  -moz-transition: all 0.3s ease-in-out;
-  -o-transition: all 0.3s ease-in-out;
-  -ms-transition: all 0.3s ease-in-out;
-  transition: all 0.3s ease-in-out;
-}
-#nav .nav-page-title > :last-child {
-  position: absolute;
-  top: 50%;
-  left: 0;
-  opacity: 0;
-  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
-  filter: alpha(opacity=0);
-  -webkit-transform: translateY(-50%) translateY(-10px);
-  -moz-transform: translateY(-50%) translateY(-10px);
-  -o-transform: translateY(-50%) translateY(-10px);
-  -ms-transform: translateY(-50%) translateY(-10px);
-  transform: translateY(-50%) translateY(-10px);
-}
-#nav .nav-page-title:hover > :last-child {
-  opacity: 1;
-  -ms-filter: none;
-  filter: none;
-  -webkit-transform: translateY(-50%) translateY(0);
-  -moz-transform: translateY(-50%) translateY(0);
-  -o-transform: translateY(-50%) translateY(0);
-  -ms-transform: translateY(-50%) translateY(0);
-  transform: translateY(-50%) translateY(0);
-}
-#nav .nav-page-title:hover > :first-child {
-  opacity: 0;
-  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
-  filter: alpha(opacity=0);
-  -webkit-transform: translateY(10px);
-  -moz-transform: translateY(10px);
-  -o-transform: translateY(10px);
-  -ms-transform: translateY(10px);
-  transform: translateY(10px);
 }
 #pagination .pagination {
   margin-top: 20px;
