@@ -153,10 +153,10 @@
     flex-wrap: wrap;
   }
   .social-links i {
-    color: #8400ff;
+    color: #000000;
   }
   .social-link {
-    color: #8a2be2;
+    color: #000000;
     font-size: 1.2rem;
     transition: all 0.3s ease;
     display: inline-flex;
@@ -165,13 +165,13 @@
     width: 2.5rem;
     height: 2.5rem;
     border-radius: 50%;
-    background: rgba(138, 43, 226, 0.1);
+    background: rgba(0, 0, 0, 0.1);
   }
   .social-link:hover {
-    color: #892be294;
-    background: #892be294;
+    color: #333333;
+    background: rgba(0, 0, 0, 0.2);
     transform: translateY(-3px) scale(1.2);
-    box-shadow: 0 5px 15px rgba(138, 43, 226, 0.4);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
     text-decoration: none !important; 
   }
   .footer p {
@@ -180,18 +180,18 @@
   }
   .copyright {
     font-size: 1.1rem; 
-    color: #c08bdf;
+    color: #000000;
     font-weight: 400;
   }
   .tagline {
     font-size: 0.8rem;
-    color: #8a2be2;
+    color: #333333;
     font-style: italic;
     font-weight: 500;
   }
   .visitor-count {
     font-size: 0.75rem;
-    color: rgba(219, 142, 255, 0.658);
+    color: rgba(0, 0, 0, 0.7);
     font-weight: 300;
   }
   #visitorCount {
@@ -258,7 +258,7 @@
       parent_div_git.id = 'recent-posts'; // 赋予配置的ID
       document.querySelector('#page').prepend(parent_div_git); // 插入到 #content-inner 内
     }
-    var item_html = '<style>li.categoryBar-list-item{width:32.3%;}.categoryBar-list{max-height: 950px;overflow:auto;}.categoryBar-list::-webkit-scrollbar{width:0!important}@media screen and (max-width: 650px){.categoryBar-list{max-height: 800px;}}</style><div class="recent-post-item" style="height:auto;width:100%;padding:0px;"><div id="categoryBar"><ul class="categoryBar-list"><li class="categoryBar-list-item" style="background:url(/img/logo.jpg);"> <a class="categoryBar-list-link" href="/categories/果冻的航海日志/">果冻的航海日志</a><span class="categoryBar-list-count">10</span><span class="categoryBar-list-descr">果冻的航海日记</span></li><li class="categoryBar-list-item" style="background:url(/img/logo.jpg);"> <a class="categoryBar-list-link" href="/categories/果冻的奇妙小工具/">果冻的奇妙小工具</a><span class="categoryBar-list-count">2</span><span class="categoryBar-list-descr">Hexo</span></li><li class="categoryBar-list-item" style="background:url(/img/logo.jpg);"> <a class="categoryBar-list-link" href="/categories/果冻的日记本/">果冻的日记本</a><span class="categoryBar-list-count">1</span><span class="categoryBar-list-descr">果冻的奇妙小工具</span></li><li class="categoryBar-list-item" style="background:url(/img/logo.jpg);"> <a class="categoryBar-list-link" href="/categories/Hexo/">Hexo</a><span class="categoryBar-list-count">1</span><span class="categoryBar-list-descr">果冻的日记本</span></li></ul></div></div>';
+    var item_html = '<style>li.categoryBar-list-item{width:32.3%;}.categoryBar-list{max-height: 950px;overflow:auto;}.categoryBar-list::-webkit-scrollbar{width:0!important}@media screen and (max-width: 650px){.categoryBar-list{max-height: 800px;}}</style><div class="recent-post-item" style="height:auto;width:100%;padding:0px;"><div id="categoryBar"><ul class="categoryBar-list"><li class="categoryBar-list-item" style="background:url(/img/logo.jpg);"> <a class="categoryBar-list-link" href="/categories/果冻的日记本/">果冻的日记本</a><span class="categoryBar-list-count">1</span><span class="categoryBar-list-descr">果冻的航海日记</span></li><li class="categoryBar-list-item" style="background:url(/img/logo.jpg);"> <a class="categoryBar-list-link" href="/categories/果冻的航海日志/">果冻的航海日志</a><span class="categoryBar-list-count">10</span><span class="categoryBar-list-descr">Hexo</span></li><li class="categoryBar-list-item" style="background:url(/img/logo.jpg);"> <a class="categoryBar-list-link" href="/categories/果冻的奇妙小工具/">果冻的奇妙小工具</a><span class="categoryBar-list-count">2</span><span class="categoryBar-list-descr">果冻的奇妙小工具</span></li><li class="categoryBar-list-item" style="background:url(/img/logo.jpg);"> <a class="categoryBar-list-link" href="/categories/Hexo/">Hexo</a><span class="categoryBar-list-count">1</span><span class="categoryBar-list-descr">果冻的日记本</span></li></ul></div></div>';
     console.log('已挂载 butterfly_categories_card');
     parent_div_git.insertAdjacentHTML("afterbegin",item_html)
   }
