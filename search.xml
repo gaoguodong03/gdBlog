@@ -1,22 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>Docker</title>
-    <url>/gdBlog/2025/09/29/Docker/</url>
-    <content><![CDATA[远程镜像仓库本地镜像(镜像是只读的)本地仓库
-镜像版本tag版本是完全独立的,last是最新的docker pull&#x2F;push 镜像名docker images 查看本地镜像docker search
-容器真正的示例,隔离网络,文件.不同容器可能会争抢资源1容器打包成镜像,再上传到仓库docker psdocker ps -adocekr start&#x2F;stop&#x2F;rm IDdocker commit -a “作者名称” -m “log信息” ID 打包成镜像docker cp 文件目录 容器ID:目标目录   从前拷贝到后docker exec -it ID &#x2F;bin&#x2F;bash  进入容器内部
-dickerfile脚本 是可以通过下载文件的一些来创建脚本
-网络中的映射一般是端口映射,容器端口8001映射到宿主机的8080
-]]></content>
-      <categories>
-        <category>果冻的航海日志</category>
-      </categories>
-      <tags>
-        <tag>tools</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>DeepSearch的论文调研</title>
     <url>/gdBlog/2025/10/01/DeepSearch/</url>
     <content><![CDATA[论文调研综述论文A Comprehensive Survey of Deep Research: Systems, Methodologies, and Applications该综述由浙江大学徐仁军和彭静雯撰写，系统研究了Deep Research 系统这一快速发展的领域 —— 这类系统通过整合大型语言模型（LLMs）、先进信息检索技术和自主推理能力，实现复杂研究工作流的自动化；综述分析了 2023 年以来出现的80 多个商业和非商业系统（如 OpenAI&#x2F;DeepResearch、Gemini&#x2F;DeepResearch 等），提出了基于 “基础模型与推理引擎、工具利用与环境交互、任务规划与执行控制、知识合成与输出生成” 的四层技术分类体系，探讨了系统在学术、科学、商业、教育等领域的架构模式与应用适配性，指出当前系统在信息准确性、隐私、知识产权等方面的技术与伦理挑战，并明确了先进推理架构、多模态融合、领域专业化等未来研究方向，同时提供了相关资源库（https://github.com/scienceaix/deepresearch）支持进一步研究
@@ -275,6 +259,22 @@ Agent-RL&#x2F;ReSearch
       </tags>
   </entry>
   <entry>
+    <title>Docker</title>
+    <url>/gdBlog/2025/09/29/Docker/</url>
+    <content><![CDATA[远程镜像仓库本地镜像(镜像是只读的)本地仓库
+镜像版本tag版本是完全独立的,last是最新的docker pull&#x2F;push 镜像名docker images 查看本地镜像docker search
+容器真正的示例,隔离网络,文件.不同容器可能会争抢资源1容器打包成镜像,再上传到仓库docker psdocker ps -adocekr start&#x2F;stop&#x2F;rm IDdocker commit -a “作者名称” -m “log信息” ID 打包成镜像docker cp 文件目录 容器ID:目标目录   从前拷贝到后docker exec -it ID &#x2F;bin&#x2F;bash  进入容器内部
+dickerfile脚本 是可以通过下载文件的一些来创建脚本
+网络中的映射一般是端口映射,容器端口8001映射到宿主机的8080
+]]></content>
+      <categories>
+        <category>果冻的航海日志</category>
+      </categories>
+      <tags>
+        <tag>tools</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Github自动同步脚本</title>
     <url>/gdBlog/2025/10/01/Github%E8%87%AA%E5%8A%A8%E5%90%8C%E6%AD%A5%E8%84%9A%E6%9C%AC/</url>
     <content><![CDATA[实施步骤进入要同步的库中，切换至 Actions，点击后面的 New workflow 项
@@ -352,8 +352,8 @@ json和xml之间一般可以转换json文本实际上是一条字符串json的�
         <category>果冻的航海日志</category>
       </categories>
       <tags>
-        <tag>tools</tag>
         <tag>LLM</tag>
+        <tag>tools</tag>
       </tags>
   </entry>
   <entry>
@@ -443,8 +443,8 @@ Modular RAG：它将 RAG 的各个部分进行模块化，您可以根据自己�
         <category>果冻的航海日志</category>
       </categories>
       <tags>
-        <tag>tools</tag>
         <tag>LLM</tag>
+        <tag>tools</tag>
       </tags>
   </entry>
   <entry>
