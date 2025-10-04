@@ -1,6 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>Docker</title>
+    <url>/gdBlog/2025/09/29/Docker/</url>
+    <content><![CDATA[远程镜像仓库本地镜像(镜像是只读的)本地仓库
+镜像版本tag版本是完全独立的,last是最新的docker pull&#x2F;push 镜像名docker images 查看本地镜像docker search
+容器真正的示例,隔离网络,文件.不同容器可能会争抢资源1容器打包成镜像,再上传到仓库docker psdocker ps -adocekr start&#x2F;stop&#x2F;rm IDdocker commit -a “作者名称” -m “log信息” ID 打包成镜像docker cp 文件目录 容器ID:目标目录   从前拷贝到后docker exec -it ID &#x2F;bin&#x2F;bash  进入容器内部
+dickerfile脚本 是可以通过下载文件的一些来创建脚本
+网络中的映射一般是端口映射,容器端口8001映射到宿主机的8080
+]]></content>
+      <categories>
+        <category>果冻的航海日志</category>
+      </categories>
+      <tags>
+        <tag>tools</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>DeepSearch的论文调研</title>
     <url>/gdBlog/2025/10/01/DeepSearch/</url>
     <content><![CDATA[论文调研综述论文A Comprehensive Survey of Deep Research: Systems, Methodologies, and Applications该综述由浙江大学徐仁军和彭静雯撰写，系统研究了Deep Research 系统这一快速发展的领域 —— 这类系统通过整合大型语言模型（LLMs）、先进信息检索技术和自主推理能力，实现复杂研究工作流的自动化；综述分析了 2023 年以来出现的80 多个商业和非商业系统（如 OpenAI&#x2F;DeepResearch、Gemini&#x2F;DeepResearch 等），提出了基于 “基础模型与推理引擎、工具利用与环境交互、任务规划与执行控制、知识合成与输出生成” 的四层技术分类体系，探讨了系统在学术、科学、商业、教育等领域的架构模式与应用适配性，指出当前系统在信息准确性、隐私、知识产权等方面的技术与伦理挑战，并明确了先进推理架构、多模态融合、领域专业化等未来研究方向，同时提供了相关资源库（https://github.com/scienceaix/deepresearch）支持进一步研究
@@ -260,22 +276,6 @@ Agent-RL&#x2F;ReSearch
       </tags>
   </entry>
   <entry>
-    <title>Docker</title>
-    <url>/gdBlog/2025/09/29/Docker/</url>
-    <content><![CDATA[远程镜像仓库本地镜像(镜像是只读的)本地仓库
-镜像版本tag版本是完全独立的,last是最新的docker pull&#x2F;push 镜像名docker images 查看本地镜像docker search
-容器真正的示例,隔离网络,文件.不同容器可能会争抢资源1容器打包成镜像,再上传到仓库docker psdocker ps -adocekr start&#x2F;stop&#x2F;rm IDdocker commit -a “作者名称” -m “log信息” ID 打包成镜像docker cp 文件目录 容器ID:目标目录   从前拷贝到后docker exec -it ID &#x2F;bin&#x2F;bash  进入容器内部
-dickerfile脚本 是可以通过下载文件的一些来创建脚本
-网络中的映射一般是端口映射,容器端口8001映射到宿主机的8080
-]]></content>
-      <categories>
-        <category>果冻的航海日志</category>
-      </categories>
-      <tags>
-        <tag>tools</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Github自动同步脚本</title>
     <url>/gdBlog/2025/10/01/Github%E8%87%AA%E5%8A%A8%E5%90%8C%E6%AD%A5%E8%84%9A%E6%9C%AC/</url>
     <content><![CDATA[实施步骤进入要同步的库中，切换至 Actions，点击后面的 New workflow 项
@@ -285,6 +285,21 @@ dickerfile脚本 是可以通过下载文件的一些来创建脚本
 name: Upstream Syncpermissions:  contents: writeon:  schedule:    - cron: &quot;0 0 * * *&quot; # every day  workflow_dispatch:jobs:  sync_latest_from_upstream:    name: Sync latest commits from upstream repo    runs-on: ubuntu-latest    if: $&#123;&#123; github.event.repository.fork &#125;&#125;    steps:      # Step 1: run a standard checkout action      - name: Checkout target repo        uses: actions/checkout@v4      # Step 2: run the sync action      - name: Sync upstream changes        id: sync        uses: aormsby/Fork-Sync-With-Upstream-action@v3.4        with:          upstream_sync_repo: arnidan/nsfw-api          upstream_sync_branch: main          target_sync_branch: main          target_repo_token: $&#123;&#123; secrets.GITHUB_TOKEN &#125;&#125; # automatically generated, no need to set          # Set test_mode true to run tests instead of the true action!!          test_mode: false      - name: Sync check        if: failure()        run: |          echo &quot;[Error] 由于上游仓库的 workflow 文件变更，导致 GitHub 自动暂停了本次自动更新，您需要手动 Sync Fork 一次。&quot;          echo &quot;[Error] Due to a change in the workflow file of the upstream repository, GitHub has automatically suspended the scheduled automatic update. You need to manually sync your fork.&quot;          exit 1]]></content>
       <categories>
         <category>果冻的奇妙小工具</category>
+      </categories>
+      <tags>
+        <tag>tools</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>JSON</title>
+    <url>/gdBlog/2025/09/29/JSON/</url>
+    <content><![CDATA[JSON是一种文本数据格式!
+json和xml之间一般可以转换json文本实际上是一条字符串json的四种类型不允许嵌套,字符串,数值,布尔,null(你也没法嵌套)两种可以嵌套:哈希值:「“字符串”:剩下六种随便,“”:“”」最后一个键值对后不能加“,”数组:[],用“,”隔开,最后一个不加,六种随便一种,不用统一类型
+空格和换行无所谓
+一般数据量不大,大了的话一般用xml,比较方便.
+]]></content>
+      <categories>
+        <category>果冻的航海日志</category>
       </categories>
       <tags>
         <tag>tools</tag>
@@ -309,21 +324,6 @@ npm install hexo-hide-posts
       </categories>
       <tags>
         <tag>Hexo</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>JSON</title>
-    <url>/gdBlog/2025/09/29/JSON/</url>
-    <content><![CDATA[JSON是一种文本数据格式!
-json和xml之间一般可以转换json文本实际上是一条字符串json的四种类型不允许嵌套,字符串,数值,布尔,null(你也没法嵌套)两种可以嵌套:哈希值:「“字符串”:剩下六种随便,“”:“”」最后一个键值对后不能加“,”数组:[],用“,”隔开,最后一个不加,六种随便一种,不用统一类型
-空格和换行无所谓
-一般数据量不大,大了的话一般用xml,比较方便.
-]]></content>
-      <categories>
-        <category>果冻的航海日志</category>
-      </categories>
-      <tags>
-        <tag>tools</tag>
       </tags>
   </entry>
   <entry>
@@ -353,8 +353,8 @@ json和xml之间一般可以转换json文本实际上是一条字符串json的�
         <category>果冻的航海日志</category>
       </categories>
       <tags>
-        <tag>LLM</tag>
         <tag>tools</tag>
+        <tag>LLM</tag>
         <tag>MCP</tag>
       </tags>
   </entry>
@@ -445,8 +445,8 @@ Modular RAG：它将 RAG 的各个部分进行模块化，您可以根据自己�
         <category>果冻的航海日志</category>
       </categories>
       <tags>
-        <tag>LLM</tag>
         <tag>tools</tag>
+        <tag>LLM</tag>
         <tag>RAG</tag>
       </tags>
   </entry>
@@ -488,9 +488,9 @@ DeepSeek Reasoner模型 ：使用专门的推理模型进行深度思考
         <category>果冻的航海日志</category>
       </categories>
       <tags>
+        <tag>tools</tag>
         <tag>LLM</tag>
         <tag>DeepSearch</tag>
-        <tag>tools</tag>
         <tag>元芳</tag>
       </tags>
   </entry>
@@ -540,8 +540,8 @@ Gemini Nano：是最高效的模型，用于特定任务和移动设备。该模
         <category>果冻的航海日志</category>
       </categories>
       <tags>
-        <tag>LLM</tag>
         <tag>tools</tag>
+        <tag>LLM</tag>
         <tag>元芳</tag>
       </tags>
   </entry>
@@ -609,8 +609,8 @@ Qwen的MCP格式final_response&#123;    &quot;status_code&quot;: 200,           
         <category>果冻的航海日志</category>
       </categories>
       <tags>
-        <tag>LLM</tag>
         <tag>tools</tag>
+        <tag>LLM</tag>
         <tag>MCP</tag>
         <tag>元芳</tag>
       </tags>
@@ -1179,9 +1179,9 @@ Github - browser-use&#x2F;browser-use
         <category>果冻的航海日志</category>
       </categories>
       <tags>
+        <tag>tools</tag>
         <tag>LLM</tag>
         <tag>DeepSearch</tag>
-        <tag>tools</tag>
         <tag>RAG</tag>
       </tags>
   </entry>
