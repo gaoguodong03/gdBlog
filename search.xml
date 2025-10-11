@@ -1,8 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>Docker</title>
+    <url>/gdBlog/2025/10/08/Docker/</url>
+    <content><![CDATA[远程镜像仓库本地镜像(镜像是只读的)本地仓库
+镜像版本tag版本是完全独立的,last是最新的docker pull&#x2F;push 镜像名docker images 查看本地镜像docker search
+容器真正的示例,隔离网络,文件.不同容器可能会争抢资源1容器打包成镜像,再上传到仓库docker psdocker ps -adocekr start&#x2F;stop&#x2F;rm IDdocker commit -a “作者名称” -m “log信息” ID 打包成镜像docker cp 文件目录 容器ID:目标目录   从前拷贝到后docker exec -it ID &#x2F;bin&#x2F;bash  进入容器内部
+dickerfile脚本 是可以通过下载文件的一些来创建脚本
+网络中的映射一般是端口映射,容器端口8001映射到宿主机的8080
+Docker安装不要用homebrew 以前其他软件使用下载都很顺利，但这一次安装Docker却不太行，使用了代理，但总是出现报错
+Error response from daemon: Get “https://registry-1.docker.io/v2/“: EOF
+虽然改了很多代理，但是一直不信。知道去官网下载后就没问题了。
+出问题的可能是：1）Mac的新款M4芯片2）homebrew安装位置不对，或者版本过低
+]]></content>
+      <categories>
+        <category>果冻的航海日志</category>
+      </categories>
+      <tags>
+        <tag>tools</tag>
+        <tag>Docker</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>DeepSearch的论文调研</title>
-    <url>/gdBlog/2025/10/01/DeepSearch/</url>
+    <url>/gdBlog/2025/10/01/DeepSearch%E7%9A%84%E8%AE%BA%E6%96%87%E8%B0%83%E7%A0%94/</url>
     <content><![CDATA[论文调研综述论文A Comprehensive Survey of Deep Research: Systems, Methodologies, and Applications该综述由浙江大学徐仁军和彭静雯撰写，系统研究了Deep Research 系统这一快速发展的领域 —— 这类系统通过整合大型语言模型（LLMs）、先进信息检索技术和自主推理能力，实现复杂研究工作流的自动化；综述分析了 2023 年以来出现的80 多个商业和非商业系统（如 OpenAI&#x2F;DeepResearch、Gemini&#x2F;DeepResearch 等），提出了基于 “基础模型与推理引擎、工具利用与环境交互、任务规划与执行控制、知识合成与输出生成” 的四层技术分类体系，探讨了系统在学术、科学、商业、教育等领域的架构模式与应用适配性，指出当前系统在信息准确性、隐私、知识产权等方面的技术与伦理挑战，并明确了先进推理架构、多模态融合、领域专业化等未来研究方向，同时提供了相关资源库（https://github.com/scienceaix/deepresearch）支持进一步研究
 ![[ObsidianPicture&#x2F;Pasted image 20251001221837.png]]
 ## **综述基础信息**- 作者：浙江大学 Renjun Xu、Jingwen Peng- 核心对象：Deep Research系统- 研究范围：2023年以来80+商业/非商业系统- 资源库：https://github.com/scienceaix/deepresearch## **Deep Research定义与边界**- 核心维度  - 智能知识发现：自动化文献检索、假设生成  - 端到端工作流自动化：实验设计-数据收集-分析-解读  - 协作智能增强：人机协作接口、可视化- 边界区分  - ≠通用AI助手（缺自主工作流能力）  - ≠单功能研究工具（缺跨功能整合）  - ≠纯LLM应用（缺工具集成与环境交互）## **技术框架与演进**- 基础模型与推理引擎  - 演进：通用LLM→研究专用模型（如OpenAI o3、Gemini 2.5 Pro）  - 关键能力：百万级token上下文窗口、链/树状推理- 工具利用与环境交互  - 网页交互：从API搜索→动态内容处理（如Nanobrowser）  - 内容处理：从文本提取→多模态解析（PDF、表格、可视化）  - 工具集成：从通用API→16000+专用API（ToolLLM支持）- 任务规划与执行控制  - 规划：线性分解→分层动态规划（如OpenAI/AgentsSDK）  - 执行： sequential执行→并发监控+故障恢复（如Agent-RL/ReSearch）  - 协作：单智能体→多智能体分工（如smolagents/open_deep_research）- 知识合成与输出生成  - 信息评估：源信誉→多维度质量验证（如grapeot/deep_research_agent）  - 报告生成：简单总结→结构化报告+引用（如mshumer/OpenDeepResearcher）  - 交互呈现：静态文本→动态探索界面（如HKUDS/Auto-Deep-Research）## **系统比较与评估**- 技术维度比较  - 基础模型：上下文长度（Gemini 2.5 Pro达1M tokens）、推理方式  - 环境交互：网页/API/文档/GUI支持能力  - 规划执行：任务分解、错误处理、多智能体协作  - 知识合成：源评估、输出结构、用户交互- 应用适配分析  - 学术研究：文献综述、假设生成（OpenAI/DeepResearch适配）  - 商业智能：市场分析、战略决策（Gemini/DeepResearch适配）  - 个人知识管理：信息整理、学习规划（Perplexity/DeepResearch适配）- 性能基准  - 定量：HLE（OpenAI/DeepResearch达26.6%）、GAIA（Manus达86.5%）、MMLU（Grok3Beta达92.7%）  - 定性：输出连贯性、信息多样性、验证机制## **挑战与未来方向**- 关键挑战  - 信息准确性：幻觉、事实一致性  - 隐私安全：用户数据隔离、敏感信息保护  - 知识产权：引用完整性、版权合规  - 可及性：计算资源依赖、技术门槛- 未来方向  - 先进推理：神经符号融合、因果推理、不确定性建模  - 多模态：视觉/音频/视频整合、跨模态推理  - 领域专业化：科学/法律/医疗定制优化  - 人机协作：交互工作流、标准接口、联合知识创建
@@ -252,11 +273,12 @@ Agent-RL&#x2F;ReSearch
 
 ]]></content>
       <categories>
-        <category>果冻的航海日志</category>
+        <category>果冻的理论学习</category>
       </categories>
       <tags>
         <tag>LLM</tag>
         <tag>DeepSearch</tag>
+        <tag>调研</tag>
       </tags>
   </entry>
   <entry>
@@ -277,31 +299,10 @@ docker-compose down]]></content>
         <category>果冻的奇妙小工具</category>
       </categories>
       <tags>
+        <tag>tools</tag>
+        <tag>Docker</tag>
         <tag>LLM</tag>
         <tag>Dify</tag>
-        <tag>tools</tag>
-        <tag>Docker</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Docker</title>
-    <url>/gdBlog/2025/10/08/Docker/</url>
-    <content><![CDATA[远程镜像仓库本地镜像(镜像是只读的)本地仓库
-镜像版本tag版本是完全独立的,last是最新的docker pull&#x2F;push 镜像名docker images 查看本地镜像docker search
-容器真正的示例,隔离网络,文件.不同容器可能会争抢资源1容器打包成镜像,再上传到仓库docker psdocker ps -adocekr start&#x2F;stop&#x2F;rm IDdocker commit -a “作者名称” -m “log信息” ID 打包成镜像docker cp 文件目录 容器ID:目标目录   从前拷贝到后docker exec -it ID &#x2F;bin&#x2F;bash  进入容器内部
-dickerfile脚本 是可以通过下载文件的一些来创建脚本
-网络中的映射一般是端口映射,容器端口8001映射到宿主机的8080
-Docker安装不要用homebrew 以前其他软件使用下载都很顺利，但这一次安装Docker却不太行，使用了代理，但总是出现报错
-Error response from daemon: Get “https://registry-1.docker.io/v2/“: EOF
-虽然改了很多代理，但是一直不信。知道去官网下载后就没问题了。
-出问题的可能是：1）Mac的新款M4芯片2）homebrew安装位置不对，或者版本过低
-]]></content>
-      <categories>
-        <category>果冻的航海日志</category>
-      </categories>
-      <tags>
-        <tag>tools</tag>
-        <tag>Docker</tag>
       </tags>
   </entry>
   <entry>
@@ -312,6 +313,21 @@ Error response from daemon: Get “https://registry-1.docker.io/v2/“: EOF
 设置文件名 sync.yml「可自定义，不与其它脚本同名即可」
 将下面的脚本填到输入框中，点击右上方 Commit changes 即可：
 name: Upstream Syncpermissions:  contents: writeon:  schedule:    - cron: &quot;0 0 * * *&quot; # every day  workflow_dispatch:jobs:  sync_latest_from_upstream:    name: Sync latest commits from upstream repo    runs-on: ubuntu-latest    if: $&#123;&#123; github.event.repository.fork &#125;&#125;    steps:      # Step 1: run a standard checkout action      - name: Checkout target repo        uses: actions/checkout@v4      # Step 2: run the sync action      - name: Sync upstream changes        id: sync        uses: aormsby/Fork-Sync-With-Upstream-action@v3.4        with:          upstream_sync_repo: arnidan/nsfw-api          upstream_sync_branch: main          target_sync_branch: main          target_repo_token: $&#123;&#123; secrets.GITHUB_TOKEN &#125;&#125; # automatically generated, no need to set          # Set test_mode true to run tests instead of the true action!!          test_mode: false      - name: Sync check        if: failure()        run: |          echo &quot;[Error] 由于上游仓库的 workflow 文件变更，导致 GitHub 自动暂停了本次自动更新，您需要手动 Sync Fork 一次。&quot;          echo &quot;[Error] Due to a change in the workflow file of the upstream repository, GitHub has automatically suspended the scheduled automatic update. You need to manually sync your fork.&quot;          exit 1]]></content>
+      <categories>
+        <category>果冻的奇妙小工具</category>
+      </categories>
+      <tags>
+        <tag>tools</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>JSON</title>
+    <url>/gdBlog/2025/09/29/JSON/</url>
+    <content><![CDATA[JSON是一种文本数据格式!
+json和xml之间一般可以转换json文本实际上是一条字符串json的四种类型不允许嵌套,字符串,数值,布尔,null(你也没法嵌套)两种可以嵌套:哈希值:「“字符串”:剩下六种随便,“”:“”」最后一个键值对后不能加“,”数组:[],用“,”隔开,最后一个不加,六种随便一种,不用统一类型
+空格和换行无所谓
+一般数据量不大,大了的话一般用xml,比较方便.
+]]></content>
       <categories>
         <category>果冻的奇妙小工具</category>
       </categories>
@@ -341,23 +357,8 @@ npm install hexo-hide-posts
       </tags>
   </entry>
   <entry>
-    <title>JSON</title>
-    <url>/gdBlog/2025/09/29/JSON/</url>
-    <content><![CDATA[JSON是一种文本数据格式!
-json和xml之间一般可以转换json文本实际上是一条字符串json的四种类型不允许嵌套,字符串,数值,布尔,null(你也没法嵌套)两种可以嵌套:哈希值:「“字符串”:剩下六种随便,“”:“”」最后一个键值对后不能加“,”数组:[],用“,”隔开,最后一个不加,六种随便一种,不用统一类型
-空格和换行无所谓
-一般数据量不大,大了的话一般用xml,比较方便.
-]]></content>
-      <categories>
-        <category>果冻的航海日志</category>
-      </categories>
-      <tags>
-        <tag>tools</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>MCP(Model Context Protocol模型上下文协议)</title>
-    <url>/gdBlog/2025/09/30/MCP/</url>
+    <url>/gdBlog/2025/09/30/MCP-Model-Context-Protocol%E6%A8%A1%E5%9E%8B%E4%B8%8A%E4%B8%8B%E6%96%87%E5%8D%8F%E8%AE%AE/</url>
     <content><![CDATA[MCP 起源于 2024 年 11 月 25 日, 定义了应用程序和 AI 模型之间交换上下文信息的方式。这使得开发者能够以一致的方式将各种数据源、工具和功能连接到 AI 模型（一个中间协议层），就像 USB-C 让不同设备能够通过相同的接口连接一样。MCP 的目标是创建一个通用标准，使 AI 应用程序的开发和集成变得更加简单和统一。
 起源思考我认为 MCP 的出现是 prompt engineering 发展的产物。更结构化的上下文信息对模型的 performance 提升是显著的。在构造 prompt 时，希望能提供一些更 specific 的信息（比如本地文件，数据库，一些网络实时信息等）给模型，这样模型更容易理解真实场景中的问题。
 第一阶段手工输入. 想象一下没有 MCP 之前我们会怎么做？我们可能会人工从数据库中筛选或者使用工具检索可能需要的信息，手动的粘贴到 prompt 中。随着我们要解决的问题越来越复杂，手工把信息引入到 prompt 中会变得越来越困难。
@@ -379,17 +380,17 @@ json和xml之间一般可以转换json文本实际上是一条字符串json的�
 如果 tool call 的 json 代码存在问题或者模型产生了幻觉怎么办呢？通过阅读代码 发现，我们会 skip 掉无效的调用请求。
 ]]></content>
       <categories>
-        <category>果冻的航海日志</category>
+        <category>果冻的理论学习</category>
       </categories>
       <tags>
-        <tag>LLM</tag>
         <tag>tools</tag>
+        <tag>LLM</tag>
         <tag>MCP</tag>
       </tags>
   </entry>
   <entry>
     <title>MVC（Model-View-Controller，模型 - 视图 - 控制器）</title>
-    <url>/gdBlog/2025/09/30/MVC/</url>
+    <url>/gdBlog/2025/09/30/MVC%EF%BC%88Model-View-Controller%EF%BC%8C%E6%A8%A1%E5%9E%8B-%E8%A7%86%E5%9B%BE-%E6%8E%A7%E5%88%B6%E5%99%A8%EF%BC%89/</url>
     <content><![CDATA[简介MVC（Model-View-Controller，模型 - 视图 - 控制器）是一种软件架构设计模式，其核心思想是分离关注点，通过将应用程序划分为三个相互关联但功能独立的组件.
 各组件的具体作用模型（Model）模型是应用程序的数据中心和业务逻辑核心，负责管理应用程序的数据和处理业务规则，是整个应用的 “大脑”。
 主要职责：
@@ -426,57 +427,65 @@ MVC 工作流程
 
 ]]></content>
       <categories>
-        <category>果冻的航海日志</category>
+        <category>果冻的理论学习</category>
       </categories>
+      <tags>
+        <tag>tools</tag>
+      </tags>
   </entry>
   <entry>
-    <title>RAG（Retrieval-AugmentedGeneration检索增强生成</title>
-    <url>/gdBlog/2025/10/01/RAG/</url>
-    <content><![CDATA[写在前面RAG 是一种新兴的 AI 技术，它结合了信息检索和生成式 AI 的优势，能够在处理复杂任务时提供更准确和相关的答案。RAG 的实现过程相对简单，但是它的核心在于如何检索到相关的信息，以及如何将这些信息与 LLM 结合，这就是 RAG 的关键所在。
-LLM的局限性RAG（Retrieval-Augmented Generation 检索增强生成）正如其字面意思，是通过检索信息来增强 LLM生成的能力。RAG 是一种新兴的 AI 技术，它结合了信息检索和生成式 AI 的优势，能够在处理复杂任务时提供更准确和相关的答案。
-RAG 的工作原理是：首先通过检索引擎从一个大型知识库中获取相关信息，然后将这些信息通过 Prompt 工程与 LLM 结合，生成最终的答案。
-为什么需要这样做呢？ LLM的特点：
+    <title>上下文工程(Context Engineering)</title>
+    <url>/gdBlog/2025/10/11/%E4%B8%8A%E4%B8%8B%E6%96%87%E5%B7%A5%E7%A8%8B-Context-Engineering/</url>
+    <content><![CDATA[前言随着大模型能力的快速发展，人们对大语言模型的使用方式越来越多的从简单的ChatBot，变成了各种Agent，而一个新的术语——上下文工程（Context Engineering），也逐步取代了[[提示工程]](Prompt Engineering）。
+最近[Anthropic]发表了一篇文章，分享了他们在上下文工程上的探索，本文基于原文做了适当解读。
+上下文工程和提示工程的区别—记忆简单来说，提示工程重点关注的是为了获得最佳结果而编写和组织的LLM指令的方法，各种在公众号、B站、小红书上所介绍的如何在某一款软件中输入特定的指令从而能够获得某种效果的方法，都属于提示工程，它通常涉及需要完成的任务、任务的背景信息、如何更好的完成任务、哪些是禁止的、受众是谁等，例如如何使用AI写文章、如何去除AI味、如何使用豆包生成特定的图片等。
+而上下文工程指的是，在LLM推理过程中，如何管理和维护要输入给LLM的最佳信息的策略集，之所以叫信息，而没有叫Prompt或者提示语，是因为在上下文工程中，除了涉及给LLM安排任务，还涉及到工具、当前任务所需要的参考资料、之前交互过程中的记忆等，参考资料和记忆其实也看做是背景信息，但与提示工程中背景信息的区别是他们通常是随任务动态变化的。
+下图是Anthropic给出的提示工程和上下文工程的对比图：
 
-会回答你很多不存在的东西，编造一些不存在的事实，或者是对事实进行错误的推理，LLM 回答不存在的东西的现象被称为幻觉（Hallucination）。
-尤其不擅长于最新的技术和最近的热点事件（注：这里排除掉能够使用联网能力的产品），因为 LLM 训练时使用的数据集是有截止日期的。
+对提示工程而言，使用编写好的提示语（Prompt）通常在一个轮次就可以得到结果，而上下文工程是迭代性的，它通常需要根据LLM的响应动态组织上下文，大家使用Manus、扣子空间之类的这些产品时，看它很忙碌的样子，背后就经历了多个轮次的上下文调整，而这些上下文该以什么方式进行调整，背后对应的就是上下文工程。
+有效上下文应该是什么结构简而言之，有效的上下文应该是不长不短，恰到好处。
+Anthropic建议将提示语（这里更多的是指系统提示语System Prompt）组织成不同的部分，比如 &lt;background_information&gt; 、 &lt;instructions&gt; 、 ## Tool guidance 、 ## Output description 等，并使用XML 标签或 Markdown 标题等技术来区分这些部分。
+无论怎么构建系统提示语，都应该完整地概述你的预期行为，这是最核心的信息。
 
-RAG实现流程是: 用户输入问题-检索相关信息-将信息与LLM结合-生成最后答案
-实现就是这么简单，但是它的核心在于如何检索到相关的信息，以及如何将这些信息与 LLM 结合，这就是 RAG 的关键所在. 对于一个RAG 产品来说，检索的质量和 LLM 的生成能力是两个最重要的指标，它们直接决定了给用户呈现的最终效果，而对 AI 落地产品来说，检索的质量更是重中之重，因为 AI 落地产品的核心就是要解决用户的问题，而不是让用户来解决 AI 的问题。
-那么，如何提高检索的质量呢？
-模糊搜索&#x2F;关键词匹配？那肯定不行，用户输入的问题可能是抽象的，常规的模糊搜索算法可能在用户一长段问题中找不到任何相关的内容，或者是找到的内容和用户的问题完全不相关，自然语言暗藏了太多的语义信息，模糊搜索和关键词匹配都无法捕捉到这些信息。
-大语言模型的核心就是语言模型，语言模型的核心就是概率分布，RAG 的检索过程其实就是一个概率分布的过程，但是 LLM 是需要经过训练的，训练的过程就是不断的调整模型参数，使得模型能够更好的拟合数据集中的概率分布
-自然语言检索核心: EmbeddingEmbedding模型就是用来解决这类自然语言检索问题的，它的核心思想就是将自然语言转换成向量（Vector），然后通过计算向量之间的距离来判断它们之间的相似度。
-实例假设我们有一个问题：“你能给我推荐一个用一个红色水果做品牌名称的科技公司出的产品吗？”
-假设我们有一个 Embedding 模型，它能够将这些自然语言转换成抽象高维度向量，向量的每一个维度都代表了一个特征，比如颜色、形状、大小等等。
-假设我们有一个知识库，里面有很多关于水果的品牌名称，比如“手机”、“电动汽车”、“智能台灯”，“苹果”、“香蕉”、“西瓜”等等。
-假设我们有一个检索算法，它能够计算向量之间的距离，比如欧几里得距离、余弦相似度等。
-我们使用余弦相似度来计算向量之间的距离，那么我们可以将问题转换成向量，比如“你能给我推荐一个用一个红色水果做品牌名称的科技公司出的产品吗？”可以转换成一个向量 A，而知识库中的“苹果”，“手机”，“电动汽车”，“智能台灯”等等也可以转换成向量 B，C，D 等等。
-对于文本类问题，我们通常使用余弦相似度来计算向量之间的距离，余弦相似度的公式如下：
-![[ObsidianPicture&#x2F;Pasted image 20251001091142.png]]
-通过此公式，我们可以计算出向量 A 和 B 等之间的余弦相似度，余弦相似度的值在-1~1之间，值越大表示两个向量越相似。 如果余弦相似度的值大于某个阈值，比如 0.8 ，那么我们就可以认为这两个向量是相似的，也就是问题和知识库中的内容是相关的。
-这个时候，我们将检索内容通过 Prompt 工程再喂给 LLM，LLM 就会根据检索到的内容生成最终的答案。
-在实际开发中，Embedding 模型(这个也有不同的模型, 效果和性能上有差别)可能是超高维度的，通常在 512 维以上，因此对于传统关系型数据库来说，存储和检索的成本都非常高，因此我们通常会使用一些专门的向量数据库来存储和检索向量，比如 Milvus、Pinecone、Weaviate 等等。
-这些向量数据库通常会使用一些高效的索引算法来加速向量的检索，比如 HNSW、IVF、PQ 等等。向量数据库通常已处理好了这些算法，你只需要调用相关 API 即可。
-Embedding前的分块在预处理阶段，在Embdding前还有一个文档解析与分块的过程，因为在通常情况下，你所使用的Embedding 模型能够处理的文本长度是有限制的，而构建知识库的过程就是将文档解析成小块，然后将这些小块进行向量化，存入向量数据库中.
-在分块时，你可以使用不同的算法，你可以固定大小分块，比如说每 512 字符分成一块，但是这样可能会导致语义不连贯，或者是分块过小，导致向量数据库存储的向量数量过多，成本过高。
-基于内容意图分块，可以根据内容的语义和上下文进行分块，这样可以更好的保留语义信息，提高检索的质量。
-RAG 分类上述提到的是 Naive RAG
-还有其他的RAG:
+Anthropic在实践中观察到，构建Agent最常见的失败模式之一是工具集冗余，导致模型在工具选择上出现困难。如果人类工程师在给定相关信息后无法判断该什么工具，那也别指望人工智能做得有多好。
+提示样例，或者小样本提示（Few Shot），是一种众所周知的最佳实践，联想上面提到的过于复杂、脆弱的逻辑，开发者倾向于往提示中加入各种边缘判断情况，试图把LLM在特定情况下应遵循的所有规则都加入进去，Anthropic不建议这样做，建议使用提示样例。
+如何构造有效的上下文这里的核心，是需要对上下文做动态检索。
+Claude Code的实践经验就是，将所有需要的数据进行预先处理，模型上下文中只保留这些处理结果的标识符（例如文件路径、存储插叙、网页链接等），让智能体采用按需取用的方式，通过工具动态将数据加载到上下文中。
+这样会使上下文的使用效率很高，同时，放入上下文的引用元数据，还提供了额外的信息，例如文件夹的层级结果、文件名、时间戳等，它能帮助人类和Agent理解何时该如何使用信息。
+让Agent自主探索和检索数据，还能实现额外的好处，例如文件大小通常暗示了文件的复杂性（越大的文件越复杂）、命名规范暗示了文件的用途（例如test.py结尾的文件可能是测试文件），这些信息，都可以让Agent在运行时自主探索，逐渐理解，仅在上下文中保留必要的信息，避免上下文被大量可能无关的信息淹没。
+当然这种动态导航和探索的方式也不是没有缺点，最主要的一点就是，它会比直接加载预计算好的信息慢。
+Anthropic的实践是采用混合策略，像CLAUDE.md（里面一般会有开发需要用到的配置信息、开发规范等）这样的文件，会直接加载入上下文，而其他信息，则会在需要的时候，通过glob、grep等工具动态检索。
 
-Advanced RAG：它在 Naive RAG 的基础上，增加了一些优化，在检索前、检索中、检索后都增加了一些优化，比如使用多种检索算法进行组合，使用多种 LLM 进行组合，使用多种 Prompt 模板进行组合等等，这样可以提高检索的质量和生成的效果。
+混合策略算是效率和效果的一种平衡，可以理解成高频要用的信息，直接加载入上下文，不要再浪费时间探索了，低频信息采用动态检索的方式，这跟计算机压缩算法中，高频字符用短编码，低频信息用长编码的做法真是有异曲同工之妙。
 
-Modular RAG：它将 RAG 的各个部分进行模块化，您可以根据自己的需求选择合适的模块进行组合，比如使用不同的检索算法、不同的 LLM、不同的 Prompt 模板等等，这样可以提高 RAG 的灵活性和可扩展性。
+压缩压缩是指对接近模型最大上下文长度时对对话进行内容总结，并重新初始化一个新的上下文窗口。压缩通常作为上下文工程的第一种手段，以提升长期连贯性。其核心在于以高保真方式提炼上下文窗口的内容，使智能体能够以最小的性能下降继续执行。
+像在Claude Code中，就会在上下文长度达到模型最大上下文长度的92%时自动压缩，通过将消息历史传递给模型来实现这一点，以总结和压缩最关键的信息。模型保留了架构决策、未解决的错误和实现细节，同时丢弃了冗余的工具输出或消息。
+压缩的艺术在于选择保留什么与丢弃什么，因为过于激进的压缩可能导致后来才显现重要性的关键的上下文信息丢失。对于实施压缩系统的工程师，建议在复杂的Agent构建时仔细调整Prompt。调整Prompt时，首先从确保压缩后能最大化召回所有相关信息开始，然用开始迭代，通过逐步删除冗余内容的方式来提高精确度。
 
+这个方法挺值得借鉴的，因为很难一次性写出一个完美的压缩Prompt，甚至你可能都不知道该怎么评价这个Prompt的好坏，这里给出的方法就是把目标分解成先确保信息少丢失（最大化召回），再权衡（还要精准），给出了一个清晰可操作的流程。 有点像分类模型调整分类阈值，先保Recall，然后开始提高分类阈值，让Precision升高、Recall下降别太多，来寻找一个最佳决策点。
 
-使用传统的 Naive RAG 可能会导致检索的质量和生成的效果不理想，也有可能使用 Rerank（重排序）算法来对检索的结果进行重排序，或者使用 Chain of Thought（思维链）来对生成的结果进行优化，这些都是 RAG 的变种实现方式。
+一个可被压缩的地方是，清理工具调用和调用结果，为什么？因为调用工具通常是为了使用工具调用结果，一般大模型都会根据System Prompt中的指令对工具调用结果做处理，既然已经有了模型处理结果，那原始的工具调用、工具调用结果信息就不再需要了，可以直接清除。
+结构化笔记记录结构化笔记记录，或代理式记忆，是一种技术，其中代理定期将笔记保存在上下文窗口之外的存储（例如硬盘）中，这些笔记在稍后会被拉回上下文窗口。
+把大模型的上下文窗口想象成电脑的内存，把上下文窗口之外的存储想象成硬盘，就好理解了，跟电脑内存不足，把内存中的页先交换到硬盘的真是一样一样的。
+像有些介绍Cursor、Roo Code、Claude Code的教程，一开始先让Agent生成需求文档、设计文档和待办事项，并写入硬盘的做法，都属于这一类，在后续某个步骤需要这些内容时，再加载回上下文。
+此处不知道大家有没有疑问，把原来一整段的内容先写入硬盘，需要的时候再读取回来放入上下文，上下文窗口不一样会变长吗，跟直接放到上下文中有啥区别？核心是Agent一般都会有文件读写的工具，而文件读取后，在大模型消化完这个信息后，读取的内容就可以丢弃了（回想一下上面提到的清理工具调用结果的部分），举个例子就好理解了，比如代码智能体前期做好了系统设计，并将设计文档写入了硬盘，等开始实现用户管理模块时，它只需要先检索到这部分内容（或者粗暴点，直接整个设计文档加载入上下文），那么当智能体将用户管理模块编码完成后，这个设计文档的内容就可以移出上下文了，所以这种按需取用的方式，可以显著降低上下文占用。
+子智能体架构原文中所说的这种子智能体架构模式（Sub-agent architectures），是多智能体架构中常见的一种设计方式，它通常由主智能体（Orchestrator）、子智能体组成。由主智能体分拆协调任务、子智能体处理特定任务。
+这种架构最核心的作用是上下文隔离，这种方式从某种角度上看其实是扩大了模型所能支持的最大上下文长度，相当于把之前巨长、可能已经超过模型最大输入长度的上下文，分成了不同的部分，每个部分都不会超长，同时缓解了信息过载对模型造成的认知负担。
+通过给每个智能体组织不同的上下文，让它集中所有能力解决它的问题，从而可以带来比单智能体更好的效果。
+当然它的实现也是有挑战的，否则现在所有的智能体架构都是多智能体架构了，比如有如下几点：
+
+任务拆分：主智能体在向各子智能体安排任务时，如何做到不重不漏，任务依赖关系合理，重复以外这更长的耗时和更多的token消耗，遗漏意味着最终任务可能无法完成，依赖关系不合理意味着某个智能体可能会存在信息缺失风险
+上下文传递：主智能体安排了若干子智能体完成不同的任务，如何很好地将子智能体的结果传递给别的子智能体，比如编写一份调研报告时，报告撰写智能体已经完成了初版报告，审阅智能体看到后提出意见“调研报告不够全面，为什么报告中有中国市场、日韩市场、欧洲市场、东南亚市场相关的调研结果，没有北美市场的”，它不知道的是，报告撰写智能体其实调研了北美市场，只是没有找到相关信息
+结果整合：任务拆解让各子任务完成时，肯定是希望最终解决用户原始问题的，但各子智能体的处理结果，很有可能互相之间是没有关联的，比如目标是开发一个FlappyBird游戏，一个子智能体负责生成能够上下移动不断前进的小鸟，一个负责生成有一些烟囱的草坪，当这两者整合时，发现生成草坪的智能体，生成的是类似超级马里奥那样的草坪，两者根本无法整合（案例来自Cognition | Don’t Build Multi-Agents）
+
 ]]></content>
       <categories>
-        <category>果冻的航海日志</category>
+        <category>果冻的理论学习</category>
       </categories>
       <tags>
         <tag>LLM</tag>
-        <tag>tools</tag>
-        <tag>RAG</tag>
+        <tag>调研</tag>
+        <tag>context</tag>
       </tags>
   </entry>
   <entry>
@@ -487,7 +496,7 @@ Modular RAG：它将 RAG 的各个部分进行模块化，您可以根据自己�
 首先使用了DashScope翻译服务完成中译英, 因为arXiv的中文搜索不太行
 使用官方提供的arXiv库实现arXiv论文检索
 最后使用DeepSeek推理模型, 将论文检索的内容作为输入再加上用户原本的输入作为最终的输入给DeepSeekR1模型(在元芳上)
-返回1.论文 2.深度思考 3.最后回答 作为输出.相当于实现了[[DeepSearch]]
+返回1.论文 2.深度思考 3.最后回答 作为输出.相当于实现了[[DeepSearch的论文调研]]
 
 备份在github上了Deepsearch
 流程核心功能1. 多语言智能处理
@@ -517,9 +526,9 @@ DeepSeek Reasoner模型 ：使用专门的推理模型进行深度思考
         <category>果冻的航海日志</category>
       </categories>
       <tags>
+        <tag>tools</tag>
         <tag>LLM</tag>
         <tag>DeepSearch</tag>
-        <tag>tools</tag>
         <tag>元芳</tag>
       </tags>
   </entry>
@@ -569,9 +578,346 @@ Gemini Nano：是最高效的模型，用于特定任务和移动设备。该模
         <category>果冻的航海日志</category>
       </categories>
       <tags>
-        <tag>LLM</tag>
         <tag>tools</tag>
+        <tag>LLM</tag>
         <tag>元芳</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>元芳接入MCP</title>
+    <url>/gdBlog/2025/10/02/%E5%85%83%E8%8A%B3%E6%8E%A5%E5%85%A5MCP/</url>
+    <content><![CDATA[项目特点(写在前面)基于 Flask + MySQL + ChromaDB 的 工具管理系统 ,部署在虎符上,为元芳mcp-client工具提供服务，主要用于管理和搜索各种元芳工具，并集成MCP,向量检索,内含元芳执行器不依赖其他元芳版本只依赖数据库。
+返回接口执行失败
+&#123;    &quot;log&quot;: [        &#123;            &quot;MCP_select_tool_name&quot;: &quot;工具名称&quot;,            &quot;yf_tool_parameters&quot;: &quot;参数&quot;        &#125;    ],    &quot;error&quot;: &quot;错误信息或最终结果&quot;&#125;
+执行成功
+&#123;    &quot;log&quot;: [        &#123;&quot;name&quot;: &quot;工具1&quot;, &quot;description&quot;: &quot;描述1&quot;&#125;,        &#123;&quot;name&quot;: &quot;工具2&quot;, &quot;description&quot;: &quot;描述2&quot;&#125;,        &#123;&quot;name&quot;: &quot;工具3&quot;, &quot;description&quot;: &quot;描述3&quot;&#125;,        &#123;	        &quot;MCP_select_tool_name&quot;: &quot;实际选择的工具名&quot;, 	        &quot;yf_tool_parameters&quot;: &quot;具体参数&quot;	    &#125;    ],    &quot;response&quot;: &quot;工具执行的具体结果内容&quot;&#125;
+
+类Flask应用├── CustomEmbeddingFunction (向量嵌入)├── Tool (数据模型)├── ToolCapability (工具管理)│   ├── search_Tool() 向量搜索│   └── get_tool() 工具详情└── API路由    ├── MCPClient (MCP集成)    └── DashScopeClient (大模型交互)
+主要类描述1. CustomEmbeddingFunction 类(出问题找王闯师兄,我只调用API)
+功能 : 处理向量嵌入请求[[RAG（Retrieval-AugmentedGeneration检索增强生成）]]
+作用 : 向嵌入服务发送请求，将文本转换为向量表示
+关键方法 : call() - 处理嵌入请求并返回向量
+
+2. Tool 类（数据库模型）
+功能 : 定义工具数据表结构
+作用 : 映射MySQL数据库中的tools表
+包含字段 : id、name、description、parameters、host、method、url等工具配置信息
+
+3. ToolCapability 类(元芳执行器的调用方式,元芳能用该工具,我就能用)
+功能 : 工具能力管理核心类
+作用 : 管理ChromaDB连接和工具搜索功能
+关键方法 :
+init() - 初始化数据库连接
+search_Tool() - 基于任务描述搜索相关工具
+get_tool() - 从数据库获取工具详情
+
+
+
+4. MCPClient 类（在api_clients.py中）
+功能 : MCP服务器客户端
+作用 : 连接MCP服务器并处理工具调用
+关键方法 : connect_to_server() , process_query()
+
+5. DashScopeClient 类（在api_clients.py中）
+功能 : 通义千文API客户端
+作用 : 与大模型进行对话交互
+关键方法 : chat() - 发送聊天请求
+
+以后的元芳工具描述格式名称:[MCP]_[核心动作]_[目标对象]_[工具类型]描述:	功能说明：xxxxx	输入参数：	- xxx：xxxxxxx	适用场景：	- xxxxx	- xxxxx	- xxxxx例如:名称:[MCP]查询_虎符运行指标_Prometheus_服务描述:	功能说明：通过PromQL查询语句，获取获取虎符系统的各类运行指标数据。	输入参数：	- query：字符串，符合PromQL语法的Prometheus查询语句。	适用场景：	- 监控虎符系统运行状态	- 排查虎符服务异常	- 收集性能指标数据
+
+工具的接入依靠1）先是向量检索工具数据库中的描述和名称字段，筛选出三个符合的描述；2）将这三个工具开放的接口连同用户的提问直接交给大模型，大模型会自动填充和调用工具，工具执行过程使用的是另一份元芳执行器的执行代码
+Qwen的MCP格式final_response&#123;    &quot;status_code&quot;: 200,                    # HTTP状态码    &quot;code&quot;: &quot;Success&quot;,                     # 业务状态码    &quot;message&quot;: &quot;success&quot;,                  # 业务消息    &quot;output&quot;: &#123;                           # 主要输出内容        &quot;choices&quot;: [            &#123;                &quot;message&quot;: &#123;                    &quot;role&quot;: &quot;assistant&quot;,                    &quot;content&quot;: &quot;模型生成的最终回答内容&quot;                &#125;            &#125;        ]    &#125;,    &quot;usage&quot;: &#123;                            # 使用统计        &quot;input_tokens&quot;: 100,        &quot;output_tokens&quot;: 50,        &quot;total_tokens&quot;: 150    &#125;&#125;
+
+项目意义由于MCP完美适配元芳的“应用-工具”模式, 如果使用MCP, 将不用在直接手动设定某个被调用的工具, MCP可以帮助我们选择工具, 并将参数自动填入, 最后将工具的结果变为自然语言, 我们就能很舒服的通过问问题而调用元芳的所有工具.
+项目来历2024年11月,MCP的诞生[[MCP(Model Context Protocol模型上下文协议)]]2025年4月,丁安然师姐介绍MCP专题2025年5月,我开始尝试将MCP接入元芳,一开始使用OpenAI的模型,最后改为使用Qwen的模型2025年7月,最后将元芳的工具描述补充完毕.2025年9月,放完暑假,修改部分bug后, 最终将MCP上传Githubyuanfang-mcp
+
+
+
+
+
+
+
+
+项目进度一开始, 丁安然师姐在介绍MCP的时候直接通过API的调用接入了三个工具, 并手动添加了工具的描述,和元芳的关系不大, 只是作为演示.之后我便被徐老师安排将MCP接入元芳.
+当时对元芳还不太熟悉,再加上代码能力不够,走了很多很多弯路, 写了很多垃圾代码. 最终确定了先画设计图,定义项目结构,最后再进行编程.![[ObsidianPicture&#x2F;Pasted image 20250930180205.png]]
+这里附上我写的流程图(其中的问题已经全部解决了,只用关心流程)
+![[ObsidianPicture&#x2F;Pasted image 20250930180147.png]]虽然,画了图,但是还是写了一坨屎山.主要原因还是不太熟悉元芳和虎符.
+]]></content>
+      <categories>
+        <category>果冻的航海日志</category>
+      </categories>
+      <tags>
+        <tag>tools</tag>
+        <tag>LLM</tag>
+        <tag>MCP</tag>
+        <tag>元芳</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>外链播放器</title>
+    <url>/gdBlog/2023/05/05/%E5%A4%96%E9%93%BE%E6%92%AD%E6%94%BE%E5%99%A8/</url>
+    <content><![CDATA[为Hexo添加外链播放器
+
+
+
+
+
+
+
+
+&lt;div style=&quot;position: relative; padding: 30% 45%;&quot;&gt;&lt;iframe style=&quot;position: absolute; width: 100%; height: 100%; left: 0; top: 0;&quot; src=&quot;https://player.bilibili.com/player.html?aid=76053337&amp;;bvid=BV11J41127DF&amp;cid=130096191&amp;page=1&amp;as_wide=1&amp;high_quality=1&amp;danmaku=0&quot; frameborder=&quot;no&quot; scrolling=&quot;no&quot;&gt;&lt;/iframe&gt;&lt;/div&gt;
+稍微解释一下上面代码的含义：
+page -&gt; 起始下标为 1 (默认值也是为1)
+as_wide -&gt; 是否宽屏 【1: 宽屏, 0: 小屏】
+high_quality -&gt; 是否高清 【1: 高清(最高1080p) &#x2F; 0: 最低视频质量(默认)】
+danmaku -&gt; 是否开启弹幕 【1: 开启(默认), 0: 关闭】
+allowfullscreen -&gt; allowfullscreen&#x3D; “ture” 允许全屏，使用该参数可以在浏览器中全屏播放 作者：Mackxin https://www.bilibili.com/read/cv6775208/ 出处：bilibili
+
+&lt;iframe src=&quot;//player.bilibili.com/player.html?bvid=BV1PC4y1t77X&amp;page=1&amp;danmaku=0&amp;high_quality=1&quot; scrolling=&quot;no&quot; border=&quot;0&quot; frameborder=&quot;no&quot; framespacing=&quot;0&quot; allowfullscreen=&quot;true&quot;&gt;&lt;/iframe&gt;
+
+&lt;div style=&quot;position: relative; width: 100%; height: 0; padding-bottom: 75%;&quot;&gt;    &lt;iframe src=&quot;//player.bilibili.com/player.html?bvid=BV1PC4y1t77X&amp;page=1&amp;danmaku=0&amp;high_quality=1&quot; scrolling=&quot;no&quot; border=&quot;0&quot; frameborder=&quot;no&quot; framespacing=&quot;0&quot; allowfullscreen=&quot;true&quot; style=&quot;position: absolute; width: 100%; height: 100%; left: 0; top: 0;&quot;&gt;&lt;/iframe&gt;&lt;/div&gt;
+
+&lt;div style=&quot;position: relative; width: 100%; height: 0; padding-bottom: 75%;&quot;&gt;    &lt;iframe src=&quot;//player.bilibili.com/player.html?bvid=BV1PC4y1t77X&amp;page=1&amp;danmaku=0&amp;high_quality=1&quot; scrolling=&quot;no&quot; border=&quot;0&quot; frameborder=&quot;no&quot; framespacing=&quot;0&quot; allowfullscreen=&quot;true&quot; style=&quot;position: absolute; width: 100%; height: 100%; left: 0; top: 0;&quot; sandbox=&quot;allow-top-navigation allow-same-origin allow-forms allow-scripts&quot;&gt;&lt;/iframe&gt;&lt;/div&gt;]]></content>
+      <categories>
+        <category>Hexo</category>
+      </categories>
+      <tags>
+        <tag>Hexo</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>多智能体协同架构调研</title>
+    <url>/gdBlog/2025/10/11/%E5%A4%9A%E6%99%BA%E8%83%BD%E4%BD%93%E5%8D%8F%E5%90%8C%E6%9E%B6%E6%9E%84%E8%B0%83%E7%A0%94/</url>
+    <content><![CDATA[上下文工程
+任务管理者 依次往总线扔任务
+会议时间文档链接：https://free4inno.feishu.cn/wiki/CxV0wuVATi8Z0hk6wF8cWgzCnTb报告时间：2025&#x2F;10&#x2F;10报告人：孟千斌
+简要记录调研了多种多智能体协同架构，包括 OpenManus、微软开源的 AutoGen、字节开源的 LongManus（基于 LongGraph）等，并对它们进行了横向对比
+
+OpenManus：因闭源，分析基于官网 Blog 及演示视频，聚焦其多智能体协同模式，单智能体模式未涉及。
+AutoGen：提供 5 种多智能体协同解法：
+双智能体聊天（带函数调用）：由用户代理和助手构成，通过交替对话、任务拆分函数调用逐步完成任务，支持人工在关键节点介入。
+群聊（Group chat）：预设多角色智能体与群聊管理器，管理器根据上下文和角色能力自动路由任务，公共历史记录信息，支持发布 &#x2F; 订阅模式优化。
+AutoBuild：能从自然语言需求出发，自动生成带角色定位的智能体并组成群聊，经协作完成任务后反思总结并返回结果。
+Mixture of Agents：模仿前馈神经网络架构，含协调者和执行代理，协调者分派任务、聚合结果，执行代理分层处理任务。
+Multi-Agent Debate：由汇聚者和解题代理组成，汇聚者广播任务并整合结果，解题代理独立求解并多轮交换调整答案，最终收敛到一致结果。
+
+
+LongManus：采用分层多智能体架构，上层 “主管 &#x2F; 协调者” 负责流程编排与质控，底层 “专家代理” 执行具体任务。
+
+当前，元芳采用的模式，类似于Group Chat的发布&#x2F;订阅（pub-sub）模式，设定一个任务管理者，依次往总线读取任务
+LongGraph给出的几类多智能体协同模式
+1.OpenManus由于Manus闭源，现有的技术分析都是基于其官网Blog以及演示视频进行的分析，这里首先选择最简单的Openmanus进行多智能体协同框架的调研。OpenManus内部处理任务时分为两个模式，其中单智能体模式不在本次调研范围内故忽略，下面开始介绍其中的多智能体协同模式。
+
+2.AutoGenAutoGen 是微软的一个开源编程框架，用于构建 AI 代理并促进多个智能体之间的合作解决任务，其中关于多智能体协同给出了5种不同的有效解法。
+
+https://microsoft.github.io/autogen/stable/user-guide/core-user-guide/design-patterns/intro.html
+
+2.1 Two-agent chat with function call for task decomposition设置用户代理（代替用户来提出问题，在关键节点人工介入）以及助手（执行任务），在交替对话中逐步得出任务结果。在接收到用户输入之后由助手判断任务需要拆分，并建议调用任务拆分函数，由用户代理执行函数，函数内由planner_user发起与planner的对话，形成双智能体对聊。
+assistant = AssistantAgent(    name=&quot;assistant&quot;,    system_message=&quot;You are a helpful AI assistant. &quot;    &quot;You can use the task planner to decompose a complex task into sub-tasks. &quot;    &quot;Make sure your follow through the sub-tasks. &quot;    &quot;When needed, write Python code in markdown blocks, and I will execute them.&quot;    &quot;Give the user a final solution at the end. &quot;    &quot;Return TERMINATE only if the sub-tasks are completed.&quot;,    llm_config=&#123;        &quot;config_list&quot;: config_list,        &quot;cache_seed&quot;: None,  # Disable legacy cache.    &#125;,)user_proxy = UserProxyAgent(    name=&quot;user_proxy&quot;,    human_input_mode=&quot;ALWAYS&quot;,    is_termination_msg=lambda x: &quot;content&quot; in x    and x[&quot;content&quot;] is not None    and x[&quot;content&quot;].rstrip().endswith(&quot;TERMINATE&quot;),    code_execution_config=&#123;&quot;executor&quot;: code_executor&#125;,)
+
+
+以撰写一篇关于英伟达过去一个月股价表现的博客文章为例。
+识别到用户输入以后由用户代理向助手提出任务，助手判断需要任务拆分以后调用拆分函数，第一层任务拆分由Planner返回给用户代理，如下：
+
+研究：近一月 NVDA 股价数据或新闻&#x2F;新闻稿&#x2F;财报或宏观与行业因素；
+
+分析：识别价格模式与事件关联，准备图表；
+
+大纲：引言&#x2F;背景&#x2F;月度表现&#x2F;影响因素&#x2F;结论；
+
+写作：按大纲撰写正文并嵌入可视化；
+
+编辑发布：校对、SEO、发布与分发、合规声明。
+
+
+得到第一层任务规划之后，用户代理继续将其返回给助手，助手针对第一项任务“研究”拆分出可执行的第二层子任务计划：
+
+确定数据源（网站或 API）
+
+数据下载&#x2F;抓取
+
+解析与清洗
+
+基础分析和可视化
+
+
+拆分后助手将其返回给用户代理，用户代理确认无误后进入执行：用户代理将任务顺序交付给助手，助手返回可执行代码，用户代理确认无误后执行代码并返回运行结果，助手总结执行结果后给出下一步建议（可以写作了），用户代理发令（写博客正文）后由助手产出文章。
+其中的Human-in-the-Loop（HITL）：每次对话返回到用户代理时可选择人工介入输入自然语言要求或者由用户代理AutoReply。且在配置Agent时，用户代理可设置是否在关键节点暂停等待人工介入（Always、Terminal、Never）
+2.2 Group chatGroupChat 将“任务分解—执行分发—结果收敛”封装为一个由预设多角色agent与统一路由器协同运转的会话式流程。大致流程就是在群聊中事先定义角色：Admin（用户代理）、Planner（规划）、Engineer（生成可执行代码）、Executor（执行器）、Writer（撰写&#x2F;润色）、GroupChatManager（群聊管理器&#x2F;路由）。管理器根据最近消息与角色设定自动选下一发言者，或采用自定义发言顺序实现确定性流程。
+
+planner = AssistantAgent(    name=&quot;Planner&quot;,    system_message=&quot;&quot;&quot;Planner. Given a task, please determine what information is needed to complete the task.Please note that the information will all be retrieved using Python code. Please only suggest information that can be retrieved using Python code.&quot;&quot;&quot;,    llm_config=&#123;&quot;config_list&quot;: config_list, &quot;cache_seed&quot;: None&#125;,)engineer = AssistantAgent(    name=&quot;Engineer&quot;,    llm_config=&#123;&quot;config_list&quot;: config_list, &quot;cache_seed&quot;: None&#125;,    system_message=&quot;&quot;&quot;Engineer. You write python/bash to retrieve relevant information. Wrap the code in a code block that specifies the script type. The user can&#x27;t modify your code. So do not suggest incomplete code which requires others to modify. Don&#x27;t use a code block if it&#x27;s not intended to be executed by the executor.Don&#x27;t include multiple code blocks in one response. Do not ask others to copy and paste the result. Check the execution result returned by the executor.If the result indicates there is an error, fix the error and output the code again. Suggest the full code instead of partial code or code changes. If the error can&#x27;t be fixed or if the task is not solved even after the code is executed successfully, analyze the problem, revisit your assumption, collect additional info you need, and think of a different approach to try.&quot;&quot;&quot;,)writer = AssistantAgent(    name=&quot;Writer&quot;,    llm_config=&#123;&quot;config_list&quot;: config_list, &quot;cache_seed&quot;: None&#125;,    system_message=&quot;&quot;&quot;Writer. Please write blogs in markdown format (with relevant titles) and put the content in pseudo ```md``` code block. You will write it for a task based on previous chat history. Don&#x27;t write any code.&quot;&quot;&quot;,)
+
+groupchat = GroupChat(    agents=[user_proxy, engineer, code_executor, writer, planner],    messages=[],    max_round=20,    speaker_selection_method=&quot;auto&quot;,)
+
+协作流程首先，用户或外部代理将消息发布到所有参与者的群聊，GroupChatManager 读取后结合各agent的角色定义与系统提示，对需求进行语义理解并选择合适的首发角色（常见为 Planner）。
+Planner 基于目标、约束与可用工具提出顶层工作计划，把任务拆为若干可验证的子目标，在措辞中指派子任务类型（如数据获取、算法实现、撰写与审校），并发布到公共群聊，由此完成第一次“对话式”任务分解。
+随后，Manager 在每一回合据最近上下文与角色能力进行自动路由，按任务类型分配对应的执行Agent：工程类子目标会被分配给 Engineer 产出可执行方案与外部工具调用；一旦出现可执行代码或工具请求，执行代理就会接棒运行并将运行日志与观测结果写回公共历史；需要文本合成与结构化表达的阶段，则让 Writer 将数据与洞见组织为成稿；若计划存在遗漏或证据链不足，Manager 会再次调度 Planner 或相关agent在对话中“二次拆分”，补充数据源、指标口径、对照实验或质量门槛，形成局部迭代的二次计划。
+整个过程中，公共历史承担记忆与审计作用，所有代理都基于同一上下文生成回复，路由策略既可采用内置的“auto”语义选择器以动态适应复杂情境，也可配置成固定顺序以获得确定性时延和成本；当消息中出现显式终止信号或满足预设完成条件时，Manager 结束对话并输出汇总结果。
+在AutoGen0.7.5中，群聊被优化为发布&#x2F;订阅（pub-sub）的方式，每个智能体有自己的私有主题，群聊有一个公共主题，是否订阅主题成为谁能收到该主题信息的关键。
+2.3 AutoBuildAutoBild实现了从自然语言需求输入，经由自动任务分割与多专家分工协作，到最终交付总结性回答的完整闭环流程。
+
+协作流程用户输入自然语言任务（例如“今天是 2024-03-18，请写一篇关于过去一个月英伟达股价表现的博文”），自动构建助手解析任务，自动生成一组带有清晰角色定位和系统提示的agent（如金融分析师、数据分析师、内容写作者、编辑、数据抓取器），这相当于完成了第一层的任务分割。
+随后，这些专家被放入一个新的GroupChat，并由GroupChatManager 管理对话推进，形成一个嵌套的群聊场景。在群聊中，Manager 根据前一轮消息的内容自动选择下一位发言者：先由写作者产出含占位符的草稿，从而显式暴露“数据获取”子任务；接着由数据抓取器提出可执行的代码；代码执行器运行代码并返回真实的收盘价、最高&#x2F;最低价与涨跌幅；最后由编辑替换掉草稿中的占位符，润色形成完整的成稿并发送 TERMINATE 信号结束子群聊。子群聊结束后，summary_method 会对整个过程和结论进行反思式总结，这份总结作为最终的高层回答由 autobuild_assistant 发回给 user_proxy，从而实现了从自然语言需求输入，经由自动任务分割与多专家分工协作，到最终交付总结性回答的完整闭环流程。
+2.4 Mixture of Agents基于https://arxiv.org/abs/2406.04692以及消息的订阅和消费，模仿前馈神经网络架构。
+框架角色Orchestrator（协调者&#x2F;调度器）
+
+接收用户输入任务。
+
+负责把任务分派给多个工作代理（Workers），收集中间结果。
+
+最终做结果聚合，输出给用户。
+
+
+Workers（执行代理）
+
+接收 Orchestrator 分派的子任务。
+
+独立计算，给出答案。
+
+不同 worker 可以在不同层，可能有冗余（多代理做相同任务以验证结果）或分工（不同代理做不同子任务）。
+
+
+
+协作流程任务输入：用户输入「432 个饼干，按 3:4:2 分给 Alice、Bob、Charlie」。
+任务分派：Orchestrator 把任务发给 layer 0 的多个 workers。
+多代理计算：layer 0 的 worker 各自完成计算，结果一致（Alice 144、Bob 192、Charlie 96）。
+结果汇总：Orchestrator 收集 layer 0 结果，并将包含先前结果的更新任务分派给 layer 1 的 workers 做进一步验证或重算。
+二次验证：layer 1 的 worker 同样独立输出结果。
+最终聚合：Orchestrator 收集 layer 1 的输出，进行结果一致性检查，最终合并，输出统一答案。
+2.5 Multi-Agent Debate框架角色
+Aggregator (汇聚者)
+
+接收用户任务（问题）。
+
+将任务广播给多个解题智能体 (Solvers)。
+
+收集多轮解答并做最终整合与裁决。
+
+
+
+Solvers (解题代理)
+
+独立尝试求解任务（例如：MathSolverA、B、C、D）。
+
+在每一轮中产出解答，并收到“邻居”代理的回应。
+
+可以对比他人解答，修正、重述或强化自己的推理。
+
+
+  
+
+
+协作流程
+任务发布
+
+Aggregator 收到用户问题。
+
+将任务发送给所有 Solvers。
+
+
+
+初始解答（Round 0）
+
+每个 Solver 独立推理，输出一个答案。
+
+同时带有推理过程。
+
+
+
+信息交换（Round 1 开始）
+
+每个 Solver 收到“邻居”们的答案。
+
+进行对比与验证：
+
+如果一致 → 强化并重述结论。
+
+如果不同 → 触发讨论&#x2F;辩驳，说明谁错谁对。
+
+
+
+
+
+多轮迭代（Round 1 → Round 2 → …）
+
+Solvers 不断交换并调整。
+
+在数学问题这种确定性场景下，几轮后都会收敛到同一结果。
+
+
+
+最终聚合
+
+Aggregator 收集所有 Solvers 的最终答案。
+
+根据一致性、多数投票或可信度加权来决定最终输出。
+
+输出给用户。
+
+
+
+
+3. LongManusLangManus 是字节开源的多智能体自动化框架（通过LongGraph），核心思想是用分层（hierarchical）多智能体架构把复杂任务拆解给专长各异的角色，由上层“主管&#x2F;协调者”进行流程编排与质控，底层“专家代理”具体执行（检索、浏览、写代码、生成报告等）。
+
+4.横向对比
+]]></content>
+      <categories>
+        <category>果冻的理论学习</category>
+      </categories>
+      <tags>
+        <tag>LLM</tag>
+        <tag>调研</tag>
+        <tag>Agent</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>RAG（Retrieval-AugmentedGeneration检索增强生成）</title>
+    <url>/gdBlog/2025/10/01/RAG%EF%BC%88Retrieval-AugmentedGeneration%E6%A3%80%E7%B4%A2%E5%A2%9E%E5%BC%BA%E7%94%9F%E6%88%90%EF%BC%89/</url>
+    <content><![CDATA[写在前面RAG 是一种新兴的 AI 技术，它结合了信息检索和生成式 AI 的优势，能够在处理复杂任务时提供更准确和相关的答案。RAG 的实现过程相对简单，但是它的核心在于如何检索到相关的信息，以及如何将这些信息与 LLM 结合，这就是 RAG 的关键所在。
+LLM的局限性RAG（Retrieval-Augmented Generation 检索增强生成）正如其字面意思，是通过检索信息来增强 LLM生成的能力。RAG 是一种新兴的 AI 技术，它结合了信息检索和生成式 AI 的优势，能够在处理复杂任务时提供更准确和相关的答案。
+RAG 的工作原理是：首先通过检索引擎从一个大型知识库中获取相关信息，然后将这些信息通过 Prompt 工程与 LLM 结合，生成最终的答案。
+为什么需要这样做呢？ LLM的特点：
+
+会回答你很多不存在的东西，编造一些不存在的事实，或者是对事实进行错误的推理，LLM 回答不存在的东西的现象被称为幻觉（Hallucination）。
+尤其不擅长于最新的技术和最近的热点事件（注：这里排除掉能够使用联网能力的产品），因为 LLM 训练时使用的数据集是有截止日期的。
+
+RAG实现流程是: 用户输入问题-检索相关信息-将信息与LLM结合-生成最后答案
+实现就是这么简单，但是它的核心在于如何检索到相关的信息，以及如何将这些信息与 LLM 结合，这就是 RAG 的关键所在. 对于一个RAG 产品来说，检索的质量和 LLM 的生成能力是两个最重要的指标，它们直接决定了给用户呈现的最终效果，而对 AI 落地产品来说，检索的质量更是重中之重，因为 AI 落地产品的核心就是要解决用户的问题，而不是让用户来解决 AI 的问题。
+那么，如何提高检索的质量呢？
+模糊搜索&#x2F;关键词匹配？那肯定不行，用户输入的问题可能是抽象的，常规的模糊搜索算法可能在用户一长段问题中找不到任何相关的内容，或者是找到的内容和用户的问题完全不相关，自然语言暗藏了太多的语义信息，模糊搜索和关键词匹配都无法捕捉到这些信息。
+大语言模型的核心就是语言模型，语言模型的核心就是概率分布，RAG 的检索过程其实就是一个概率分布的过程，但是 LLM 是需要经过训练的，训练的过程就是不断的调整模型参数，使得模型能够更好的拟合数据集中的概率分布
+自然语言检索核心: EmbeddingEmbedding模型就是用来解决这类自然语言检索问题的，它的核心思想就是将自然语言转换成向量（Vector），然后通过计算向量之间的距离来判断它们之间的相似度。
+实例假设我们有一个问题：“你能给我推荐一个用一个红色水果做品牌名称的科技公司出的产品吗？”
+假设我们有一个 Embedding 模型，它能够将这些自然语言转换成抽象高维度向量，向量的每一个维度都代表了一个特征，比如颜色、形状、大小等等。
+假设我们有一个知识库，里面有很多关于水果的品牌名称，比如“手机”、“电动汽车”、“智能台灯”，“苹果”、“香蕉”、“西瓜”等等。
+假设我们有一个检索算法，它能够计算向量之间的距离，比如欧几里得距离、余弦相似度等。
+我们使用余弦相似度来计算向量之间的距离，那么我们可以将问题转换成向量，比如“你能给我推荐一个用一个红色水果做品牌名称的科技公司出的产品吗？”可以转换成一个向量 A，而知识库中的“苹果”，“手机”，“电动汽车”，“智能台灯”等等也可以转换成向量 B，C，D 等等。
+对于文本类问题，我们通常使用余弦相似度来计算向量之间的距离，余弦相似度的公式如下：
+![[ObsidianPicture&#x2F;Pasted image 20251001091142.png]]
+通过此公式，我们可以计算出向量 A 和 B 等之间的余弦相似度，余弦相似度的值在-1~1之间，值越大表示两个向量越相似。 如果余弦相似度的值大于某个阈值，比如 0.8 ，那么我们就可以认为这两个向量是相似的，也就是问题和知识库中的内容是相关的。
+这个时候，我们将检索内容通过 Prompt 工程再喂给 LLM，LLM 就会根据检索到的内容生成最终的答案。
+在实际开发中，Embedding 模型(这个也有不同的模型, 效果和性能上有差别)可能是超高维度的，通常在 512 维以上，因此对于传统关系型数据库来说，存储和检索的成本都非常高，因此我们通常会使用一些专门的向量数据库来存储和检索向量，比如 Milvus、Pinecone、Weaviate 等等。
+这些向量数据库通常会使用一些高效的索引算法来加速向量的检索，比如 HNSW、IVF、PQ 等等。向量数据库通常已处理好了这些算法，你只需要调用相关 API 即可。
+Embedding前的分块在预处理阶段，在Embdding前还有一个文档解析与分块的过程，因为在通常情况下，你所使用的Embedding 模型能够处理的文本长度是有限制的，而构建知识库的过程就是将文档解析成小块，然后将这些小块进行向量化，存入向量数据库中.
+在分块时，你可以使用不同的算法，你可以固定大小分块，比如说每 512 字符分成一块，但是这样可能会导致语义不连贯，或者是分块过小，导致向量数据库存储的向量数量过多，成本过高。
+基于内容意图分块，可以根据内容的语义和上下文进行分块，这样可以更好的保留语义信息，提高检索的质量。
+RAG 分类上述提到的是 Naive RAG
+还有其他的RAG:
+
+Advanced RAG：它在 Naive RAG 的基础上，增加了一些优化，在检索前、检索中、检索后都增加了一些优化，比如使用多种检索算法进行组合，使用多种 LLM 进行组合，使用多种 Prompt 模板进行组合等等，这样可以提高检索的质量和生成的效果。
+
+Modular RAG：它将 RAG 的各个部分进行模块化，您可以根据自己的需求选择合适的模块进行组合，比如使用不同的检索算法、不同的 LLM、不同的 Prompt 模板等等，这样可以提高 RAG 的灵活性和可扩展性。
+
+
+使用传统的 Naive RAG 可能会导致检索的质量和生成的效果不理想，也有可能使用 Rerank（重排序）算法来对检索的结果进行重排序，或者使用 Chain of Thought（思维链）来对生成的结果进行优化，这些都是 RAG 的变种实现方式。
+]]></content>
+      <categories>
+        <category>果冻的理论学习</category>
+      </categories>
+      <tags>
+        <tag>tools</tag>
+        <tag>LLM</tag>
+        <tag>RAG</tag>
       </tags>
   </entry>
   <entry>
@@ -642,11 +988,11 @@ Specification（规范）设定明确的质量和格式要求：
 排除内容：明确禁止出现的内容或风格 禁止儿童不宜内容
 ]]></content>
       <categories>
-        <category>果冻的航海日志</category>
+        <category>果冻的理论学习</category>
       </categories>
       <tags>
-        <tag>LLM</tag>
         <tag>tools</tag>
+        <tag>LLM</tag>
         <tag>元芳</tag>
         <tag>prompt</tag>
       </tags>
@@ -729,38 +1075,6 @@ Specification（规范）设定明确的质量和格式要求：
       </categories>
       <tags>
         <tag>tools</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>外链播放器</title>
-    <url>/gdBlog/2023/05/05/%E5%A4%96%E9%93%BE%E6%92%AD%E6%94%BE%E5%99%A8/</url>
-    <content><![CDATA[为Hexo添加外链播放器
-
-
-
-
-
-
-
-
-&lt;div style=&quot;position: relative; padding: 30% 45%;&quot;&gt;&lt;iframe style=&quot;position: absolute; width: 100%; height: 100%; left: 0; top: 0;&quot; src=&quot;https://player.bilibili.com/player.html?aid=76053337&amp;;bvid=BV11J41127DF&amp;cid=130096191&amp;page=1&amp;as_wide=1&amp;high_quality=1&amp;danmaku=0&quot; frameborder=&quot;no&quot; scrolling=&quot;no&quot;&gt;&lt;/iframe&gt;&lt;/div&gt;
-稍微解释一下上面代码的含义：
-page -&gt; 起始下标为 1 (默认值也是为1)
-as_wide -&gt; 是否宽屏 【1: 宽屏, 0: 小屏】
-high_quality -&gt; 是否高清 【1: 高清(最高1080p) &#x2F; 0: 最低视频质量(默认)】
-danmaku -&gt; 是否开启弹幕 【1: 开启(默认), 0: 关闭】
-allowfullscreen -&gt; allowfullscreen&#x3D; “ture” 允许全屏，使用该参数可以在浏览器中全屏播放 作者：Mackxin https://www.bilibili.com/read/cv6775208/ 出处：bilibili
-
-&lt;iframe src=&quot;//player.bilibili.com/player.html?bvid=BV1PC4y1t77X&amp;page=1&amp;danmaku=0&amp;high_quality=1&quot; scrolling=&quot;no&quot; border=&quot;0&quot; frameborder=&quot;no&quot; framespacing=&quot;0&quot; allowfullscreen=&quot;true&quot;&gt;&lt;/iframe&gt;
-
-&lt;div style=&quot;position: relative; width: 100%; height: 0; padding-bottom: 75%;&quot;&gt;    &lt;iframe src=&quot;//player.bilibili.com/player.html?bvid=BV1PC4y1t77X&amp;page=1&amp;danmaku=0&amp;high_quality=1&quot; scrolling=&quot;no&quot; border=&quot;0&quot; frameborder=&quot;no&quot; framespacing=&quot;0&quot; allowfullscreen=&quot;true&quot; style=&quot;position: absolute; width: 100%; height: 100%; left: 0; top: 0;&quot;&gt;&lt;/iframe&gt;&lt;/div&gt;
-
-&lt;div style=&quot;position: relative; width: 100%; height: 0; padding-bottom: 75%;&quot;&gt;    &lt;iframe src=&quot;//player.bilibili.com/player.html?bvid=BV1PC4y1t77X&amp;page=1&amp;danmaku=0&amp;high_quality=1&quot; scrolling=&quot;no&quot; border=&quot;0&quot; frameborder=&quot;no&quot; framespacing=&quot;0&quot; allowfullscreen=&quot;true&quot; style=&quot;position: absolute; width: 100%; height: 100%; left: 0; top: 0;&quot; sandbox=&quot;allow-top-navigation allow-same-origin allow-forms allow-scripts&quot;&gt;&lt;/iframe&gt;&lt;/div&gt;]]></content>
-      <categories>
-        <category>Hexo</category>
-      </categories>
-      <tags>
-        <tag>Hexo</tag>
       </tags>
   </entry>
   <entry>
@@ -1212,83 +1526,13 @@ Github - browser-use&#x2F;browser-use
 链接https://www.aneasystone.com/archives/2025/04/deep-search-and-research.html
 ]]></content>
       <categories>
-        <category>果冻的航海日志</category>
+        <category>果冻的理论学习</category>
       </categories>
       <tags>
+        <tag>tools</tag>
         <tag>LLM</tag>
         <tag>DeepSearch</tag>
-        <tag>tools</tag>
         <tag>RAG</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>元芳接入MCP</title>
-    <url>/gdBlog/2025/10/02/%E5%85%83%E8%8A%B3%E6%8E%A5%E5%85%A5MCP/</url>
-    <content><![CDATA[项目特点(写在前面)基于 Flask + MySQL + ChromaDB 的 工具管理系统 ,部署在虎符上,为元芳mcp-client工具提供服务，主要用于管理和搜索各种元芳工具，并集成MCP,向量检索,内含元芳执行器不依赖其他元芳版本只依赖数据库。
-返回接口执行失败
-&#123;    &quot;log&quot;: [        &#123;            &quot;MCP_select_tool_name&quot;: &quot;工具名称&quot;,            &quot;yf_tool_parameters&quot;: &quot;参数&quot;        &#125;    ],    &quot;error&quot;: &quot;错误信息或最终结果&quot;&#125;
-执行成功
-&#123;    &quot;log&quot;: [        &#123;&quot;name&quot;: &quot;工具1&quot;, &quot;description&quot;: &quot;描述1&quot;&#125;,        &#123;&quot;name&quot;: &quot;工具2&quot;, &quot;description&quot;: &quot;描述2&quot;&#125;,        &#123;&quot;name&quot;: &quot;工具3&quot;, &quot;description&quot;: &quot;描述3&quot;&#125;,        &#123;	        &quot;MCP_select_tool_name&quot;: &quot;实际选择的工具名&quot;, 	        &quot;yf_tool_parameters&quot;: &quot;具体参数&quot;	    &#125;    ],    &quot;response&quot;: &quot;工具执行的具体结果内容&quot;&#125;
-
-类Flask应用├── CustomEmbeddingFunction (向量嵌入)├── Tool (数据模型)├── ToolCapability (工具管理)│   ├── search_Tool() 向量搜索│   └── get_tool() 工具详情└── API路由    ├── MCPClient (MCP集成)    └── DashScopeClient (大模型交互)
-主要类描述1. CustomEmbeddingFunction 类(出问题找王闯师兄,我只调用API)
-功能 : 处理向量嵌入请求[[RAG]]
-作用 : 向嵌入服务发送请求，将文本转换为向量表示
-关键方法 : call() - 处理嵌入请求并返回向量
-
-2. Tool 类（数据库模型）
-功能 : 定义工具数据表结构
-作用 : 映射MySQL数据库中的tools表
-包含字段 : id、name、description、parameters、host、method、url等工具配置信息
-
-3. ToolCapability 类(元芳执行器的调用方式,元芳能用该工具,我就能用)
-功能 : 工具能力管理核心类
-作用 : 管理ChromaDB连接和工具搜索功能
-关键方法 :
-init() - 初始化数据库连接
-search_Tool() - 基于任务描述搜索相关工具
-get_tool() - 从数据库获取工具详情
-
-
-
-4. MCPClient 类（在api_clients.py中）
-功能 : MCP服务器客户端
-作用 : 连接MCP服务器并处理工具调用
-关键方法 : connect_to_server() , process_query()
-
-5. DashScopeClient 类（在api_clients.py中）
-功能 : 通义千文API客户端
-作用 : 与大模型进行对话交互
-关键方法 : chat() - 发送聊天请求
-
-以后的元芳工具描述格式名称:[MCP]_[核心动作]_[目标对象]_[工具类型]描述:	功能说明：xxxxx	输入参数：	- xxx：xxxxxxx	适用场景：	- xxxxx	- xxxxx	- xxxxx例如:名称:[MCP]查询_虎符运行指标_Prometheus_服务描述:	功能说明：通过PromQL查询语句，获取获取虎符系统的各类运行指标数据。	输入参数：	- query：字符串，符合PromQL语法的Prometheus查询语句。	适用场景：	- 监控虎符系统运行状态	- 排查虎符服务异常	- 收集性能指标数据
-
-工具的接入依靠1）先是向量检索工具数据库中的描述和名称字段，筛选出三个符合的描述；2）将这三个工具开放的接口连同用户的提问直接交给大模型，大模型会自动填充和调用工具，工具执行过程使用的是另一份元芳执行器的执行代码
-Qwen的MCP格式final_response&#123;    &quot;status_code&quot;: 200,                    # HTTP状态码    &quot;code&quot;: &quot;Success&quot;,                     # 业务状态码    &quot;message&quot;: &quot;success&quot;,                  # 业务消息    &quot;output&quot;: &#123;                           # 主要输出内容        &quot;choices&quot;: [            &#123;                &quot;message&quot;: &#123;                    &quot;role&quot;: &quot;assistant&quot;,                    &quot;content&quot;: &quot;模型生成的最终回答内容&quot;                &#125;            &#125;        ]    &#125;,    &quot;usage&quot;: &#123;                            # 使用统计        &quot;input_tokens&quot;: 100,        &quot;output_tokens&quot;: 50,        &quot;total_tokens&quot;: 150    &#125;&#125;
-
-项目意义由于MCP完美适配元芳的“应用-工具”模式, 如果使用MCP, 将不用在直接手动设定某个被调用的工具, MCP可以帮助我们选择工具, 并将参数自动填入, 最后将工具的结果变为自然语言, 我们就能很舒服的通过问问题而调用元芳的所有工具.
-项目来历2024年11月,MCP的诞生[[MCP]]2025年4月,丁安然师姐介绍MCP专题2025年5月,我开始尝试将MCP接入元芳,一开始使用OpenAI的模型,最后改为使用Qwen的模型2025年7月,最后将元芳的工具描述补充完毕.2025年9月,放完暑假,修改部分bug后, 最终将MCP上传Githubyuanfang-mcp
-
-
-
-
-
-
-
-
-项目进度一开始, 丁安然师姐在介绍MCP的时候直接通过API的调用接入了三个工具, 并手动添加了工具的描述,和元芳的关系不大, 只是作为演示.之后我便被徐老师安排将MCP接入元芳.
-当时对元芳还不太熟悉,再加上代码能力不够,走了很多很多弯路, 写了很多垃圾代码. 最终确定了先画设计图,定义项目结构,最后再进行编程.![[ObsidianPicture&#x2F;Pasted image 20250930180205.png]]
-这里附上我写的流程图(其中的问题已经全部解决了,只用关心流程)
-![[ObsidianPicture&#x2F;Pasted image 20250930180147.png]]虽然,画了图,但是还是写了一坨屎山.主要原因还是不太熟悉元芳和虎符.
-]]></content>
-      <categories>
-        <category>果冻的航海日志</category>
-      </categories>
-      <tags>
-        <tag>LLM</tag>
-        <tag>tools</tag>
-        <tag>MCP</tag>
-        <tag>元芳</tag>
       </tags>
   </entry>
 </search>
