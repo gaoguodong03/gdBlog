@@ -484,6 +484,61 @@ Modular RAG：它将 RAG 的各个部分进行模块化，您可以根据自己�
       </tags>
   </entry>
   <entry>
+    <title>上下文工程(Context Engineering)</title>
+    <url>/gdBlog/2025/10/11/%E4%B8%8A%E4%B8%8B%E6%96%87%E5%B7%A5%E7%A8%8B-Context-Engineering/</url>
+    <content><![CDATA[前言随着大模型能力的快速发展，人们对大语言模型的使用方式越来越多的从简单的ChatBot，变成了各种Agent，而一个新的术语——上下文工程（Context Engineering），也逐步取代了[[提示工程]](Prompt Engineering）。
+最近[Anthropic]发表了一篇文章，分享了他们在上下文工程上的探索，本文基于原文做了适当解读。
+上下文工程和提示工程的区别—记忆简单来说，提示工程重点关注的是为了获得最佳结果而编写和组织的LLM指令的方法，各种在公众号、B站、小红书上所介绍的如何在某一款软件中输入特定的指令从而能够获得某种效果的方法，都属于提示工程，它通常涉及需要完成的任务、任务的背景信息、如何更好的完成任务、哪些是禁止的、受众是谁等，例如如何使用AI写文章、如何去除AI味、如何使用豆包生成特定的图片等。
+而上下文工程指的是，在LLM推理过程中，如何管理和维护要输入给LLM的最佳信息的策略集，之所以叫信息，而没有叫Prompt或者提示语，是因为在上下文工程中，除了涉及给LLM安排任务，还涉及到工具、当前任务所需要的参考资料、之前交互过程中的记忆等，参考资料和记忆其实也看做是背景信息，但与提示工程中背景信息的区别是他们通常是随任务动态变化的。
+下图是Anthropic给出的提示工程和上下文工程的对比图：
+
+对提示工程而言，使用编写好的提示语（Prompt）通常在一个轮次就可以得到结果，而上下文工程是迭代性的，它通常需要根据LLM的响应动态组织上下文，大家使用Manus、扣子空间之类的这些产品时，看它很忙碌的样子，背后就经历了多个轮次的上下文调整，而这些上下文该以什么方式进行调整，背后对应的就是上下文工程。
+有效上下文应该是什么结构简而言之，有效的上下文应该是不长不短，恰到好处。
+Anthropic建议将提示语（这里更多的是指系统提示语System Prompt）组织成不同的部分，比如 &lt;background_information&gt; 、 &lt;instructions&gt; 、 ## Tool guidance 、 ## Output description 等，并使用XML 标签或 Markdown 标题等技术来区分这些部分。
+无论怎么构建系统提示语，都应该完整地概述你的预期行为，这是最核心的信息。
+
+Anthropic在实践中观察到，构建Agent最常见的失败模式之一是工具集冗余，导致模型在工具选择上出现困难。如果人类工程师在给定相关信息后无法判断该什么工具，那也别指望人工智能做得有多好。
+提示样例，或者小样本提示（Few Shot），是一种众所周知的最佳实践，联想上面提到的过于复杂、脆弱的逻辑，开发者倾向于往提示中加入各种边缘判断情况，试图把LLM在特定情况下应遵循的所有规则都加入进去，Anthropic不建议这样做，建议使用提示样例。
+如何构造有效的上下文这里的核心，是需要对上下文做动态检索。
+Claude Code的实践经验就是，将所有需要的数据进行预先处理，模型上下文中只保留这些处理结果的标识符（例如文件路径、存储插叙、网页链接等），让智能体采用按需取用的方式，通过工具动态将数据加载到上下文中。
+这样会使上下文的使用效率很高，同时，放入上下文的引用元数据，还提供了额外的信息，例如文件夹的层级结果、文件名、时间戳等，它能帮助人类和Agent理解何时该如何使用信息。
+让Agent自主探索和检索数据，还能实现额外的好处，例如文件大小通常暗示了文件的复杂性（越大的文件越复杂）、命名规范暗示了文件的用途（例如test.py结尾的文件可能是测试文件），这些信息，都可以让Agent在运行时自主探索，逐渐理解，仅在上下文中保留必要的信息，避免上下文被大量可能无关的信息淹没。
+当然这种动态导航和探索的方式也不是没有缺点，最主要的一点就是，它会比直接加载预计算好的信息慢。
+Anthropic的实践是采用混合策略，像CLAUDE.md（里面一般会有开发需要用到的配置信息、开发规范等）这样的文件，会直接加载入上下文，而其他信息，则会在需要的时候，通过glob、grep等工具动态检索。
+
+混合策略算是效率和效果的一种平衡，可以理解成高频要用的信息，直接加载入上下文，不要再浪费时间探索了，低频信息采用动态检索的方式，这跟计算机压缩算法中，高频字符用短编码，低频信息用长编码的做法真是有异曲同工之妙。
+
+压缩压缩是指对接近模型最大上下文长度时对对话进行内容总结，并重新初始化一个新的上下文窗口。压缩通常作为上下文工程的第一种手段，以提升长期连贯性。其核心在于以高保真方式提炼上下文窗口的内容，使智能体能够以最小的性能下降继续执行。
+像在Claude Code中，就会在上下文长度达到模型最大上下文长度的92%时自动压缩，通过将消息历史传递给模型来实现这一点，以总结和压缩最关键的信息。模型保留了架构决策、未解决的错误和实现细节，同时丢弃了冗余的工具输出或消息。
+压缩的艺术在于选择保留什么与丢弃什么，因为过于激进的压缩可能导致后来才显现重要性的关键的上下文信息丢失。对于实施压缩系统的工程师，建议在复杂的Agent构建时仔细调整Prompt。调整Prompt时，首先从确保压缩后能最大化召回所有相关信息开始，然用开始迭代，通过逐步删除冗余内容的方式来提高精确度。
+
+这个方法挺值得借鉴的，因为很难一次性写出一个完美的压缩Prompt，甚至你可能都不知道该怎么评价这个Prompt的好坏，这里给出的方法就是把目标分解成先确保信息少丢失（最大化召回），再权衡（还要精准），给出了一个清晰可操作的流程。 有点像分类模型调整分类阈值，先保Recall，然后开始提高分类阈值，让Precision升高、Recall下降别太多，来寻找一个最佳决策点。
+
+一个可被压缩的地方是，清理工具调用和调用结果，为什么？因为调用工具通常是为了使用工具调用结果，一般大模型都会根据System Prompt中的指令对工具调用结果做处理，既然已经有了模型处理结果，那原始的工具调用、工具调用结果信息就不再需要了，可以直接清除。
+结构化笔记记录结构化笔记记录，或代理式记忆，是一种技术，其中代理定期将笔记保存在上下文窗口之外的存储（例如硬盘）中，这些笔记在稍后会被拉回上下文窗口。
+把大模型的上下文窗口想象成电脑的内存，把上下文窗口之外的存储想象成硬盘，就好理解了，跟电脑内存不足，把内存中的页先交换到硬盘的真是一样一样的。
+像有些介绍Cursor、Roo Code、Claude Code的教程，一开始先让Agent生成需求文档、设计文档和待办事项，并写入硬盘的做法，都属于这一类，在后续某个步骤需要这些内容时，再加载回上下文。
+此处不知道大家有没有疑问，把原来一整段的内容先写入硬盘，需要的时候再读取回来放入上下文，上下文窗口不一样会变长吗，跟直接放到上下文中有啥区别？核心是Agent一般都会有文件读写的工具，而文件读取后，在大模型消化完这个信息后，读取的内容就可以丢弃了（回想一下上面提到的清理工具调用结果的部分），举个例子就好理解了，比如代码智能体前期做好了系统设计，并将设计文档写入了硬盘，等开始实现用户管理模块时，它只需要先检索到这部分内容（或者粗暴点，直接整个设计文档加载入上下文），那么当智能体将用户管理模块编码完成后，这个设计文档的内容就可以移出上下文了，所以这种按需取用的方式，可以显著降低上下文占用。
+子智能体架构原文中所说的这种子智能体架构模式（Sub-agent architectures），是多智能体架构中常见的一种设计方式，它通常由主智能体（Orchestrator）、子智能体组成。由主智能体分拆协调任务、子智能体处理特定任务。
+这种架构最核心的作用是上下文隔离，这种方式从某种角度上看其实是扩大了模型所能支持的最大上下文长度，相当于把之前巨长、可能已经超过模型最大输入长度的上下文，分成了不同的部分，每个部分都不会超长，同时缓解了信息过载对模型造成的认知负担。
+通过给每个智能体组织不同的上下文，让它集中所有能力解决它的问题，从而可以带来比单智能体更好的效果。
+当然它的实现也是有挑战的，否则现在所有的智能体架构都是多智能体架构了，比如有如下几点：
+
+任务拆分：主智能体在向各子智能体安排任务时，如何做到不重不漏，任务依赖关系合理，重复以外这更长的耗时和更多的token消耗，遗漏意味着最终任务可能无法完成，依赖关系不合理意味着某个智能体可能会存在信息缺失风险
+上下文传递：主智能体安排了若干子智能体完成不同的任务，如何很好地将子智能体的结果传递给别的子智能体，比如编写一份调研报告时，报告撰写智能体已经完成了初版报告，审阅智能体看到后提出意见“调研报告不够全面，为什么报告中有中国市场、日韩市场、欧洲市场、东南亚市场相关的调研结果，没有北美市场的”，它不知道的是，报告撰写智能体其实调研了北美市场，只是没有找到相关信息
+结果整合：任务拆解让各子任务完成时，肯定是希望最终解决用户原始问题的，但各子智能体的处理结果，很有可能互相之间是没有关联的，比如目标是开发一个FlappyBird游戏，一个子智能体负责生成能够上下移动不断前进的小鸟，一个负责生成有一些烟囱的草坪，当这两者整合时，发现生成草坪的智能体，生成的是类似超级马里奥那样的草坪，两者根本无法整合（案例来自Cognition | Don’t Build Multi-Agents）
+
+]]></content>
+      <categories>
+        <category>果冻的理论学习</category>
+      </categories>
+      <tags>
+        <tag>LLM</tag>
+        <tag>调研</tag>
+        <tag>context</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>元芳接入DeepSearch</title>
     <url>/gdBlog/2025/10/02/%E5%85%83%E8%8A%B3%E6%8E%A5%E5%85%A5DeepSearch/</url>
     <content><![CDATA[实现过程部署在虎符上, 因此Flask Web服务, 最后提供HTTP API接口.在元芳上新增工具为[MCP]问答_DeepResearch深度思考_服务,[MCP]问答_arXiv_服务(并没有用到在应用上), 新增应用为Deep Research应用.
@@ -523,6 +578,57 @@ DeepSeek Reasoner模型 ：使用专门的推理模型进行深度思考
       <tags>
         <tag>LLM</tag>
         <tag>DeepSearch</tag>
+        <tag>tools</tag>
+        <tag>元芳</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>元芳接入Gemini</title>
+    <url>/gdBlog/2025/10/02/%E5%85%83%E8%8A%B3%E6%8E%A5%E5%85%A5Gemini/</url>
+    <content><![CDATA[写在前面 我的实现方式gemini是google的 所以需要注册google对应的账号,由于需要翻墙再加上需要资金往来,所以放弃这条路了.最后选择使用国内的代理网站 简易,调用了一个 API 接口, 确实挺好用的.注册链接https://jeniya.top/register?aff=tUUD
+了解Gemini历程2023 年 4 月，谷歌母公司 Alphabet 首席执行官桑达尔・皮查伊合并了两个大型人工智能团队，开启 OpenAI 计划。2023 年 12 月 6 日，谷歌正式推出 Gemini 1.0 版本，包括 Gemini Ultra、Gemini Pro 和 Gemini Nano 三个不同规格。2024 年 2 月 15 日，谷歌发布 Gemini 1.5，后续又不断对其进行升级和优化，如 2024 年 5 月 15 日更新升级 Gemini 1.5 Pro 版本，同时推出 Gemini 1.5 Flash 轻量化小模型。2025 年 3 月 26 日，谷歌正式推出新一代人工智能推理模型 Gemini 2.5。
+模型规格及特点Gemini Ultra：是 Gemini 中能力最强的模型，适用于处理高度复杂的任务，如在各种推理和多模态任务中表现出色。它在 MMLU 基准测试中的得分率高达 90.0%，首次超越了人类专家。
+ Gemini Pro：适用于多任务，在成本和延迟方面进行了性能优化，具有推理功能和广泛的多模态能力，可在广泛的任务范围内提供显著的性能。
+Gemini Nano：是最高效的模型，用于特定任务和移动设备。该模型训练了两个版本的 Nano，参数分别为 1.8B（Nano-1）和 3.25B（Nano-2），分别针对低内存和高内存器件，采用 4 位量化部署。
+本次接入Gemini 2.5 系列模型🔥 gemini-2.5-flash-lite
+速度: 最快响应时间
+成本: 最经济实惠
+能力: 基础文本理解和生成
+最佳用途: 聊天机器人、简单问答、内容摘要
+
+⚡ gemini-2.5-flash
+速度: 快速响应
+成本: 平衡性价比
+能力: 文本+图像理解，多模态基础任务
+最佳用途: 通用AI应用、客户服务、内容创作
+
+🎯 gemini-2.5-pro
+速度: 响应较慢但质量最高
+成本: 最高定价
+能力: 复杂推理、专业分析、多模态高级任务
+最佳用途: 研究分析、代码生成、复杂问题解决
+
+🖼️ gemini-2.5-flash-image-preview
+速度: 针对图像优化
+成本: 中等定价
+能力: 专业图像识别、视觉分析
+最佳用途: 图像描述、OCR、视觉内容分析
+
+选择建议
+预算敏感: 选择 flash-lite
+平衡需求: 选择 flash
+高质量要求: 选择 pro
+图像处理: 选择 flash-image-preview
+
+输出接口&#123;  &quot;system_instruction&quot;: &#123;    &quot;parts&quot;: [      &#123;        &quot;text&quot;: &quot;You are an asistant.&quot;      &#125;    ]  &#125;,  &quot;contents&quot;: [    &#123;      &quot;role&quot;: &quot;user&quot;,      &quot;parts&quot;: [        &#123;          &quot;text&quot;: &quot;$&#123;content&#125;&quot;        &#125;      ]    &#125;  ]&#125;
+
+官方接口官方文档：https://ai.google.dev/gemini-api/docs/text-generation?hl=zh-cn#multi-turn-conversations
+]]></content>
+      <categories>
+        <category>果冻的航海日志</category>
+      </categories>
+      <tags>
+        <tag>LLM</tag>
         <tag>tools</tag>
         <tag>元芳</tag>
       </tags>
@@ -598,112 +704,6 @@ Qwen的MCP格式final_response&#123;    &quot;status_code&quot;: 200,           
       </tags>
   </entry>
   <entry>
-    <title>元芳接入Gemini</title>
-    <url>/gdBlog/2025/10/02/%E5%85%83%E8%8A%B3%E6%8E%A5%E5%85%A5Gemini/</url>
-    <content><![CDATA[写在前面 我的实现方式gemini是google的 所以需要注册google对应的账号,由于需要翻墙再加上需要资金往来,所以放弃这条路了.最后选择使用国内的代理网站 简易,调用了一个 API 接口, 确实挺好用的.注册链接https://jeniya.top/register?aff=tUUD
-了解Gemini历程2023 年 4 月，谷歌母公司 Alphabet 首席执行官桑达尔・皮查伊合并了两个大型人工智能团队，开启 OpenAI 计划。2023 年 12 月 6 日，谷歌正式推出 Gemini 1.0 版本，包括 Gemini Ultra、Gemini Pro 和 Gemini Nano 三个不同规格。2024 年 2 月 15 日，谷歌发布 Gemini 1.5，后续又不断对其进行升级和优化，如 2024 年 5 月 15 日更新升级 Gemini 1.5 Pro 版本，同时推出 Gemini 1.5 Flash 轻量化小模型。2025 年 3 月 26 日，谷歌正式推出新一代人工智能推理模型 Gemini 2.5。
-模型规格及特点Gemini Ultra：是 Gemini 中能力最强的模型，适用于处理高度复杂的任务，如在各种推理和多模态任务中表现出色。它在 MMLU 基准测试中的得分率高达 90.0%，首次超越了人类专家。
- Gemini Pro：适用于多任务，在成本和延迟方面进行了性能优化，具有推理功能和广泛的多模态能力，可在广泛的任务范围内提供显著的性能。
-Gemini Nano：是最高效的模型，用于特定任务和移动设备。该模型训练了两个版本的 Nano，参数分别为 1.8B（Nano-1）和 3.25B（Nano-2），分别针对低内存和高内存器件，采用 4 位量化部署。
-本次接入Gemini 2.5 系列模型🔥 gemini-2.5-flash-lite
-速度: 最快响应时间
-成本: 最经济实惠
-能力: 基础文本理解和生成
-最佳用途: 聊天机器人、简单问答、内容摘要
-
-⚡ gemini-2.5-flash
-速度: 快速响应
-成本: 平衡性价比
-能力: 文本+图像理解，多模态基础任务
-最佳用途: 通用AI应用、客户服务、内容创作
-
-🎯 gemini-2.5-pro
-速度: 响应较慢但质量最高
-成本: 最高定价
-能力: 复杂推理、专业分析、多模态高级任务
-最佳用途: 研究分析、代码生成、复杂问题解决
-
-🖼️ gemini-2.5-flash-image-preview
-速度: 针对图像优化
-成本: 中等定价
-能力: 专业图像识别、视觉分析
-最佳用途: 图像描述、OCR、视觉内容分析
-
-选择建议
-预算敏感: 选择 flash-lite
-平衡需求: 选择 flash
-高质量要求: 选择 pro
-图像处理: 选择 flash-image-preview
-
-输出接口&#123;  &quot;system_instruction&quot;: &#123;    &quot;parts&quot;: [      &#123;        &quot;text&quot;: &quot;You are an asistant.&quot;      &#125;    ]  &#125;,  &quot;contents&quot;: [    &#123;      &quot;role&quot;: &quot;user&quot;,      &quot;parts&quot;: [        &#123;          &quot;text&quot;: &quot;$&#123;content&#125;&quot;        &#125;      ]    &#125;  ]&#125;
-
-官方接口官方文档：https://ai.google.dev/gemini-api/docs/text-generation?hl=zh-cn#multi-turn-conversations
-]]></content>
-      <categories>
-        <category>果冻的航海日志</category>
-      </categories>
-      <tags>
-        <tag>LLM</tag>
-        <tag>tools</tag>
-        <tag>元芳</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>上下文工程(Context Engineering)</title>
-    <url>/gdBlog/2025/10/11/%E4%B8%8A%E4%B8%8B%E6%96%87%E5%B7%A5%E7%A8%8B-Context-Engineering/</url>
-    <content><![CDATA[前言随着大模型能力的快速发展，人们对大语言模型的使用方式越来越多的从简单的ChatBot，变成了各种Agent，而一个新的术语——上下文工程（Context Engineering），也逐步取代了[[提示工程]](Prompt Engineering）。
-最近[Anthropic]发表了一篇文章，分享了他们在上下文工程上的探索，本文基于原文做了适当解读。
-上下文工程和提示工程的区别—记忆简单来说，提示工程重点关注的是为了获得最佳结果而编写和组织的LLM指令的方法，各种在公众号、B站、小红书上所介绍的如何在某一款软件中输入特定的指令从而能够获得某种效果的方法，都属于提示工程，它通常涉及需要完成的任务、任务的背景信息、如何更好的完成任务、哪些是禁止的、受众是谁等，例如如何使用AI写文章、如何去除AI味、如何使用豆包生成特定的图片等。
-而上下文工程指的是，在LLM推理过程中，如何管理和维护要输入给LLM的最佳信息的策略集，之所以叫信息，而没有叫Prompt或者提示语，是因为在上下文工程中，除了涉及给LLM安排任务，还涉及到工具、当前任务所需要的参考资料、之前交互过程中的记忆等，参考资料和记忆其实也看做是背景信息，但与提示工程中背景信息的区别是他们通常是随任务动态变化的。
-下图是Anthropic给出的提示工程和上下文工程的对比图：
-
-对提示工程而言，使用编写好的提示语（Prompt）通常在一个轮次就可以得到结果，而上下文工程是迭代性的，它通常需要根据LLM的响应动态组织上下文，大家使用Manus、扣子空间之类的这些产品时，看它很忙碌的样子，背后就经历了多个轮次的上下文调整，而这些上下文该以什么方式进行调整，背后对应的就是上下文工程。
-有效上下文应该是什么结构简而言之，有效的上下文应该是不长不短，恰到好处。
-Anthropic建议将提示语（这里更多的是指系统提示语System Prompt）组织成不同的部分，比如 &lt;background_information&gt; 、 &lt;instructions&gt; 、 ## Tool guidance 、 ## Output description 等，并使用XML 标签或 Markdown 标题等技术来区分这些部分。
-无论怎么构建系统提示语，都应该完整地概述你的预期行为，这是最核心的信息。
-
-Anthropic在实践中观察到，构建Agent最常见的失败模式之一是工具集冗余，导致模型在工具选择上出现困难。如果人类工程师在给定相关信息后无法判断该什么工具，那也别指望人工智能做得有多好。
-提示样例，或者小样本提示（Few Shot），是一种众所周知的最佳实践，联想上面提到的过于复杂、脆弱的逻辑，开发者倾向于往提示中加入各种边缘判断情况，试图把LLM在特定情况下应遵循的所有规则都加入进去，Anthropic不建议这样做，建议使用提示样例。
-如何构造有效的上下文这里的核心，是需要对上下文做动态检索。
-Claude Code的实践经验就是，将所有需要的数据进行预先处理，模型上下文中只保留这些处理结果的标识符（例如文件路径、存储插叙、网页链接等），让智能体采用按需取用的方式，通过工具动态将数据加载到上下文中。
-这样会使上下文的使用效率很高，同时，放入上下文的引用元数据，还提供了额外的信息，例如文件夹的层级结果、文件名、时间戳等，它能帮助人类和Agent理解何时该如何使用信息。
-让Agent自主探索和检索数据，还能实现额外的好处，例如文件大小通常暗示了文件的复杂性（越大的文件越复杂）、命名规范暗示了文件的用途（例如test.py结尾的文件可能是测试文件），这些信息，都可以让Agent在运行时自主探索，逐渐理解，仅在上下文中保留必要的信息，避免上下文被大量可能无关的信息淹没。
-当然这种动态导航和探索的方式也不是没有缺点，最主要的一点就是，它会比直接加载预计算好的信息慢。
-Anthropic的实践是采用混合策略，像CLAUDE.md（里面一般会有开发需要用到的配置信息、开发规范等）这样的文件，会直接加载入上下文，而其他信息，则会在需要的时候，通过glob、grep等工具动态检索。
-
-混合策略算是效率和效果的一种平衡，可以理解成高频要用的信息，直接加载入上下文，不要再浪费时间探索了，低频信息采用动态检索的方式，这跟计算机压缩算法中，高频字符用短编码，低频信息用长编码的做法真是有异曲同工之妙。
-
-压缩压缩是指对接近模型最大上下文长度时对对话进行内容总结，并重新初始化一个新的上下文窗口。压缩通常作为上下文工程的第一种手段，以提升长期连贯性。其核心在于以高保真方式提炼上下文窗口的内容，使智能体能够以最小的性能下降继续执行。
-像在Claude Code中，就会在上下文长度达到模型最大上下文长度的92%时自动压缩，通过将消息历史传递给模型来实现这一点，以总结和压缩最关键的信息。模型保留了架构决策、未解决的错误和实现细节，同时丢弃了冗余的工具输出或消息。
-压缩的艺术在于选择保留什么与丢弃什么，因为过于激进的压缩可能导致后来才显现重要性的关键的上下文信息丢失。对于实施压缩系统的工程师，建议在复杂的Agent构建时仔细调整Prompt。调整Prompt时，首先从确保压缩后能最大化召回所有相关信息开始，然用开始迭代，通过逐步删除冗余内容的方式来提高精确度。
-
-这个方法挺值得借鉴的，因为很难一次性写出一个完美的压缩Prompt，甚至你可能都不知道该怎么评价这个Prompt的好坏，这里给出的方法就是把目标分解成先确保信息少丢失（最大化召回），再权衡（还要精准），给出了一个清晰可操作的流程。 有点像分类模型调整分类阈值，先保Recall，然后开始提高分类阈值，让Precision升高、Recall下降别太多，来寻找一个最佳决策点。
-
-一个可被压缩的地方是，清理工具调用和调用结果，为什么？因为调用工具通常是为了使用工具调用结果，一般大模型都会根据System Prompt中的指令对工具调用结果做处理，既然已经有了模型处理结果，那原始的工具调用、工具调用结果信息就不再需要了，可以直接清除。
-结构化笔记记录结构化笔记记录，或代理式记忆，是一种技术，其中代理定期将笔记保存在上下文窗口之外的存储（例如硬盘）中，这些笔记在稍后会被拉回上下文窗口。
-把大模型的上下文窗口想象成电脑的内存，把上下文窗口之外的存储想象成硬盘，就好理解了，跟电脑内存不足，把内存中的页先交换到硬盘的真是一样一样的。
-像有些介绍Cursor、Roo Code、Claude Code的教程，一开始先让Agent生成需求文档、设计文档和待办事项，并写入硬盘的做法，都属于这一类，在后续某个步骤需要这些内容时，再加载回上下文。
-此处不知道大家有没有疑问，把原来一整段的内容先写入硬盘，需要的时候再读取回来放入上下文，上下文窗口不一样会变长吗，跟直接放到上下文中有啥区别？核心是Agent一般都会有文件读写的工具，而文件读取后，在大模型消化完这个信息后，读取的内容就可以丢弃了（回想一下上面提到的清理工具调用结果的部分），举个例子就好理解了，比如代码智能体前期做好了系统设计，并将设计文档写入了硬盘，等开始实现用户管理模块时，它只需要先检索到这部分内容（或者粗暴点，直接整个设计文档加载入上下文），那么当智能体将用户管理模块编码完成后，这个设计文档的内容就可以移出上下文了，所以这种按需取用的方式，可以显著降低上下文占用。
-子智能体架构原文中所说的这种子智能体架构模式（Sub-agent architectures），是多智能体架构中常见的一种设计方式，它通常由主智能体（Orchestrator）、子智能体组成。由主智能体分拆协调任务、子智能体处理特定任务。
-这种架构最核心的作用是上下文隔离，这种方式从某种角度上看其实是扩大了模型所能支持的最大上下文长度，相当于把之前巨长、可能已经超过模型最大输入长度的上下文，分成了不同的部分，每个部分都不会超长，同时缓解了信息过载对模型造成的认知负担。
-通过给每个智能体组织不同的上下文，让它集中所有能力解决它的问题，从而可以带来比单智能体更好的效果。
-当然它的实现也是有挑战的，否则现在所有的智能体架构都是多智能体架构了，比如有如下几点：
-
-任务拆分：主智能体在向各子智能体安排任务时，如何做到不重不漏，任务依赖关系合理，重复以外这更长的耗时和更多的token消耗，遗漏意味着最终任务可能无法完成，依赖关系不合理意味着某个智能体可能会存在信息缺失风险
-上下文传递：主智能体安排了若干子智能体完成不同的任务，如何很好地将子智能体的结果传递给别的子智能体，比如编写一份调研报告时，报告撰写智能体已经完成了初版报告，审阅智能体看到后提出意见“调研报告不够全面，为什么报告中有中国市场、日韩市场、欧洲市场、东南亚市场相关的调研结果，没有北美市场的”，它不知道的是，报告撰写智能体其实调研了北美市场，只是没有找到相关信息
-结果整合：任务拆解让各子任务完成时，肯定是希望最终解决用户原始问题的，但各子智能体的处理结果，很有可能互相之间是没有关联的，比如目标是开发一个FlappyBird游戏，一个子智能体负责生成能够上下移动不断前进的小鸟，一个负责生成有一些烟囱的草坪，当这两者整合时，发现生成草坪的智能体，生成的是类似超级马里奥那样的草坪，两者根本无法整合（案例来自Cognition | Don’t Build Multi-Agents）
-
-]]></content>
-      <categories>
-        <category>果冻的理论学习</category>
-      </categories>
-      <tags>
-        <tag>LLM</tag>
-        <tag>调研</tag>
-        <tag>context</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>外链播放器</title>
     <url>/gdBlog/2023/05/05/%E5%A4%96%E9%93%BE%E6%92%AD%E6%94%BE%E5%99%A8/</url>
     <content><![CDATA[为Hexo添加外链播放器
@@ -733,80 +733,6 @@ allowfullscreen -&gt; allowfullscreen&#x3D; “ture” 允许全屏，使用该�
       </categories>
       <tags>
         <tag>Hexo</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>字母异位词分组</title>
-    <url>/gdBlog/2025/10/14/%E5%AD%97%E6%AF%8D%E5%BC%82%E4%BD%8D%E8%AF%8D%E5%88%86%E7%BB%84/</url>
-    <content><![CDATA[原题链接https://leetcode.cn/problems/group-anagrams/description/?envType=study-plan-v2&amp;envId=top-100-liked
-题目给你一个字符串数组，请你将 字母异位词 组合在一起。可以按任意顺序返回结果列表。
-示例 1:
-**输入:** strs = [&quot;eat&quot;, &quot;tea&quot;, &quot;tan&quot;, &quot;ate&quot;, &quot;nat&quot;, &quot;bat&quot;]**输出:** [[&quot;bat&quot;],[&quot;nat&quot;,&quot;tan&quot;],[&quot;ate&quot;,&quot;eat&quot;,&quot;tea&quot;]]
-
-解释：
-
-在 strs 中没有字符串可以通过重新排列来形成 &quot;bat&quot;。
-字符串 &quot;nat&quot; 和 &quot;tan&quot; 是字母异位词，因为它们可以重新排列以形成彼此。
-字符串 &quot;ate&quot; ，&quot;eat&quot; 和 &quot;tea&quot; 是字母异位词，因为它们可以重新排列以形成彼此。
-
-示例 2:
-**输入:** strs = [&quot;&quot;]**输出:** [[&quot;&quot;]]**示例 3:****输入:** strs = [&quot;a&quot;]**输出:** [[&quot;a&quot;]]
-
-提示：
-
-1 &lt;= strs.length &lt;= 104
-0 &lt;= strs[i].length &lt;= 100
-strs[i] 仅包含小写字母
-
-题解方法一：排序由于互为字母异位词的两个字符串包含的字母相同，因此对两个字符串分别进行排序之后得到的字符串一定是相同的，故可以将排序之后的字符串作为哈希表的键。
-class Solution(object):def groupAnagrams(self, strs):&quot;&quot;&quot;:type strs: List[str]:rtype: List[List[str]]&quot;&quot;&quot;mp = collections.defaultdict(list)for st in strs:key = &quot;&quot;.join(sorted(st))mp[key].append(st)return list(mp.values())
-
-方法二：计数(2025-10-24使用的方法)由于互为字母异位词的两个字符串包含的字母相同，因此两个字符串中的相同字母出现的次数一定是相同的，故可以将每个字母出现的次数使用字符串表示，作为哈希表的键。
-由于字符串只包含小写字母，因此对于每个字符串，可以使用长度为 26 的数组记录每个字母出现的次数。
-class Solution:    def groupAnagrams(self, strs: List[str]) -&gt; List[List[str]]:        mp = collections.defaultdict(list)        for st in strs:            counts = [0] * 26            for ch in st:                counts[ord(ch) - ord(&quot;a&quot;)] += 1            # 需要将 list 转换成 tuple 才能进行哈希            mp[tuple(counts)].append(st)                return list(mp.values())]]></content>
-      <categories>
-        <category>果冻的LeetCode刷题</category>
-      </categories>
-      <tags>
-        <tag>LeetCode</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>LeeCode最长连续序列</title>
-    <url>/gdBlog/2025/10/14/%E6%9C%80%E9%95%BF%E8%BF%9E%E7%BB%AD%E5%BA%8F%E5%88%97/</url>
-    <content><![CDATA[原题链接https://leetcode.cn/problems/longest-consecutive-sequence/solutions/276931/zui-chang-lian-xu-xu-lie-by-leetcode-solution/?envType=study-plan-v2&amp;envId=top-100-liked
-题目给定一个未排序的整数数组 nums ，找出数字连续的最长序列（不要求序列元素在原数组中连续）的长度。
-请你设计并实现时间复杂度为 O(n) 的算法解决此问题。
-示例 1：
-**输入：**nums &#x3D; [100,4,200,1,3,2]**输出：**4**解释：**最长数字连续序列是 [1, 2, 3, 4]。它的长度为 4。
-示例 2：
-**输入：**nums &#x3D; [0,3,7,2,5,8,4,6,0,1]**输出：**9
-示例 3：
-**输入：**nums &#x3D; [1,0,1,2]**输出：**3
-提示：
-
-0 &lt;= nums.length &lt;= 105
--109 &lt;= nums[i] &lt;= 109
-
-题解每个数都判断一次这个数是不是连续序列的开头那个数。
-
-怎么判断呢，就是用哈希表查找这个数前面一个数是否存在，即num-1在序列中是否存在。存在那这个数肯定不是开头，直接跳过。
-因此只需要对每个开头的数进行循环，直到这个序列不再连续，因此复杂度是O(n)。  以题解中的序列举例:  [100，4，200，1，3，4，2]  去重后的哈希序列为：  [100，4，200，1，3，2]  按照上面逻辑进行判断：
-
-
-元素100是开头,因为没有99，且以100开头的序列长度为1
-元素4不是开头，因为有3存在，过，
-元素200是开头，因为没有199，且以200开头的序列长度为1
-元素1是开头，因为没有0，且以1开头的序列长度为4，因为依次累加，2，3，4都存在。
-元素3不是开头，因为2存在，过，
-元素2不是开头，因为1存在，过。 完
-
-class Solution(object):def longestConsecutive(self, nums):&quot;&quot;&quot;:type nums: List[int]:rtype: int&quot;&quot;&quot;if not nums:return 0nums = set(nums)longest_streak = 0for num in nums:if num - 1 not in nums:current_num = numcurrent_streak = 1while current_num + 1 in nums:current_num += 1current_streak += 1longest_streak = max(longest_streak, current_streak)return longest_streak]]></content>
-      <categories>
-        <category>果冻的LeetCode刷题</category>
-      </categories>
-      <tags>
-        <tag>LeetCode</tag>
       </tags>
   </entry>
   <entry>
@@ -995,6 +921,42 @@ Aggregator 收集所有 Solvers 的最终答案。
       </tags>
   </entry>
   <entry>
+    <title>字母异位词分组</title>
+    <url>/gdBlog/2025/10/14/%E5%AD%97%E6%AF%8D%E5%BC%82%E4%BD%8D%E8%AF%8D%E5%88%86%E7%BB%84/</url>
+    <content><![CDATA[原题链接https://leetcode.cn/problems/group-anagrams/description/?envType=study-plan-v2&amp;envId=top-100-liked
+题目给你一个字符串数组，请你将 字母异位词 组合在一起。可以按任意顺序返回结果列表。
+示例 1:
+**输入:** strs = [&quot;eat&quot;, &quot;tea&quot;, &quot;tan&quot;, &quot;ate&quot;, &quot;nat&quot;, &quot;bat&quot;]**输出:** [[&quot;bat&quot;],[&quot;nat&quot;,&quot;tan&quot;],[&quot;ate&quot;,&quot;eat&quot;,&quot;tea&quot;]]
+
+解释：
+
+在 strs 中没有字符串可以通过重新排列来形成 &quot;bat&quot;。
+字符串 &quot;nat&quot; 和 &quot;tan&quot; 是字母异位词，因为它们可以重新排列以形成彼此。
+字符串 &quot;ate&quot; ，&quot;eat&quot; 和 &quot;tea&quot; 是字母异位词，因为它们可以重新排列以形成彼此。
+
+示例 2:
+**输入:** strs = [&quot;&quot;]**输出:** [[&quot;&quot;]]**示例 3:****输入:** strs = [&quot;a&quot;]**输出:** [[&quot;a&quot;]]
+
+提示：
+
+1 &lt;= strs.length &lt;= 104
+0 &lt;= strs[i].length &lt;= 100
+strs[i] 仅包含小写字母
+
+题解方法一：排序由于互为字母异位词的两个字符串包含的字母相同，因此对两个字符串分别进行排序之后得到的字符串一定是相同的，故可以将排序之后的字符串作为哈希表的键。
+class Solution(object):def groupAnagrams(self, strs):&quot;&quot;&quot;:type strs: List[str]:rtype: List[List[str]]&quot;&quot;&quot;mp = collections.defaultdict(list)for st in strs:key = &quot;&quot;.join(sorted(st))mp[key].append(st)return list(mp.values())
+
+方法二：计数(2025-10-24使用的方法)由于互为字母异位词的两个字符串包含的字母相同，因此两个字符串中的相同字母出现的次数一定是相同的，故可以将每个字母出现的次数使用字符串表示，作为哈希表的键。
+由于字符串只包含小写字母，因此对于每个字符串，可以使用长度为 26 的数组记录每个字母出现的次数。
+class Solution:    def groupAnagrams(self, strs: List[str]) -&gt; List[List[str]]:        mp = collections.defaultdict(list)        for st in strs:            counts = [0] * 26            for ch in st:                counts[ord(ch) - ord(&quot;a&quot;)] += 1            # 需要将 list 转换成 tuple 才能进行哈希            mp[tuple(counts)].append(st)                return list(mp.values())]]></content>
+      <categories>
+        <category>果冻的LeetCode刷题</category>
+      </categories>
+      <tags>
+        <tag>LeetCode</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>搜索效率翻倍小技巧</title>
     <url>/gdBlog/2025/10/02/%E6%90%9C%E7%B4%A2%E6%95%88%E7%8E%87%E7%BF%BB%E5%80%8D%E5%B0%8F%E6%8A%80%E5%B7%A7/</url>
     <content><![CDATA[还在为搜不到精准信息发愁？别再一页页翻找搜索结果了。掌握几个简单的搜索引擎快捷指令，就能把海量信息精准筛选，让你的查找效率直接翻倍。
@@ -1058,6 +1020,121 @@ Aggregator 收集所有 Solvers 的最终答案。
       </tags>
   </entry>
   <entry>
+    <title>LeeCode最长连续序列</title>
+    <url>/gdBlog/2025/10/14/%E6%9C%80%E9%95%BF%E8%BF%9E%E7%BB%AD%E5%BA%8F%E5%88%97/</url>
+    <content><![CDATA[原题链接https://leetcode.cn/problems/longest-consecutive-sequence/solutions/276931/zui-chang-lian-xu-xu-lie-by-leetcode-solution/?envType=study-plan-v2&amp;envId=top-100-liked
+题目给定一个未排序的整数数组 nums ，找出数字连续的最长序列（不要求序列元素在原数组中连续）的长度。
+请你设计并实现时间复杂度为 O(n) 的算法解决此问题。
+示例 1：
+**输入：**nums &#x3D; [100,4,200,1,3,2]**输出：**4**解释：**最长数字连续序列是 [1, 2, 3, 4]。它的长度为 4。
+示例 2：
+**输入：**nums &#x3D; [0,3,7,2,5,8,4,6,0,1]**输出：**9
+示例 3：
+**输入：**nums &#x3D; [1,0,1,2]**输出：**3
+提示：
+
+0 &lt;= nums.length &lt;= 105
+-109 &lt;= nums[i] &lt;= 109
+
+题解每个数都判断一次这个数是不是连续序列的开头那个数。
+
+怎么判断呢，就是用哈希表查找这个数前面一个数是否存在，即num-1在序列中是否存在。存在那这个数肯定不是开头，直接跳过。
+因此只需要对每个开头的数进行循环，直到这个序列不再连续，因此复杂度是O(n)。  以题解中的序列举例:  [100，4，200，1，3，4，2]  去重后的哈希序列为：  [100，4，200，1，3，2]  按照上面逻辑进行判断：
+
+
+元素100是开头,因为没有99，且以100开头的序列长度为1
+元素4不是开头，因为有3存在，过，
+元素200是开头，因为没有199，且以200开头的序列长度为1
+元素1是开头，因为没有0，且以1开头的序列长度为4，因为依次累加，2，3，4都存在。
+元素3不是开头，因为2存在，过，
+元素2不是开头，因为1存在，过。 完
+
+class Solution(object):def longestConsecutive(self, nums):&quot;&quot;&quot;:type nums: List[int]:rtype: int&quot;&quot;&quot;if not nums:return 0nums = set(nums)longest_streak = 0for num in nums:if num - 1 not in nums:current_num = numcurrent_streak = 1while current_num + 1 in nums:current_num += 1current_streak += 1longest_streak = max(longest_streak, current_streak)return longest_streak]]></content>
+      <categories>
+        <category>果冻的LeetCode刷题</category>
+      </categories>
+      <tags>
+        <tag>LeetCode</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>为元芳接入提示词工程</title>
+    <url>/gdBlog/2025/10/09/%E6%8F%90%E7%A4%BA%E8%AF%8D%E5%B7%A5%E7%A8%8B%EF%BC%88prompt-engineering%EF%BC%89/</url>
+    <content><![CDATA[一个好的 prompt 能让 AI 更准确地理解需求，从而生成更符合预期的结果。在实际使用中，通过优化 prompt 的清晰度、详细度和结构，可以显著提升 AI 的响应质量，这也被称为 “提示词工程”（prompt engineering）
+GRPS 框架：构建完美提示词GRPS 框架是构建高效 Manus 提示词的强大工具，具体包括：
+Goal（目标）清晰定义你期望获得的最终成果：
+
+明确交付物类型：报告、代码、图表、演示文稿、网页等。
+指明用途：「用于内部决策参考」、「用于客户展示」、「用于公开发表」等。
+设定完成标准：什么样的结果才算成功完成任务？
+
+示例：「目标：创建一个交互式数据仪表板，展示过去 12 个月的销售趋势，用于月度管理层会议」
+Role（角色）为 Manus 赋予适合任务的专业身份：
+
+职业角色：分析师、工程师、作家、营销专家、教师等。
+经验水平：初级、资深、专家、权威等。
+特定专长：「精通 Python 数据分析的工程师」、「专注于 B2B 营销的策略专家」。
+
+示例：「角色：作为一名精通讲故事技巧的高级内容营销专家」
+Process（流程）
+可选，在特定情况下，你可能需要指定关键流程步骤：
+关键节点：只列出必须经过的重要环节，而非详细步骤。
+决策点：在哪些环节需要做出重要判断。
+质量检查：在流程中需要特别关注质量的部分。
+
+
+
+示例：「流程：1. 收集并分析竞争对手的社交媒体数据 2. 识别其内容策略模式 3. 评估其受众反响 4. 提出我们可借鉴的策略」
+Specification（规范）设定明确的质量和格式要求：
+
+格式要求：文件类型、结构、布局等。
+长度限制：字数、页数、时长等。
+风格规范：正式、轻松、技术性、通俗易懂等。
+必备内容：必须包含的关键部分或信息。
+排除内容：明确禁止出现的内容或风格。
+
+示例：「规范：-PDF 格式 - 不超过 20 页 - 包含执行摘要、方法论、发现和建议四个部分 - 使用简明专业的语言 - 避免过于技术性的术语 - 包含至少 5 个数据可视化图表」
+完整 GRPS 框架示例
+目标：开发一个个人财务健康评估工具，帮助初入职场的年轻人了解自己的财务状况和提升建议
+角色：作为拥有 10 年经验的个人理财顾问，专注于年轻专业人士的财务规划
+流程：
+设计评估用户收入、支出、债务和储蓄情况的问卷
+创建评分系统，对不同财务指标进行权重分配
+开发针对不同得分范围的个性化建议库
+设计直观的结果展示界面
+
+
+规范：
+终端产品为可交互的网页应用
+问卷不超过 15 个问题
+结果页面需包含总体健康评分、各维度得分及彩色仪表盘
+建议须具体可行，避免泛泛而谈
+语言风格亲切、鼓励，适合 25-35 岁年龄段
+包含资源链接和后续行动计划
+
+
+
+我的设计共分为八个：角色1个，目标2个，流程1个，规范4个
+角色描述：职业角色，如：作家、Python工程师等；经验水平，如：初级、资深、专家等 资深小说家
+输出目标：如一周的饮食计划，为考试准备的习题集等 写一篇励志文章
+用途：如用于内部决策参考、用于公开发表等 用于出版的书籍
+流程描述：关键节点，只列出必须经过的重要环节，而非详细步骤 1. 开篇 2. 过程 3. 转折 4. 结尾
+规范描述：格式要求，如文件类型、结构、布局等 纯文本格式
+长度限制：如字数、页数、时长等 200字以内
+风格规范：如正式、轻松、技术性、通俗易懂等 温暖治愈
+排除内容：明确禁止出现的内容或风格 禁止儿童不宜内容
+]]></content>
+      <categories>
+        <category>果冻的理论学习</category>
+      </categories>
+      <tags>
+        <tag>LLM</tag>
+        <tag>tools</tag>
+        <tag>元芳</tag>
+        <tag>prompt</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>正则表达式</title>
     <url>/gdBlog/2025/09/29/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/</url>
     <content><![CDATA[正则表达式（Regular Expression，简称 regex 或 regexp）是一种用于匹配、查找和处理文本的强大模式描述语言。它通过一系列预定义的字符和规则，构建出能够精确匹配特定文本模式的表达式，广泛应用于文本搜索、验证、替换、提取等场景（如表单验证、日志分析、代码解析等）。
@@ -1072,6 +1149,23 @@ Aggregator 收集所有 Solvers 的最终答案。
       </categories>
       <tags>
         <tag>tools</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>LeeCode盛最多水的容器</title>
+    <url>/gdBlog/2025/10/14/%E7%9B%9B%E6%9C%80%E5%A4%9A%E6%B0%B4%E7%9A%84%E5%AE%B9%E5%99%A8/</url>
+    <content><![CDATA[原题链接https://leetcode.cn/problems/container-with-most-water/solutions/207215/sheng-zui-duo-shui-de-rong-qi-by-leetcode-solution/?envType=study-plan-v2&amp;envId=top-100-liked
+题目给定一个长度为 n 的整数数组 height 。有 n 条垂线，第 i 条线的两个端点是 (i, 0) 和 (i, height[i]) 。
+找出其中的两条线，使得它们与 x 轴共同构成的容器可以容纳最多的水。
+返回容器可以储存的最大水量。
+**说明：**你不能倾斜容器。
+题解left++和right–都是为了尝试取到更多的水，如果短的板不动的话，取到的水永远不会比上次多。
+class Solution(object):def maxArea(self, height):&quot;&quot;&quot;:type height: List[int]:rtype: int&quot;&quot;&quot;# 双指针法left = 0right = len(height) - 1max_area = 0while left &lt; right:max_area = max(max_area, min(height[left], height[right]) * (right - left))if height[left] &lt; height[right]:left += 1else:right -= 1return max_area]]></content>
+      <categories>
+        <category>果冻的LeetCode刷题</category>
+      </categories>
+      <tags>
+        <tag>LeetCode</tag>
       </tags>
   </entry>
   <entry>
@@ -1100,23 +1194,6 @@ Aggregator 收集所有 Solvers 的最终答案。
 class Solution &#123;public:    void moveZeroes(vector&lt;int&gt;&amp; nums) &#123;        int n = nums.size(), left = 0, right = 0;        while (right &lt; n) &#123;            if (nums[right]) &#123;                swap(nums[left], nums[right]);                left++;            &#125;            right++;        &#125;    &#125;&#125;;
 
 方法二：python的库class Solution(object):def moveZeroes(self, nums):&quot;&quot;&quot;:type nums: List[int]:rtype: None Do not return anything, modify nums in-place instead.&quot;&quot;&quot;# 统计0的个数zero_count = nums.count(0)# 移除所有0nums[:] = [num for num in nums if num != 0]# 在列表末尾添加0nums.extend([0] * zero_count)]]></content>
-      <categories>
-        <category>果冻的LeetCode刷题</category>
-      </categories>
-      <tags>
-        <tag>LeetCode</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>LeeCode盛最多水的容器</title>
-    <url>/gdBlog/2025/10/14/%E7%9B%9B%E6%9C%80%E5%A4%9A%E6%B0%B4%E7%9A%84%E5%AE%B9%E5%99%A8/</url>
-    <content><![CDATA[原题链接https://leetcode.cn/problems/container-with-most-water/solutions/207215/sheng-zui-duo-shui-de-rong-qi-by-leetcode-solution/?envType=study-plan-v2&amp;envId=top-100-liked
-题目给定一个长度为 n 的整数数组 height 。有 n 条垂线，第 i 条线的两个端点是 (i, 0) 和 (i, height[i]) 。
-找出其中的两条线，使得它们与 x 轴共同构成的容器可以容纳最多的水。
-返回容器可以储存的最大水量。
-**说明：**你不能倾斜容器。
-题解left++和right–都是为了尝试取到更多的水，如果短的板不动的话，取到的水永远不会比上次多。
-class Solution(object):def maxArea(self, height):&quot;&quot;&quot;:type height: List[int]:rtype: int&quot;&quot;&quot;# 双指针法left = 0right = len(height) - 1max_area = 0while left &lt; right:max_area = max(max_area, min(height[left], height[right]) * (right - left))if height[left] &lt; height[right]:left += 1else:right -= 1return max_area]]></content>
       <categories>
         <category>果冻的LeetCode刷题</category>
       </categories>
@@ -1580,83 +1657,6 @@ Github - browser-use&#x2F;browser-use
         <tag>DeepSearch</tag>
         <tag>tools</tag>
         <tag>RAG</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>为元芳接入提示词工程</title>
-    <url>/gdBlog/2025/10/09/%E6%8F%90%E7%A4%BA%E8%AF%8D%E5%B7%A5%E7%A8%8B%EF%BC%88prompt-engineering%EF%BC%89/</url>
-    <content><![CDATA[一个好的 prompt 能让 AI 更准确地理解需求，从而生成更符合预期的结果。在实际使用中，通过优化 prompt 的清晰度、详细度和结构，可以显著提升 AI 的响应质量，这也被称为 “提示词工程”（prompt engineering）
-GRPS 框架：构建完美提示词GRPS 框架是构建高效 Manus 提示词的强大工具，具体包括：
-Goal（目标）清晰定义你期望获得的最终成果：
-
-明确交付物类型：报告、代码、图表、演示文稿、网页等。
-指明用途：「用于内部决策参考」、「用于客户展示」、「用于公开发表」等。
-设定完成标准：什么样的结果才算成功完成任务？
-
-示例：「目标：创建一个交互式数据仪表板，展示过去 12 个月的销售趋势，用于月度管理层会议」
-Role（角色）为 Manus 赋予适合任务的专业身份：
-
-职业角色：分析师、工程师、作家、营销专家、教师等。
-经验水平：初级、资深、专家、权威等。
-特定专长：「精通 Python 数据分析的工程师」、「专注于 B2B 营销的策略专家」。
-
-示例：「角色：作为一名精通讲故事技巧的高级内容营销专家」
-Process（流程）
-可选，在特定情况下，你可能需要指定关键流程步骤：
-关键节点：只列出必须经过的重要环节，而非详细步骤。
-决策点：在哪些环节需要做出重要判断。
-质量检查：在流程中需要特别关注质量的部分。
-
-
-
-示例：「流程：1. 收集并分析竞争对手的社交媒体数据 2. 识别其内容策略模式 3. 评估其受众反响 4. 提出我们可借鉴的策略」
-Specification（规范）设定明确的质量和格式要求：
-
-格式要求：文件类型、结构、布局等。
-长度限制：字数、页数、时长等。
-风格规范：正式、轻松、技术性、通俗易懂等。
-必备内容：必须包含的关键部分或信息。
-排除内容：明确禁止出现的内容或风格。
-
-示例：「规范：-PDF 格式 - 不超过 20 页 - 包含执行摘要、方法论、发现和建议四个部分 - 使用简明专业的语言 - 避免过于技术性的术语 - 包含至少 5 个数据可视化图表」
-完整 GRPS 框架示例
-目标：开发一个个人财务健康评估工具，帮助初入职场的年轻人了解自己的财务状况和提升建议
-角色：作为拥有 10 年经验的个人理财顾问，专注于年轻专业人士的财务规划
-流程：
-设计评估用户收入、支出、债务和储蓄情况的问卷
-创建评分系统，对不同财务指标进行权重分配
-开发针对不同得分范围的个性化建议库
-设计直观的结果展示界面
-
-
-规范：
-终端产品为可交互的网页应用
-问卷不超过 15 个问题
-结果页面需包含总体健康评分、各维度得分及彩色仪表盘
-建议须具体可行，避免泛泛而谈
-语言风格亲切、鼓励，适合 25-35 岁年龄段
-包含资源链接和后续行动计划
-
-
-
-我的设计共分为八个：角色1个，目标2个，流程1个，规范4个
-角色描述：职业角色，如：作家、Python工程师等；经验水平，如：初级、资深、专家等 资深小说家
-输出目标：如一周的饮食计划，为考试准备的习题集等 写一篇励志文章
-用途：如用于内部决策参考、用于公开发表等 用于出版的书籍
-流程描述：关键节点，只列出必须经过的重要环节，而非详细步骤 1. 开篇 2. 过程 3. 转折 4. 结尾
-规范描述：格式要求，如文件类型、结构、布局等 纯文本格式
-长度限制：如字数、页数、时长等 200字以内
-风格规范：如正式、轻松、技术性、通俗易懂等 温暖治愈
-排除内容：明确禁止出现的内容或风格 禁止儿童不宜内容
-]]></content>
-      <categories>
-        <category>果冻的理论学习</category>
-      </categories>
-      <tags>
-        <tag>LLM</tag>
-        <tag>tools</tag>
-        <tag>元芳</tag>
-        <tag>prompt</tag>
       </tags>
   </entry>
 </search>
