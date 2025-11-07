@@ -285,27 +285,6 @@ docker-compose down]]></content>
       </tags>
   </entry>
   <entry>
-    <title>Docker</title>
-    <url>/gdBlog/2025/10/08/Docker/</url>
-    <content><![CDATA[远程镜像仓库本地镜像(镜像是只读的)本地仓库
-镜像版本tag版本是完全独立的,last是最新的docker pull&#x2F;push 镜像名docker images 查看本地镜像docker search
-容器真正的示例,隔离网络,文件.不同容器可能会争抢资源1容器打包成镜像,再上传到仓库docker psdocker ps -adocekr start&#x2F;stop&#x2F;rm IDdocker commit -a “作者名称” -m “log信息” ID 打包成镜像docker cp 文件目录 容器ID:目标目录   从前拷贝到后docker exec -it ID &#x2F;bin&#x2F;bash  进入容器内部
-dickerfile脚本 是可以通过下载文件的一些来创建脚本
-网络中的映射一般是端口映射,容器端口8001映射到宿主机的8080
-Docker安装不要用homebrew 以前其他软件使用下载都很顺利，但这一次安装Docker却不太行，使用了代理，但总是出现报错
-Error response from daemon: Get “https://registry-1.docker.io/v2/“: EOF
-虽然改了很多代理，但是一直不信。知道去官网下载后就没问题了。
-出问题的可能是：1）Mac的新款M4芯片2）homebrew安装位置不对，或者版本过低
-]]></content>
-      <categories>
-        <category>果冻的航海日志</category>
-      </categories>
-      <tags>
-        <tag>tools</tag>
-        <tag>Docker</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Github自动同步脚本</title>
     <url>/gdBlog/2025/10/01/Github%E8%87%AA%E5%8A%A8%E5%90%8C%E6%AD%A5%E8%84%9A%E6%9C%AC/</url>
     <content><![CDATA[实施步骤进入要同步的库中，切换至 Actions，点击后面的 New workflow 项
@@ -386,6 +365,27 @@ json和xml之间一般可以转换json文本实际上是一条字符串json的�
         <tag>LLM</tag>
         <tag>tools</tag>
         <tag>MCP</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Docker</title>
+    <url>/gdBlog/2025/10/08/Docker/</url>
+    <content><![CDATA[远程镜像仓库本地镜像(镜像是只读的)本地仓库
+镜像版本tag版本是完全独立的,last是最新的docker pull&#x2F;push 镜像名docker images 查看本地镜像docker search
+容器真正的示例,隔离网络,文件.不同容器可能会争抢资源1容器打包成镜像,再上传到仓库docker psdocker ps -adocekr start&#x2F;stop&#x2F;rm IDdocker commit -a “作者名称” -m “log信息” ID 打包成镜像docker cp 文件目录 容器ID:目标目录   从前拷贝到后docker exec -it ID &#x2F;bin&#x2F;bash  进入容器内部
+dickerfile脚本 是可以通过下载文件的一些来创建脚本
+网络中的映射一般是端口映射,容器端口8001映射到宿主机的8080
+Docker安装不要用homebrew 以前其他软件使用下载都很顺利，但这一次安装Docker却不太行，使用了代理，但总是出现报错
+Error response from daemon: Get “https://registry-1.docker.io/v2/“: EOF
+虽然改了很多代理，但是一直不信。知道去官网下载后就没问题了。
+出问题的可能是：1）Mac的新款M4芯片2）homebrew安装位置不对，或者版本过低
+]]></content>
+      <categories>
+        <category>果冻的航海日志</category>
+      </categories>
+      <tags>
+        <tag>tools</tag>
+        <tag>Docker</tag>
       </tags>
   </entry>
   <entry>
@@ -535,7 +535,7 @@ Anthropic的实践是采用混合策略，像CLAUDE.md（里面一般会有开�
       <tags>
         <tag>LLM</tag>
         <tag>调研</tag>
-        <tag>context</tag>
+        <tag>ContextEngineering</tag>
       </tags>
   </entry>
   <entry>
@@ -923,7 +923,8 @@ Aggregator 收集所有 Solvers 的最终答案。
   <entry>
     <title>字母异位词分组</title>
     <url>/gdBlog/2025/10/14/%E5%AD%97%E6%AF%8D%E5%BC%82%E4%BD%8D%E8%AF%8D%E5%88%86%E7%BB%84/</url>
-    <content><![CDATA[原题链接https://leetcode.cn/problems/group-anagrams/description/?envType=study-plan-v2&amp;envId=top-100-liked
+    <content><![CDATA[[[..&#x2F;..&#x2F;note&#x2F;Template&#x2F;LeetCode|LeetCode]]
+原题链接https://leetcode.cn/problems/group-anagrams/description/?envType=study-plan-v2&amp;envId=top-100-liked
 题目给你一个字符串数组，请你将 字母异位词 组合在一起。可以按任意顺序返回结果列表。
 示例 1:
 **输入:** strs = [&quot;eat&quot;, &quot;tea&quot;, &quot;tan&quot;, &quot;ate&quot;, &quot;nat&quot;, &quot;bat&quot;]**输出:** [[&quot;bat&quot;],[&quot;nat&quot;,&quot;tan&quot;],[&quot;ate&quot;,&quot;eat&quot;,&quot;tea&quot;]]
@@ -957,104 +958,40 @@ class Solution:    def groupAnagrams(self, strs: List[str]) -&gt; List[List[str]
       </tags>
   </entry>
   <entry>
-    <title>搜索效率翻倍小技巧</title>
-    <url>/gdBlog/2025/10/02/%E6%90%9C%E7%B4%A2%E6%95%88%E7%8E%87%E7%BF%BB%E5%80%8D%E5%B0%8F%E6%8A%80%E5%B7%A7/</url>
-    <content><![CDATA[还在为搜不到精准信息发愁？别再一页页翻找搜索结果了。掌握几个简单的搜索引擎快捷指令，就能把海量信息精准筛选，让你的查找效率直接翻倍。
-一、基础指令1. site：限定网站搜内容想在特定网站里找信息，用它准没错。
+    <title>LeeCode接雨水</title>
+    <url>/gdBlog/2025/10/15/%E6%8E%A5%E9%9B%A8%E6%B0%B4/</url>
+    <content><![CDATA[[[Template&#x2F;LeetCode|LeetCode]]
+原题链接https://leetcode.cn/problems/trapping-rain-water/submissions/670872502/?envType=study-plan-v2&amp;envId=top-100-liked
+题目给定 n 个非负整数表示每个宽度为 1 的柱子的高度图，计算按此排列的柱子，下雨之后能接多少雨水。
+**输入：**height &#x3D; [0,1,0,2,1,0,1,3,2,1,2,1]**输出：**6**解释：**上面是由数组 [0,1,0,2,1,0,1,3,2,1,2,1] 表示的高度图，在这种情况下，可以接 6 个单位的雨水（蓝色部分表示雨水）。
+题解方法一：动态规划对于下标 i，下雨后水能到达的最大高度等于下标 i 两边的最大高度的最小值，下标 i 处能接的雨水量等于下标 i 处的水能到达的最大高度减去 height[i]。
+朴素的做法是对于数组 height 中的每个元素，分别向左和向右扫描并记录左边和右边的最大高度，然后计算每个下标位置能接的雨水量。
+class Solution(object):def trap(self, height):&quot;&quot;&quot;:type height: List[int]:rtype: int&quot;&quot;&quot;if not height:return 0n = len(height)left_max = [0] * nright_max = [0] * nleft_max[0] = height[0]right_max[n-1] = height[n-1]for i in range(1, n):left_max[i] = max(left_max[i-1], height[i])right_max[n-i-1] = max(right_max[n-i], height[n-i-1])res = 0for i in range(n):res += min(left_max[i], right_max[i]) - height[i]return res
 
-语法：关键词 site:网址 或 site:网址 关键词
-示例：在知乎搜 “职场沟通技巧”，输入 职场沟通技巧 site:zhihu.com
-注意：网址不加http://，也不用带末尾的/，比如直接写zhihu.com，别写https://zhihu.com/。
+方法二：单调栈除了计算并存储每个位置两边的最大高度以外，也可以用单调栈计算能接的雨水总量。
+维护一个单调栈，单调栈存储的是下标，满足从栈底到栈顶的下标对应的数组 height 中的元素递减。
+从左到右遍历数组，遍历到下标 i 时，如果栈内至少有两个元素，记栈顶元素为 top，top 的下面一个元素是 left，则一定有 height[left]≥height[top]。如果 height[i]&gt;height[top]，则得到一个可以接雨水的区域，该区域的宽度是 i−left−1，高度是 min(height[left],height[i])−height[top]，根据宽度和高度即可计算得到该区域能接的雨水量。
+为了得到 left，需要将 top 出栈。在对 top 计算能接的雨水量之后，left 变成新的 top，重复上述操作，直到栈变为空，或者栈顶下标对应的 height 中的元素大于或等于 height[i]。
+在对下标 i 处计算能接的雨水量之后，将 i 入栈，继续遍历后面的下标，计算能接的雨水量。遍历结束之后即可得到能接的雨水总量。
+class Solution:def trap(self, height: List[int]) -&gt; int:ans = 0stack = list()n = len(height)for i, h in enumerate(height):while stack and h &gt; height[stack[-1]]:top = stack.pop()if not stack:breakleft = stack[-1]currWidth = i - left - 1currHeight = min(height[left], height[i]) - height[top]ans += currWidth * currHeightstack.append(i)return ans
 
-2. filetype：精准找特定格式文件找 PPT、PDF、Word 文档时，用它能跳过无关网页。
-
-语法：关键词 filetype:文件格式
-示例：找 “市场营销方案” 的 PPT，输入 市场营销方案 filetype:ppt
-支持格式：常见的pdf、doc、xls、ppt都能用。
-
-3. 双引号：完整匹配不拆分想搜固定短语或句子，避免搜索引擎拆分关键词，就加双引号。
-
-语法：&quot;完整关键词&quot;
-示例：搜诗句 “腹有诗书气自华”，输入 &quot;腹有诗书气自华&quot;
-作用：不会出现 “腹有”“诗书气” 这种拆分后的零散结果。
-
-4. 减号：排除不想要的内容搜索结果里总有无关信息？用减号把它剔除。
-
-语法：关键词 -要排除的词（减号前必须加空格）
-示例：搜 “苹果” 但不想看手机相关内容，输入 苹果 -手机
-注意：减号后不能加空格，直接跟要排除的词。
-
-
-二、精准定位掌握基础后，用这些指令能进一步缩小搜索范围，找到更精准的内容。
-1. intitle：只看标题含关键词的页面想找标题里明确包含目标词的网页，用它能过滤掉 “标题无关、内容沾边” 的结果。
-
-语法：intitle:关键词 或 关键词 intitle:次要词
-示例：找标题含 “人工智能” 的新闻，输入 intitle:人工智能 新闻
-
-2. inurl：从网址里找线索有些网页的网址会包含分类信息（比如 “news”“blog”），用 inurl 能定位这类页面。
-
-语法：inurl:关键词 内容词
-示例：找知乎里 “职场” 相关的专栏（网址含 “column”），输入 inurl:column 职场 site:zhihu.com
-
-3. 组合指令：威力加倍把两个指令结合用，能实现 “双重筛选”，精准度直接拉满。
-
-常用组合 1：intitle:关键词 site:网址
-  示例：找豆瓣里标题含 “读书笔记” 的内容，输入 intitle:读书笔记 site:douban.com
-
-常用组合 2：关键词 filetype:格式 -排除词
-  示例：找 “心理学论文” 的 PDF，且排除 “本科” 相关，输入 心理学论文 filetype:pdf -本科
-
-
-
-三、注意
-符号用全角：一定要用英文半角符号，比如英文冒号:、英文双引号&quot;，用中文的：或“”会失效。
-网址带前缀：site:后面直接写域名，别加http://或www，比如site:baidu.com，不是site:https://www.baidu.com。
-减号没空格：减号前面必须加空格，否则会被当成关键词的一部分，比如苹果 -手机是对的，苹果-手机是错的。
-
-]]></content>
-      <categories>
-        <category>果冻的奇妙小工具</category>
-      </categories>
-      <tags>
-        <tag>tools</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>LeeCode最长连续序列</title>
-    <url>/gdBlog/2025/10/14/%E6%9C%80%E9%95%BF%E8%BF%9E%E7%BB%AD%E5%BA%8F%E5%88%97/</url>
-    <content><![CDATA[原题链接https://leetcode.cn/problems/longest-consecutive-sequence/solutions/276931/zui-chang-lian-xu-xu-lie-by-leetcode-solution/?envType=study-plan-v2&amp;envId=top-100-liked
-题目给定一个未排序的整数数组 nums ，找出数字连续的最长序列（不要求序列元素在原数组中连续）的长度。
-请你设计并实现时间复杂度为 O(n) 的算法解决此问题。
-示例 1：
-**输入：**nums &#x3D; [100,4,200,1,3,2]**输出：**4**解释：**最长数字连续序列是 [1, 2, 3, 4]。它的长度为 4。
-示例 2：
-**输入：**nums &#x3D; [0,3,7,2,5,8,4,6,0,1]**输出：**9
-示例 3：
-**输入：**nums &#x3D; [1,0,1,2]**输出：**3
-提示：
-
-0 &lt;= nums.length &lt;= 105
--109 &lt;= nums[i] &lt;= 109
-
-题解每个数都判断一次这个数是不是连续序列的开头那个数。
-
-怎么判断呢，就是用哈希表查找这个数前面一个数是否存在，即num-1在序列中是否存在。存在那这个数肯定不是开头，直接跳过。
-因此只需要对每个开头的数进行循环，直到这个序列不再连续，因此复杂度是O(n)。  以题解中的序列举例:  [100，4，200，1，3，4，2]  去重后的哈希序列为：  [100，4，200，1，3，2]  按照上面逻辑进行判断：
-
-
-元素100是开头,因为没有99，且以100开头的序列长度为1
-元素4不是开头，因为有3存在，过，
-元素200是开头，因为没有199，且以200开头的序列长度为1
-元素1是开头，因为没有0，且以1开头的序列长度为4，因为依次累加，2，3，4都存在。
-元素3不是开头，因为2存在，过，
-元素2不是开头，因为1存在，过。 完
-
-class Solution(object):def longestConsecutive(self, nums):&quot;&quot;&quot;:type nums: List[int]:rtype: int&quot;&quot;&quot;if not nums:return 0nums = set(nums)longest_streak = 0for num in nums:if num - 1 not in nums:current_num = numcurrent_streak = 1while current_num + 1 in nums:current_num += 1current_streak += 1longest_streak = max(longest_streak, current_streak)return longest_streak]]></content>
+方法三：双指针动态规划的做法中，需要维护两个数组 leftMax 和 rightMax，因此空间复杂度是 O(n)。是否可以将空间复杂度降到 O(1)？
+注意到下标 i 处能接的雨水量由 leftMax[i] 和 rightMax[i] 中的最小值决定。由于数组 leftMax 是从左往右计算，数组 rightMax 是从右往左计算，因此可以使用双指针和两个变量代替两个数组。
+维护两个指针 left 和 right，以及两个变量 leftMax 和 rightMax，初始时 left&#x3D;0,right&#x3D;n−1,leftMax&#x3D;0,rightMax&#x3D;0。指针 left 只会向右移动，指针 right 只会向左移动，在移动指针的过程中维护两个变量 leftMax 和 rightMax 的值。
+当两个指针没有相遇时，进行如下操作：
+使用 height[left] 和 height[right] 的值更新 leftMax 和 rightMax 的值；
+如果 height[left]&lt;height[right]，则必有 leftMax&lt;rightMax，下标 left 处能接的雨水量等于 leftMax−height[left]，将下标 left 处能接的雨水量加到能接的雨水总量，然后将 left 加 1（即向右移动一位）；
+如果 height[left]≥height[right]，则必有 leftMax≥rightMax，下标 right 处能接的雨水量等于 rightMax−height[right]，将下标 right 处能接的雨水量加到能接的雨水总量，然后将 right 减 1（即向左移动一位）。
+当两个指针相遇时，即可得到能接的雨水总量。
+class Solution:def trap(self, height: List[int]) -&gt; int:ans = 0left, right = 0, len(height) - 1leftMax = rightMax = 0  while left &lt; right:leftMax = max(leftMax, height[left])rightMax = max(rightMax, height[right])if height[left] &lt; height[right]:ans += leftMax - height[left]left += 1else:ans += rightMax - height[right]right -= 1return ans]]></content>
       <categories>
         <category>果冻的LeetCode刷题</category>
       </categories>
       <tags>
         <tag>LeetCode</tag>
+        <tag>动态规划</tag>
+        <tag>双指针</tag>
+        <tag>单调栈</tag>
       </tags>
   </entry>
   <entry>
@@ -1135,6 +1072,108 @@ Specification（规范）设定明确的质量和格式要求：
       </tags>
   </entry>
   <entry>
+    <title>搜索效率翻倍小技巧</title>
+    <url>/gdBlog/2025/10/02/%E6%90%9C%E7%B4%A2%E6%95%88%E7%8E%87%E7%BF%BB%E5%80%8D%E5%B0%8F%E6%8A%80%E5%B7%A7/</url>
+    <content><![CDATA[还在为搜不到精准信息发愁？别再一页页翻找搜索结果了。掌握几个简单的搜索引擎快捷指令，就能把海量信息精准筛选，让你的查找效率直接翻倍。
+一、基础指令1. site：限定网站搜内容想在特定网站里找信息，用它准没错。
+
+语法：关键词 site:网址 或 site:网址 关键词
+示例：在知乎搜 “职场沟通技巧”，输入 职场沟通技巧 site:zhihu.com
+注意：网址不加http://，也不用带末尾的/，比如直接写zhihu.com，别写https://zhihu.com/。
+
+2. filetype：精准找特定格式文件找 PPT、PDF、Word 文档时，用它能跳过无关网页。
+
+语法：关键词 filetype:文件格式
+示例：找 “市场营销方案” 的 PPT，输入 市场营销方案 filetype:ppt
+支持格式：常见的pdf、doc、xls、ppt都能用。
+
+3. 双引号：完整匹配不拆分想搜固定短语或句子，避免搜索引擎拆分关键词，就加双引号。
+
+语法：&quot;完整关键词&quot;
+示例：搜诗句 “腹有诗书气自华”，输入 &quot;腹有诗书气自华&quot;
+作用：不会出现 “腹有”“诗书气” 这种拆分后的零散结果。
+
+4. 减号：排除不想要的内容搜索结果里总有无关信息？用减号把它剔除。
+
+语法：关键词 -要排除的词（减号前必须加空格）
+示例：搜 “苹果” 但不想看手机相关内容，输入 苹果 -手机
+注意：减号后不能加空格，直接跟要排除的词。
+
+
+二、精准定位掌握基础后，用这些指令能进一步缩小搜索范围，找到更精准的内容。
+1. intitle：只看标题含关键词的页面想找标题里明确包含目标词的网页，用它能过滤掉 “标题无关、内容沾边” 的结果。
+
+语法：intitle:关键词 或 关键词 intitle:次要词
+示例：找标题含 “人工智能” 的新闻，输入 intitle:人工智能 新闻
+
+2. inurl：从网址里找线索有些网页的网址会包含分类信息（比如 “news”“blog”），用 inurl 能定位这类页面。
+
+语法：inurl:关键词 内容词
+示例：找知乎里 “职场” 相关的专栏（网址含 “column”），输入 inurl:column 职场 site:zhihu.com
+
+3. 组合指令：威力加倍把两个指令结合用，能实现 “双重筛选”，精准度直接拉满。
+
+常用组合 1：intitle:关键词 site:网址
+  示例：找豆瓣里标题含 “读书笔记” 的内容，输入 intitle:读书笔记 site:douban.com
+
+常用组合 2：关键词 filetype:格式 -排除词
+  示例：找 “心理学论文” 的 PDF，且排除 “本科” 相关，输入 心理学论文 filetype:pdf -本科
+
+
+
+三、注意
+符号用全角：一定要用英文半角符号，比如英文冒号:、英文双引号&quot;，用中文的：或“”会失效。
+网址带前缀：site:后面直接写域名，别加http://或www，比如site:baidu.com，不是site:https://www.baidu.com。
+减号没空格：减号前面必须加空格，否则会被当成关键词的一部分，比如苹果 -手机是对的，苹果-手机是错的。
+
+]]></content>
+      <categories>
+        <category>果冻的奇妙小工具</category>
+      </categories>
+      <tags>
+        <tag>tools</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>LeeCode最长连续序列</title>
+    <url>/gdBlog/2025/10/14/%E6%9C%80%E9%95%BF%E8%BF%9E%E7%BB%AD%E5%BA%8F%E5%88%97/</url>
+    <content><![CDATA[[[..&#x2F;..&#x2F;note&#x2F;Template&#x2F;LeetCode|LeetCode]]
+原题链接https://leetcode.cn/problems/longest-consecutive-sequence/solutions/276931/zui-chang-lian-xu-xu-lie-by-leetcode-solution/?envType=study-plan-v2&amp;envId=top-100-liked
+题目给定一个未排序的整数数组 nums ，找出数字连续的最长序列（不要求序列元素在原数组中连续）的长度。
+请你设计并实现时间复杂度为 O(n) 的算法解决此问题。
+示例 1：
+**输入：**nums &#x3D; [100,4,200,1,3,2]**输出：**4**解释：**最长数字连续序列是 [1, 2, 3, 4]。它的长度为 4。
+示例 2：
+**输入：**nums &#x3D; [0,3,7,2,5,8,4,6,0,1]**输出：**9
+示例 3：
+**输入：**nums &#x3D; [1,0,1,2]**输出：**3
+提示：
+
+0 &lt;= nums.length &lt;= 105
+-109 &lt;= nums[i] &lt;= 109
+
+题解每个数都判断一次这个数是不是连续序列的开头那个数。
+
+怎么判断呢，就是用哈希表查找这个数前面一个数是否存在，即num-1在序列中是否存在。存在那这个数肯定不是开头，直接跳过。
+因此只需要对每个开头的数进行循环，直到这个序列不再连续，因此复杂度是O(n)。  以题解中的序列举例:  [100，4，200，1，3，4，2]  去重后的哈希序列为：  [100，4，200，1，3，2]  按照上面逻辑进行判断：
+
+
+元素100是开头,因为没有99，且以100开头的序列长度为1
+元素4不是开头，因为有3存在，过，
+元素200是开头，因为没有199，且以200开头的序列长度为1
+元素1是开头，因为没有0，且以1开头的序列长度为4，因为依次累加，2，3，4都存在。
+元素3不是开头，因为2存在，过，
+元素2不是开头，因为1存在，过。 完
+
+class Solution(object):def longestConsecutive(self, nums):&quot;&quot;&quot;:type nums: List[int]:rtype: int&quot;&quot;&quot;if not nums:return 0nums = set(nums)longest_streak = 0for num in nums:if num - 1 not in nums:current_num = numcurrent_streak = 1while current_num + 1 in nums:current_num += 1current_streak += 1longest_streak = max(longest_streak, current_streak)return longest_streak]]></content>
+      <categories>
+        <category>果冻的LeetCode刷题</category>
+      </categories>
+      <tags>
+        <tag>LeetCode</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>正则表达式</title>
     <url>/gdBlog/2025/09/29/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/</url>
     <content><![CDATA[正则表达式（Regular Expression，简称 regex 或 regexp）是一种用于匹配、查找和处理文本的强大模式描述语言。它通过一系列预定义的字符和规则，构建出能够精确匹配特定文本模式的表达式，广泛应用于文本搜索、验证、替换、提取等场景（如表单验证、日志分析、代码解析等）。
@@ -1154,7 +1193,8 @@ Specification（规范）设定明确的质量和格式要求：
   <entry>
     <title>LeeCode盛最多水的容器</title>
     <url>/gdBlog/2025/10/14/%E7%9B%9B%E6%9C%80%E5%A4%9A%E6%B0%B4%E7%9A%84%E5%AE%B9%E5%99%A8/</url>
-    <content><![CDATA[原题链接https://leetcode.cn/problems/container-with-most-water/solutions/207215/sheng-zui-duo-shui-de-rong-qi-by-leetcode-solution/?envType=study-plan-v2&amp;envId=top-100-liked
+    <content><![CDATA[[[..&#x2F;..&#x2F;note&#x2F;Template&#x2F;LeetCode|LeetCode]]
+原题链接https://leetcode.cn/problems/container-with-most-water/solutions/207215/sheng-zui-duo-shui-de-rong-qi-by-leetcode-solution/?envType=study-plan-v2&amp;envId=top-100-liked
 题目给定一个长度为 n 的整数数组 height 。有 n 条垂线，第 i 条线的两个端点是 (i, 0) 和 (i, height[i]) 。
 找出其中的两条线，使得它们与 x 轴共同构成的容器可以容纳最多的水。
 返回容器可以储存的最大水量。
@@ -1166,12 +1206,14 @@ class Solution(object):def maxArea(self, height):&quot;&quot;&quot;:type height:
       </categories>
       <tags>
         <tag>LeetCode</tag>
+        <tag>双指针</tag>
       </tags>
   </entry>
   <entry>
     <title>LeeCode移动零</title>
     <url>/gdBlog/2025/10/14/%E7%A7%BB%E5%8A%A8%E9%9B%B6/</url>
-    <content><![CDATA[原题链接https://leetcode.cn/problems/move-zeroes/solutions/489622/yi-dong-ling-by-leetcode-solution/?envType=study-plan-v2&amp;envId=top-100-liked
+    <content><![CDATA[[[..&#x2F;..&#x2F;note&#x2F;Template&#x2F;LeetCode|LeetCode]]
+原题链接https://leetcode.cn/problems/move-zeroes/solutions/489622/yi-dong-ling-by-leetcode-solution/?envType=study-plan-v2&amp;envId=top-100-liked
 题目给定一个数组 nums，编写一个函数将所有 0 移动到数组的末尾，同时保持非零元素的相对顺序。
 请注意 ，必须在不复制数组的情况下原地对数组进行操作。
 示例 1:
@@ -1199,6 +1241,7 @@ class Solution &#123;public:    void moveZeroes(vector&lt;int&gt;&amp; nums) &#1
       </categories>
       <tags>
         <tag>LeetCode</tag>
+        <tag>双指针</tag>
       </tags>
   </entry>
   <entry>
