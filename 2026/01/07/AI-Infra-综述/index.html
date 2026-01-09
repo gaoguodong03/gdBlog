@@ -1,0 +1,477 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>AI Infra 综述 | 果冻小配方</title><meta name="author" content="GuoDong"><meta name="copyright" content="GuoDong"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="AI Infra（人工智能基础设施）是为支持人工智能开发、训练、部署及规模化应用而构建的技术底层体系 AI基础设施是支撑现代人工智能应用的技术基石，涵盖从数据收集、模型训练到推理部署的全生命周期。与传统IT基础设施不同，AI Infra针对高度并行的计算、海量数据处理和动态资源分配进行了专门优化。  一、AI基础设施的起源与演进1.1 早期阶段：从符号AI到计算限制（1950s-1970s）AI基">
+<meta property="og:type" content="article">
+<meta property="og:title" content="AI Infra 综述">
+<meta property="og:url" content="https://gaoguodong03.github.io/gdBlog/2026/01/07/AI-Infra-%E7%BB%BC%E8%BF%B0/index.html">
+<meta property="og:site_name" content="果冻小配方">
+<meta property="og:description" content="AI Infra（人工智能基础设施）是为支持人工智能开发、训练、部署及规模化应用而构建的技术底层体系 AI基础设施是支撑现代人工智能应用的技术基石，涵盖从数据收集、模型训练到推理部署的全生命周期。与传统IT基础设施不同，AI Infra针对高度并行的计算、海量数据处理和动态资源分配进行了专门优化。  一、AI基础设施的起源与演进1.1 早期阶段：从符号AI到计算限制（1950s-1970s）AI基">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://gaoguodong03.github.io/gdBlog/img/logoInfra.jpg">
+<meta property="article:published_time" content="2026-01-06T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-01-07T12:44:23.810Z">
+<meta property="article:author" content="GuoDong">
+<meta property="article:tag" content="infra">
+<meta property="article:tag" content="总结">
+<meta property="article:tag" content="调研">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://gaoguodong03.github.io/gdBlog/img/logoInfra.jpg"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "AI Infra 综述",
+  "url": "https://gaoguodong03.github.io/gdBlog/2026/01/07/AI-Infra-%E7%BB%BC%E8%BF%B0/",
+  "image": "https://gaoguodong03.github.io/gdBlog/img/logoInfra.jpg",
+  "datePublished": "2026-01-06T16:00:00.000Z",
+  "dateModified": "2026-01-07T12:44:23.810Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "GuoDong",
+      "url": "https://gaoguodong03.github.io/gdBlog"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/gdBlog/img/logo.jpg"><link rel="canonical" href="https://gaoguodong03.github.io/gdBlog/2026/01/07/AI-Infra-%E7%BB%BC%E8%BF%B0/index.html"><link rel="preconnect"/><link rel="stylesheet" href="/gdBlog/css/index.css"><link rel="stylesheet" href="/gdBlog/pluginsSrc/@fortawesome/fontawesome-free/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/gdBlog/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: '/gdBlog/pluginsSrc/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'AI Infra 综述',
+  isHighlightShrink: true,
+  isToc: true,
+  pageType: 'post'
+}</script><style>#article-container.post-content h1:before, h2:before, h3:before, h4:before, h5:before, h6:before { -webkit-animation: avatar_turn_around 1s linear infinite; -moz-animation: avatar_turn_around 1s linear infinite; -o-animation: avatar_turn_around 1s linear infinite; -ms-animation: avatar_turn_around 1s linear infinite; animation: avatar_turn_around 1s linear infinite; }</style><!-- hexo injector head_end start --><link rel="stylesheet" href="/gdBlog/./css/categorybar.css"><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-wowjs/lib/animate.min.css" media="print" onload="this.media='screen'"><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-swiper/lib/swiper.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-swiper/lib/swiperstyle.css" media="print" onload="this.media='all'"><!-- hexo injector head_end end --><meta name="generator" content="Hexo 8.0.0"></head><body><div id="web_bg" style="background-image: url(/gdBlog/img/bg1.jpg);"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/gdBlog/img/touxiang.jpg" onerror="this.onerror=null;this.src='/gdBlog/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/gdBlog/archives/"><div class="headline">文章</div><div class="length-num">31</div></a><a href="/gdBlog/tags/"><div class="headline">标签</div><div class="length-num">22</div></a><a href="/gdBlog/categories/"><div class="headline">分类</div><div class="length-num">7</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/gdBlog/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/link/"><i class="fa-fw fas fa-link"></i><span> 书签</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/gdBlog/./img/logoInfra.jpg);"><nav id="nav"><!-- 左侧博客信息区域--><span id="blog-info"><a class="nav-site-title" href="/gdBlog/"><img class="site-icon" src="/gdBlog/img/logo.jpg" alt="Logo"><span class="site-name">果冻小配方</span></a><a class="nav-page-title" href="/gdBlog/"><span class="site-name">AI Infra 综述</span></a></span><!-- 新增的导航菜单容器（居中布局关键）--><div id="nav-menus-container"><!-- 菜单主体部分--><div id="menus"><!-- 搜索按钮--><!-- 菜单项--><div class="menus_items"><div class="menus_item"><a class="site-page" href="/gdBlog/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/link/"><i class="fa-fw fas fa-link"></i><span> 书签</span></a></div></div></div><!-- 移动端汉堡菜单按钮（保持原位置）--><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">AI Infra 综述</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-01-06T16:00:00.000Z" title="发表于 2026-01-07 00:00:00">2026-01-07</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-01-07T12:44:23.810Z" title="更新于 2026-01-07 20:44:23">2026-01-07</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/gdBlog/categories/%E6%9E%9C%E5%86%BB%E7%9A%84%E7%90%86%E8%AE%BA%E5%AD%A6%E4%B9%A0/">果冻的理论学习</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">总字数:</span><span class="word-count">2.5k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>7分钟</span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><p>AI Infra（人工智能基础设施）是为支持人工智能开发、训练、部署及规模化应用而构建的技术<strong>底层体系</strong></p>
+<p>AI基础设施是支撑现代人工智能应用的技术基石，涵盖从数据收集、模型训练到推理部署的全生命周期。与传统IT基础设施不同，AI Infra针对高度并行的计算、海量数据处理和动态资源分配进行了专门优化。</p>
+<hr>
+<h1 id="一、AI基础设施的起源与演进"><a href="#一、AI基础设施的起源与演进" class="headerlink" title="一、AI基础设施的起源与演进"></a>一、AI基础设施的起源与演进</h1><h2 id="1-1-早期阶段：从符号AI到计算限制（1950s-1970s）"><a href="#1-1-早期阶段：从符号AI到计算限制（1950s-1970s）" class="headerlink" title="1.1 早期阶段：从符号AI到计算限制（1950s-1970s）"></a>1.1 早期阶段：从符号AI到计算限制（1950s-1970s）</h2><p>AI基础设施的故事始于1944年的Bletchley Park，英国密码学家Alan Turing和Donald Michie首次讨论了创建具有智能的计算机程序的可能性。1956年的Dartmouth Summer Research Project正式确立了AI作为一门学科，John McCarthy在此次会议中创造了”人工智能”这一术语。<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/History_of_artificial_intelligence"></a>​</p>
+<p>早期的AI基础设施极其原始。研究依赖于大型主机计算机，这些机器体积庞大、成本高昂，仅少数学府和研究机构能够使用。LISP和Prolog等专为符号处理设计的编程语言成为那个时代的标配，但受限于硬件能力，这些系统在处理能力和数据存储方面都面临严重瓶颈。<a target="_blank" rel="noopener" href="https://telnyx.com/resources/evolution-ai-infrastructure"></a>​</p>
+<h2 id="1-2-转折点：机器学习革命（1980s-1990s）"><a href="#1-2-转折点：机器学习革命（1980s-1990s）" class="headerlink" title="1.2 转折点：机器学习革命（1980s-1990s）"></a>1.2 转折点：机器学习革命（1980s-1990s）</h2><p>1980年代标志了一个重要转变。Expert System R1在CMU完成，为DEC（Digital Equipment Corporation）每年节省4千万美元。这一成功催化了整个行业投资AI技术。到1985年，全球企业在AI上的投资超过10亿美元。<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/History_of_artificial_intelligence"></a>​</p>
+<p>这一时期的基础设施创新包括专用的Lisp Machine硬件和AI芯片的早期尝试，为后来的GPU加速奠定了基础。</p>
+<h2 id="1-3-云计算时代的民主化（2000s-2010s）"><a href="#1-3-云计算时代的民主化（2000s-2010s）" class="headerlink" title="1.3 云计算时代的民主化（2000s-2010s）"></a>1.3 云计算时代的民主化（2000s-2010s）</h2><p>2000年代，云计算平台的出现（AWS、Google Cloud Platform、Microsoft Azure）彻底改变了AI基础设施的格局。这种范式转变实现了计算资源的民主化——组织不再需要昂贵的本地基础设施，而是可以按需调用云端的高性能计算。<a target="_blank" rel="noopener" href="https://telnyx.com/resources/evolution-ai-infrastructure"></a>​</p>
+<h2 id="1-4-现代GPU驱动时代（2010s-2020s）"><a href="#1-4-现代GPU驱动时代（2010s-2020s）" class="headerlink" title="1.4 现代GPU驱动时代（2010s-2020s）"></a>1.4 现代GPU驱动时代（2010s-2020s）</h2><p>深度学习的复兴（特别是Geoffrey Hinton等人的工作）推动了GPU作为AI加速器的广泛采用。NVIDIA的GPU因其并行处理能力，相比CPU在AI任务上可提供<strong>20倍的性能提升</strong>。同时，Google的TPU（Tensor Processing Unit）出现，为特定的张量操作提供了优化的硬件。<a target="_blank" rel="noopener" href="https://www.quinnox.com/blogs/ai-infrastructure-guide"></a>​</p>
+<p>Stanford AI Index研究表明，<strong>过去五年AI模型训练时间减少了80%</strong>，这正是源于基础设施的持续进步。<a target="_blank" rel="noopener" href="https://www.quinnox.com/blogs/ai-infrastructure-guide"></a>​</p>
+<hr>
+<h1 id="二、AI基础设施的核心定义"><a href="#二、AI基础设施的核心定义" class="headerlink" title="二、AI基础设施的核心定义"></a>二、AI基础设施的核心定义</h1><h2 id="2-1-学术与工业定义"><a href="#2-1-学术与工业定义" class="headerlink" title="2.1 学术与工业定义"></a>2.1 学术与工业定义</h2><p><strong>AI基础设施</strong>是指支持AI模型和应用的开发、训练、部署和管理所需的硬件、软件和云资源的综合技术栈。更精准的定义强调：<a target="_blank" rel="noopener" href="https://www.splunk.com/en_us/blog/learn/ai-infrastructure.html"></a>​</p>
+<p>AI基础设施针对AI工作负载独特的计算模式进行了优化：</p>
+<ul>
+<li><p><strong>大规模并行处理</strong>用于训练阶段</p>
+</li>
+<li><p><strong>动态资源分配</strong>用于推理阶段</p>
+</li>
+<li><p><strong>专用数据管道</strong>处理多模态输入（文本、图像、代码）</p>
+</li>
+<li><p><strong>跨分布式节点的模型权重管理</strong><a target="_blank" rel="noopener" href="https://cyfuture.ai/blog/what-is-ai-infrastructure"></a>​</p>
+</li>
+</ul>
+<h2 id="2-2-与传统IT基础设施的关键区别"><a href="#2-2-与传统IT基础设施的关键区别" class="headerlink" title="2.2 与传统IT基础设施的关键区别"></a>2.2 与传统IT基础设施的关键区别</h2><table>
+<thead>
+<tr>
+<th>维度</th>
+<th>AI基础设施</th>
+<th>传统IT基础设施</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>计算单位</td>
+<td>GPUs、TPUs、AI加速器</td>
+<td>CPUs</td>
+</tr>
+<tr>
+<td>数据处理</td>
+<td>实时流、并行处理</td>
+<td>批处理、顺序执行</td>
+</tr>
+<tr>
+<td>可扩展性</td>
+<td>弹性云计算、分布式系统</td>
+<td>固定资源、本地服务器</td>
+</tr>
+<tr>
+<td>网络</td>
+<td>低延迟、高带宽（InfiniBand、RDMA）</td>
+<td>标准以太网、中等带宽</td>
+</tr>
+<tr>
+<td>存储</td>
+<td>分布式、可扩展（数据湖、对象存储）</td>
+<td>集中式数据库、结构化存储</td>
+</tr>
+<tr>
+<td>能源效率</td>
+<td>针对AI工作负载优化、高功耗</td>
+<td>通用计算、较低功耗</td>
+</tr>
+<tr>
+<td>治理</td>
+<td>AI特定框架、伦理AI</td>
+<td>标准IT安全协议</td>
+</tr>
+</tbody></table>
+<hr>
+<h1 id="三、AI基础设施的六大核心组件"><a href="#三、AI基础设施的六大核心组件" class="headerlink" title="三、AI基础设施的六大核心组件"></a>三、AI基础设施的六大核心组件</h1><h2 id="3-1-计算资源（Compute-Resources）"><a href="#3-1-计算资源（Compute-Resources）" class="headerlink" title="3.1 计算资源（Compute Resources）"></a>3.1 计算资源（Compute Resources）</h2><p>计算资源是AI基础设施的动力核心，直接决定了模型训练速度、推理延迟和成本效率。<a target="_blank" rel="noopener" href="https://www.quinnox.com/blogs/ai-infrastructure-guide"></a>​</p>
+<p><strong>GPU集群</strong> — NVIDIA A100等高端GPU因其并行计算能力成为深度学习的标准。一颗A100 GPU可提供相比CPU<strong>20倍的性能优势</strong>用于AI任务。<a target="_blank" rel="noopener" href="https://www.quinnox.com/blogs/ai-infrastructure-guide"></a>​</p>
+<p><strong>TPU（张量处理单位）</strong> — Google设计的专用芯片，针对矩阵密集操作优化。Google用TPU驱动Google Translate和Gmail智能回复。<a target="_blank" rel="noopener" href="https://www.quinnox.com/blogs/ai-infrastructure-guide"></a>​</p>
+<p><strong>边缘处理器</strong> — 嵌入式AI计算单元，如Tesla的Full Self-Driving计算机，可在边缘进行实时推理而无需依赖云延迟。<a target="_blank" rel="noopener" href="https://www.quinnox.com/blogs/ai-infrastructure-guide"></a>​</p>
+<h2 id="3-2-数据基础设施（Data-Infrastructure）"><a href="#3-2-数据基础设施（Data-Infrastructure）" class="headerlink" title="3.2 数据基础设施（Data Infrastructure）"></a>3.2 数据基础设施（Data Infrastructure）</h2><p>AI的准确性完全取决于数据质量。McKinsey研究显示，投资AI驱动数据基础设施的公司在AI投资回报率上<strong>高出2.5倍</strong>。<a target="_blank" rel="noopener" href="https://www.quinnox.com/blogs/ai-infrastructure-guide"></a>​</p>
+<p><strong>数据湖</strong> — 存储非结构化和半结构化数据的可扩展仓库<br><strong>数据仓库</strong> — 结构化、分析就绪的数据存储<br><strong>ETL&#x2F;ELT管道</strong> — 数据转换和富化<br><strong>实时流处理</strong> — 支持时间敏感的数据处理<br><strong>元数据与血缘追踪工具</strong> — 用于数据治理<a target="_blank" rel="noopener" href="https://www.quinnox.com/blogs/ai-infrastructure-guide"></a>​</p>
+<h2 id="3-3-模型开发与训练环境"><a href="#3-3-模型开发与训练环境" class="headerlink" title="3.3 模型开发与训练环境"></a>3.3 模型开发与训练环境</h2><p>此层包括支持从实验到生产的完整机器学习工作流。</p>
+<p><strong>机器学习框架</strong> — TensorFlow、PyTorch、Scikit-learn等提供库和模块<br><strong>交互式开发工具</strong> — Jupyter notebooks、VS Code等用于迭代和可视化<br><strong>分布式训练编排</strong> — 支持跨数千GPU的并行训练（如OpenAI用于GPT-4的方式）</p>
+<p>Stanford AI Index表明，这些技术的进步使<strong>模型训练时间在五年内减少了80%</strong>。<a target="_blank" rel="noopener" href="https://www.quinnox.com/blogs/ai-infrastructure-guide"></a>​</p>
+<h2 id="3-4-部署与推理基础设施"><a href="#3-4-部署与推理基础设施" class="headerlink" title="3.4 部署与推理基础设施"></a>3.4 部署与推理基础设施</h2><p>模型推理成本显著——Gartner报告指出，<strong>AI推理工作负载占企业云计算成本的60%</strong>。<a target="_blank" rel="noopener" href="https://www.quinnox.com/blogs/ai-infrastructure-guide"></a>​</p>
+<p><strong>模型服务平台</strong> — 托管训练模型进行快速、可扩展推理<br><strong>模型版本管理与回滚</strong> — 确保精度和适应性<br><strong>API网关</strong> — 为应用程序暴露推理端点<br><strong>CI&#x2F;CD for MLOps</strong> — 简化从开发到生产的管道</p>
+<h2 id="3-5-存储与网络"><a href="#3-5-存储与网络" class="headerlink" title="3.5 存储与网络"></a>3.5 存储与网络</h2><p>AI工作负载要求高I&#x2F;O吞吐量和可靠的数据移动能力。</p>
+<p><strong>高性能存储</strong> — NVMe SSD和分布式文件系统确保低延迟、高带宽<br><strong>高速网络</strong> — InfiniBand和5G（边缘场景）降低延迟，加快模型训练<br><strong>混合&#x2F;多云架构</strong> — 灵活跨本地、云和边缘环境移动和访问数据，对数据驻地受限的跨国企业尤其关键<a target="_blank" rel="noopener" href="https://www.quinnox.com/blogs/ai-infrastructure-guide"></a>​</p>
+<h2 id="3-6-治理、安全与合规"><a href="#3-6-治理、安全与合规" class="headerlink" title="3.6 治理、安全与合规"></a>3.6 治理、安全与合规</h2><p>AI系统通常处理敏感或受监管的数据，安全和合规性至关重要。</p>
+<p><strong>加密</strong> — 传输中和静止时的数据保护<br><strong>访问控制</strong> — 基于角色的访问（RBAC）、审计日志、认证<br><strong>偏差与公平性审计</strong> — 定期评估模型中的性别、种族偏差<br><strong>可解释性工具</strong> — 提供模型决策的透明度和可追溯性<br><strong>合规框架</strong> — 必须在基础设施设计中嵌入GDPR、HIPAA、ISO 27001<a target="_blank" rel="noopener" href="https://www.quinnox.com/blogs/ai-infrastructure-guide"></a>​</p>
+<hr>
+<h1 id="四、现代AI-Stack的五层架构"><a href="#四、现代AI-Stack的五层架构" class="headerlink" title="四、现代AI Stack的五层架构"></a>四、现代AI Stack的五层架构</h1><p>当代AI基础设施最佳实践涉及一个综合的分层模型：<a target="_blank" rel="noopener" href="https://www.striim.com/blog/guide-to-getting-ai-ready-part-1-building-a-modern-ai-stack/"></a>​</p>
+<h2 id="第一层：基础设施层（Infrastructure-Layer）"><a href="#第一层：基础设施层（Infrastructure-Layer）" class="headerlink" title="第一层：基础设施层（Infrastructure Layer）"></a>第一层：基础设施层（Infrastructure Layer）</h2><p>这是整个栈的基础——提供计算、编排和网络结构。<a target="_blank" rel="noopener" href="https://www.striim.com/blog/guide-to-getting-ai-ready-part-1-building-a-modern-ai-stack/"></a>​</p>
+<p><strong>关键特征：</strong></p>
+<ul>
+<li><p>云原生、模块化架构，设计用于随着业务需求演进</p>
+</li>
+<li><p>支持GPUs&#x2F;TPUs的弹性计算，处理AI训练和推理工作负载</p>
+</li>
+<li><p>为支持多步骤自主推理的Agent AI框架内置支持</p>
+</li>
+<li><p>基础设施韧性，包括零停机升级和自愈编排</p>
+</li>
+</ul>
+<p>AI是计算密集且动态的。基础设施必须能够无缝地扩展、缩小、分发和恢复。</p>
+<h2 id="第二层：数据层（Data-Layer）"><a href="#第二层：数据层（Data-Layer）" class="headerlink" title="第二层：数据层（Data Layer）"></a>第二层：数据层（Data Layer）</h2><p>此层控制数据的收集、移动、塑形和存储方式——无论是在传输中还是静止时。<a target="_blank" rel="noopener" href="https://www.striim.com/blog/guide-to-getting-ai-ready-part-1-building-a-modern-ai-stack/"></a><br><strong>核心需求：</strong></p>
+<ul>
+<li><p>来自操作系统的实时数据流，通过变更数据捕获（CDC）在中途转换</p>
+</li>
+<li><p>开放格式支持，能够读写多种格式用于跨湖、仓库和API的实时集成</p>
+</li>
+<li><p>中心化、可扩展存储，管理原始和富化数据跨混合环境</p>
+</li>
+<li><p>流水线将数据富化为AI就绪格式，如用于RAG（检索增强生成）的向量嵌入<a target="_blank" rel="noopener" href="https://www.striim.com/blog/guide-to-getting-ai-ready-part-1-building-a-modern-ai-stack/"></a>​</p>
+</li>
+</ul>
+<h2 id="第三层：AI-ML层"><a href="#第三层：AI-ML层" class="headerlink" title="第三层：AI&#x2F;ML层"></a>第三层：AI&#x2F;ML层</h2><p>预测、分类、生成或优化的模型。<a target="_blank" rel="noopener" href="https://www.striim.com/blog/guide-to-getting-ai-ready-part-1-building-a-modern-ai-stack/"></a>​</p>
+<p><strong>关键特性：</strong></p>
+<ul>
+<li><p>支持传统ML和现代LLM的完整生命周期模型开发环境</p>
+</li>
+<li><p>实时向量嵌入支持LLM和Agent系统的语义意识</p>
+</li>
+<li><p>访问可扩展计算基础设施（GPUs、TPUs）以训练复杂模型</p>
+</li>
+<li><p>集成MLOps以简化实验、部署和监测</p>
+</li>
+</ul>
+<h2 id="第四层：推理与决策层"><a href="#第四层：推理与决策层" class="headerlink" title="第四层：推理与决策层"></a>第四层：推理与决策层</h2><p>AI系统进入工作阶段——部署到生产环境与真实数据和应用交互的地方。<a target="_blank" rel="noopener" href="https://www.striim.com/blog/guide-to-getting-ai-ready-part-1-building-a-modern-ai-stack/"></a>​</p>
+<p><strong>关键能力：</strong></p>
+<ul>
+<li><p>模型服务平台支持快速、可扩展推理</p>
+</li>
+<li><p>将AI直接嵌入数据流进行实时决策的能力</p>
+</li>
+<li><p>RAG（检索增强生成）将搜索与AI相结合，使用向量数据库将输出基于实时上下文</p>
+</li>
+<li><p>灵活的部署接口（APIs、事件驱动等）易于集成到业务工作流中</p>
+</li>
+</ul>
+<h2 id="第五层：治理层"><a href="#第五层：治理层" class="headerlink" title="第五层：治理层"></a>第五层：治理层</h2><p>AI仅与其构建所用的数据一样可信。此层确保AI以负责任的方式运作。<a target="_blank" rel="noopener" href="https://www.striim.com/blog/guide-to-getting-ai-ready-part-1-building-a-modern-ai-stack/"></a>​</p>
+<p><strong>关键能力：</strong></p>
+<ul>
+<li><p>内置可观测性，追踪性能、确保数据质量和操作健康</p>
+</li>
+<li><p>敏感数据的主动检测（PII、财务、健康）</p>
+</li>
+<li><p>实时分类和标记强制执行策略自动化</p>
+</li>
+<li><p>完整的可追溯性和审计日志以满足内部标准和外部法规</p>
+</li>
+<li><p>AI行为监测以检测异常、降低风险、防止无意或不合规的输出</p>
+</li>
+</ul>
+<hr>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://gaoguodong03.github.io/gdBlog">GuoDong</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://gaoguodong03.github.io/gdBlog/2026/01/07/AI-Infra-%E7%BB%BC%E8%BF%B0/">https://gaoguodong03.github.io/gdBlog/2026/01/07/AI-Infra-%E7%BB%BC%E8%BF%B0/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://gaoguodong03.github.io/gdBlog" target="_blank">果冻小配方</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/gdBlog/tags/infra/">infra</a><a class="post-meta__tags" href="/gdBlog/tags/%E6%80%BB%E7%BB%93/">总结</a><a class="post-meta__tags" href="/gdBlog/tags/%E8%B0%83%E7%A0%94/">调研</a></div><div class="post-share"><div class="social-share" data-image="/gdBlog/./img/logoInfra.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="/gdBlog/pluginsSrc/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="/gdBlog/pluginsSrc/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related full-width" href="/gdBlog/2026/01/02/2025%E5%B9%B4%E5%A4%A7%E5%9E%8B%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B%E7%8E%B0%E7%8A%B6%EF%BC%9A%E8%BF%9B%E5%B1%95%E3%80%81%E9%97%AE%E9%A2%98%E4%B8%8E%E9%A2%84%E6%B5%8B/" title="2025年大型语言模型现状：进展、问题与预测"><img class="cover" src="/gdBlog/./img/logoLLM.png" onerror="onerror=null;src='/gdBlog/img/404.jpg'" alt="cover of next post"><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">2025年大型语言模型现状：进展、问题与预测</div></div><div class="info-2"><div class="info-item-1">原文链接 随着2025年即将结束，我想回顾今年大型语言模型中一些最重要的发展，反思那些仍然存在的局限性和未解决的问题，并分享一些对未来可能出现的展望。 1. 推理之年、RLVR 和 GRPO缩放依然有效，但实际上并没有改变大型语言模型的行为或实际体验（唯一的例外是 OpenAI 新发布的 o1，它增加了推理痕迹）。因此，当 DeepSeek 在 2025 年 1 月发布他们的 R1 论文 ，证明通过强化学习可以发展类推理行为时，这成为了一件大事。（在大型语言模型（LLM）中，推理意味着模型解释其答案，而这种解释本身通常会提高答案的准确性。） 1.1 The DeepSeek MomentDeepSeek R1 因多种原因备受关注： 首先，DeepSeek R1 作为一个开权重模型发布，表现非常好，可与当时最好的专有模型（ChatGPT、Gemini 等）相媲美。 其次，DeepSeek R1 论文促使许多人，尤其是投资者和记者，重新审视了 2024 年 12 月的 DeepSeek V3 早期论文 。这导致了一个修正的结论：虽然训练最先进的模型仍然昂贵，但可能比之前假设便宜一个数...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/gdBlog/2026/01/02/2025%E5%B9%B4%E5%A4%A7%E5%9E%8B%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B%E7%8E%B0%E7%8A%B6%EF%BC%9A%E8%BF%9B%E5%B1%95%E3%80%81%E9%97%AE%E9%A2%98%E4%B8%8E%E9%A2%84%E6%B5%8B/" title="2025年大型语言模型现状：进展、问题与预测"><img class="cover" src="/gdBlog/./img/logoLLM.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-01-02</div><div class="info-item-2">2025年大型语言模型现状：进展、问题与预测</div></div><div class="info-2"><div class="info-item-1">原文链接 随着2025年即将结束，我想回顾今年大型语言模型中一些最重要的发展，反思那些仍然存在的局限性和未解决的问题，并分享一些对未来可能出现的展望。 1. 推理之年、RLVR 和 GRPO缩放依然有效，但实际上并没有改变大型语言模型的行为或实际体验（唯一的例外是 OpenAI 新发布的 o1，它增加了推理痕迹）。因此，当 DeepSeek 在 2025 年 1 月发布他们的 R1 论文 ，证明通过强化学习可以发展类推理行为时，这成为了一件大事。（在大型语言模型（LLM）中，推理意味着模型解释其答案，而这种解释本身通常会提高答案的准确性。） 1.1 The DeepSeek MomentDeepSeek R1 因多种原因备受关注： 首先，DeepSeek R1 作为一个开权重模型发布，表现非常好，可与当时最好的专有模型（ChatGPT、Gemini 等）相媲美。 其次，DeepSeek R1 论文促使许多人，尤其是投资者和记者，重新审视了 2024 年 12 月的 DeepSeek V3 早期论文 。这导致了一个修正的结论：虽然训练最先进的模型仍然昂贵，但可能比之前假设便宜一个数...</div></div></div></a><a class="pagination-related" href="/gdBlog/2026/01/02/GRPO%EF%BC%88Group-Relative-Policy-Optimization%EF%BC%8C%E5%88%86%E7%BB%84%E7%9B%B8%E5%AF%B9%E7%AD%96%E7%95%A5%E4%BC%98%E5%8C%96%EF%BC%89/" title="GRPO（Group Relative Policy Optimization，分组相对策略优化）"><img class="cover" src="/gdBlog/./img/logoLLM.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-01-02</div><div class="info-item-2">GRPO（Group Relative Policy Optimization，分组相对策略优化）</div></div><div class="info-2"><div class="info-item-1">GRPO（Group Relative Policy Optimization，分组相对策略优化） 是 DeepSeek 在 V3 模型训练中引入的一种无奖励模型的强化学习对齐技术。它是一种 RLHF（人类反馈强化学习）的变体或改进方法，旨在更高效、更稳定地训练模型与人类偏好对齐。[[RLHF（Reinforcement Learning from Human Feedback，基于人类反馈的强化学习）|RLHF（Reinforcement Learning from Human Feedback，基于人类反馈的强化学习）]] 核心思路GRPO 的核心创新在于摆脱了对独立奖励模型的依赖。传统的 RLHF 需要先训练一个复杂的奖励模型来评估生成内容，而 GRPO 直接利用人类偏好数据进行端到端的策略优化。 工作原理（简化版） 分组对比：  对于同一个问题（提示），模型会生成一组（例如 4 个）不同的回答。 这些回答根据质量被模型或参考标准排序。   相对偏好建模：  GRPO 的核心是直接比较同一组内回答的相对好坏，而不是像传统 RLHF 那样依赖一个绝对分数预测的奖励模型。 它通...</div></div></div></a><a class="pagination-related" href="/gdBlog/2025/10/01/DeepSearch%E7%9A%84%E8%AE%BA%E6%96%87%E8%B0%83%E7%A0%94/" title="DeepSearch的论文调研"><img class="cover" src="/gdBlog/./img/logoZiyouzhiyi.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-10-01</div><div class="info-item-2">DeepSearch的论文调研</div></div><div class="info-2"><div class="info-item-1">论文调研综述论文A Comprehensive Survey of Deep Research: Systems, Methodologies, and Applications该综述由浙江大学徐仁军和彭静雯撰写，系统研究了Deep Research 系统这一快速发展的领域 —— 这类系统通过整合大型语言模型（LLMs）、先进信息检索技术和自主推理能力，实现复杂研究工作流的自动化；综述分析了 2023 年以来出现的80 多个商业和非商业系统（如 OpenAI&#x2F;DeepResearch、Gemini&#x2F;DeepResearch 等），提出了基于 “基础模型与推理引擎、工具利用与环境交互、任务规划与执行控制、知识合成与输出生成” 的四层技术分类体系，探讨了系统在学术、科学、商业、教育等领域的架构模式与应用适配性，指出当前系统在信息准确性、隐私、知识产权等方面的技术与伦理挑战，并明确了先进推理架构、多模态融合、领域专业化等未来研究方向，同时提供了相关资源库（https://github.com/scienceaix/deepresearch）支持进一步研究 ![[Ob...</div></div></div></a><a class="pagination-related" href="/gdBlog/2026/01/02/RLHF%EF%BC%88Reinforcement-Learning-from-Human-Feedback%EF%BC%8C%E5%9F%BA%E4%BA%8E%E4%BA%BA%E7%B1%BB%E5%8F%8D%E9%A6%88%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%EF%BC%89/" title="RLHF（Reinforcement Learning from Human Feedback，基于人类反馈的强化学习）"><img class="cover" src="/gdBlog/./img/logoLLM.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-01-02</div><div class="info-item-2">RLHF（Reinforcement Learning from Human Feedback，基于人类反馈的强化学习）</div></div><div class="info-2"><div class="info-item-1">RLHF（Reinforcement Learning from Human Feedback，基于人类反馈的强化学习） 是一种用于训练机器学习模型（特别是大型语言模型）的技术方法。它的核心思想是让模型通过与人类的互动反馈来学习和优化自身行为。 主要流程RLHF 通常包含以下三个关键步骤：  监督微调（Supervised Fine-Tuning, SFT）  首先，在高质量的人类标注数据上对预训练的基础模型进行微调，使其初步学会按照人类期望的方式回答问题。   奖励模型训练（Reward Modeling, RM）  人类评估员对模型的多个输出进行排序（例如，比较两个回答哪个更好）。 根据这些偏好数据，训练一个独立的“奖励模型”（Reward Model），使其能够自动判断模型输出质量的高低（给出分数）。   强化学习微调（Reinforcement Learning Fine-Tuning）  将第一步的 SFT 模型作为初始策略模型。 使用第二步训练好的奖励模型作为“评分标准&#x2F;奖励函数”。 通过强化学习算法（如 PPO，近端策略优化）来优化策略模型，目标是最大化奖...</div></div></div></a><a class="pagination-related" href="/gdBlog/2025/10/11/%E4%B8%8A%E4%B8%8B%E6%96%87%E5%B7%A5%E7%A8%8B-Context-Engineering/" title="上下文工程(Context Engineering)"><img class="cover" src="/gdBlog/./img/logoZiyouzhiyi.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-10-11</div><div class="info-item-2">上下文工程(Context Engineering)</div></div><div class="info-2"><div class="info-item-1">前言随着大模型能力的快速发展，人们对大语言模型的使用方式越来越多的从简单的ChatBot，变成了各种Agent，而一个新的术语——上下文工程（Context Engineering），也逐步取代了[[提示工程]](Prompt Engineering）。 最近[Anthropic]发表了一篇文章，分享了他们在上下文工程上的探索，本文基于原文做了适当解读。 上下文工程和提示工程的区别—记忆简单来说，提示工程重点关注的是为了获得最佳结果而编写和组织的LLM指令的方法，各种在公众号、B站、小红书上所介绍的如何在某一款软件中输入特定的指令从而能够获得某种效果的方法，都属于提示工程，它通常涉及需要完成的任务、任务的背景信息、如何更好的完成任务、哪些是禁止的、受众是谁等，例如如何使用AI写文章、如何去除AI味、如何使用豆包生成特定的图片等。 而上下文工程指的是，在LLM推理过程中，如何管理和维护要输入给LLM的最佳信息的策略集，之所以叫信息，而没有叫Prompt或者提示语，是因为在上下文工程中，除了涉及给LLM安排任务，还涉及到工具、当前任务所需要的参考资料、之前交互过程中的记忆等，参考资料...</div></div></div></a><a class="pagination-related" href="/gdBlog/2025/10/11/%E5%A4%9A%E6%99%BA%E8%83%BD%E4%BD%93%E5%8D%8F%E5%90%8C%E6%9E%B6%E6%9E%84%E8%B0%83%E7%A0%94/" title="多智能体协同架构调研"><img class="cover" src="/gdBlog/./img/logoZiyouzhiyi.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-10-11</div><div class="info-item-2">多智能体协同架构调研</div></div><div class="info-2"><div class="info-item-1">上下文工程 任务管理者 依次往总线扔任务 会议时间文档链接：https://free4inno.feishu.cn/wiki/CxV0wuVATi8Z0hk6wF8cWgzCnTb报告时间：2025&#x2F;10&#x2F;10报告人：孟千斌 简要记录调研了多种多智能体协同架构，包括 OpenManus、微软开源的 AutoGen、字节开源的 LongManus（基于 LongGraph）等，并对它们进行了横向对比  OpenManus：因闭源，分析基于官网 Blog 及演示视频，聚焦其多智能体协同模式，单智能体模式未涉及。 AutoGen：提供 5 种多智能体协同解法： 双智能体聊天（带函数调用）：由用户代理和助手构成，通过交替对话、任务拆分函数调用逐步完成任务，支持人工在关键节点介入。 群聊（Group chat）：预设多角色智能体与群聊管理器，管理器根据上下文和角色能力自动路由任务，公共历史记录信息，支持发布 &#x2F; 订阅模式优化。 AutoBuild：能从自然语言需求出发，自动生成带角色定位的智能体并组成群聊，经协作完成任务后反思总结并返回结果。 Mixture ...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/gdBlog/img/touxiang.jpg" onerror="this.onerror=null;this.src='/gdBlog/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">GuoDong</div><div class="author-info-description">碎碎念念 岁岁年年</div><div class="site-data"><a href="/gdBlog/archives/"><div class="headline">文章</div><div class="length-num">31</div></a><a href="/gdBlog/tags/"><div class="headline">标签</div><div class="length-num">22</div></a><a href="/gdBlog/categories/"><div class="headline">分类</div><div class="length-num">7</div></a></div><div class="card-info-social-icons"><a class="social-icon" href="https://www.douyin.com/" target="_blank" title="douyin"><i class="fab fa-tiktok" style="color: #24292e;"></i></a><a class="social-icon" href="https://www.bilibili.com/" target="_blank" title="bilibili"><i class="fab fa-bilibili" style="color: #24292e;"></i></a><a class="social-icon" href="https://github.com/gaoguodong03" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="https://leetcode.cn/studyplan/top-100-liked/" target="_blank" title="LeetCode"><i class="fab fa-comments" style="color: #24292e;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">有重要的事情 得去趟南京<br>苦苦刷LeetCode<br>常驻实验室选手<br>健身房小小白</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%80%E3%80%81AI%E5%9F%BA%E7%A1%80%E8%AE%BE%E6%96%BD%E7%9A%84%E8%B5%B7%E6%BA%90%E4%B8%8E%E6%BC%94%E8%BF%9B"><span class="toc-number">1.</span> <span class="toc-text">一、AI基础设施的起源与演进</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-1-%E6%97%A9%E6%9C%9F%E9%98%B6%E6%AE%B5%EF%BC%9A%E4%BB%8E%E7%AC%A6%E5%8F%B7AI%E5%88%B0%E8%AE%A1%E7%AE%97%E9%99%90%E5%88%B6%EF%BC%881950s-1970s%EF%BC%89"><span class="toc-number">1.1.</span> <span class="toc-text">1.1 早期阶段：从符号AI到计算限制（1950s-1970s）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-2-%E8%BD%AC%E6%8A%98%E7%82%B9%EF%BC%9A%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E9%9D%A9%E5%91%BD%EF%BC%881980s-1990s%EF%BC%89"><span class="toc-number">1.2.</span> <span class="toc-text">1.2 转折点：机器学习革命（1980s-1990s）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-3-%E4%BA%91%E8%AE%A1%E7%AE%97%E6%97%B6%E4%BB%A3%E7%9A%84%E6%B0%91%E4%B8%BB%E5%8C%96%EF%BC%882000s-2010s%EF%BC%89"><span class="toc-number">1.3.</span> <span class="toc-text">1.3 云计算时代的民主化（2000s-2010s）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-4-%E7%8E%B0%E4%BB%A3GPU%E9%A9%B1%E5%8A%A8%E6%97%B6%E4%BB%A3%EF%BC%882010s-2020s%EF%BC%89"><span class="toc-number">1.4.</span> <span class="toc-text">1.4 现代GPU驱动时代（2010s-2020s）</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%8C%E3%80%81AI%E5%9F%BA%E7%A1%80%E8%AE%BE%E6%96%BD%E7%9A%84%E6%A0%B8%E5%BF%83%E5%AE%9A%E4%B9%89"><span class="toc-number">2.</span> <span class="toc-text">二、AI基础设施的核心定义</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#2-1-%E5%AD%A6%E6%9C%AF%E4%B8%8E%E5%B7%A5%E4%B8%9A%E5%AE%9A%E4%B9%89"><span class="toc-number">2.1.</span> <span class="toc-text">2.1 学术与工业定义</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-2-%E4%B8%8E%E4%BC%A0%E7%BB%9FIT%E5%9F%BA%E7%A1%80%E8%AE%BE%E6%96%BD%E7%9A%84%E5%85%B3%E9%94%AE%E5%8C%BA%E5%88%AB"><span class="toc-number">2.2.</span> <span class="toc-text">2.2 与传统IT基础设施的关键区别</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%89%E3%80%81AI%E5%9F%BA%E7%A1%80%E8%AE%BE%E6%96%BD%E7%9A%84%E5%85%AD%E5%A4%A7%E6%A0%B8%E5%BF%83%E7%BB%84%E4%BB%B6"><span class="toc-number">3.</span> <span class="toc-text">三、AI基础设施的六大核心组件</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#3-1-%E8%AE%A1%E7%AE%97%E8%B5%84%E6%BA%90%EF%BC%88Compute-Resources%EF%BC%89"><span class="toc-number">3.1.</span> <span class="toc-text">3.1 计算资源（Compute Resources）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-2-%E6%95%B0%E6%8D%AE%E5%9F%BA%E7%A1%80%E8%AE%BE%E6%96%BD%EF%BC%88Data-Infrastructure%EF%BC%89"><span class="toc-number">3.2.</span> <span class="toc-text">3.2 数据基础设施（Data Infrastructure）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-3-%E6%A8%A1%E5%9E%8B%E5%BC%80%E5%8F%91%E4%B8%8E%E8%AE%AD%E7%BB%83%E7%8E%AF%E5%A2%83"><span class="toc-number">3.3.</span> <span class="toc-text">3.3 模型开发与训练环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-4-%E9%83%A8%E7%BD%B2%E4%B8%8E%E6%8E%A8%E7%90%86%E5%9F%BA%E7%A1%80%E8%AE%BE%E6%96%BD"><span class="toc-number">3.4.</span> <span class="toc-text">3.4 部署与推理基础设施</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-5-%E5%AD%98%E5%82%A8%E4%B8%8E%E7%BD%91%E7%BB%9C"><span class="toc-number">3.5.</span> <span class="toc-text">3.5 存储与网络</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-6-%E6%B2%BB%E7%90%86%E3%80%81%E5%AE%89%E5%85%A8%E4%B8%8E%E5%90%88%E8%A7%84"><span class="toc-number">3.6.</span> <span class="toc-text">3.6 治理、安全与合规</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E7%8E%B0%E4%BB%A3AI-Stack%E7%9A%84%E4%BA%94%E5%B1%82%E6%9E%B6%E6%9E%84"><span class="toc-number">4.</span> <span class="toc-text">四、现代AI Stack的五层架构</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AC%AC%E4%B8%80%E5%B1%82%EF%BC%9A%E5%9F%BA%E7%A1%80%E8%AE%BE%E6%96%BD%E5%B1%82%EF%BC%88Infrastructure-Layer%EF%BC%89"><span class="toc-number">4.1.</span> <span class="toc-text">第一层：基础设施层（Infrastructure Layer）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AC%AC%E4%BA%8C%E5%B1%82%EF%BC%9A%E6%95%B0%E6%8D%AE%E5%B1%82%EF%BC%88Data-Layer%EF%BC%89"><span class="toc-number">4.2.</span> <span class="toc-text">第二层：数据层（Data Layer）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AC%AC%E4%B8%89%E5%B1%82%EF%BC%9AAI-ML%E5%B1%82"><span class="toc-number">4.3.</span> <span class="toc-text">第三层：AI&#x2F;ML层</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AC%AC%E5%9B%9B%E5%B1%82%EF%BC%9A%E6%8E%A8%E7%90%86%E4%B8%8E%E5%86%B3%E7%AD%96%E5%B1%82"><span class="toc-number">4.4.</span> <span class="toc-text">第四层：推理与决策层</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AC%AC%E4%BA%94%E5%B1%82%EF%BC%9A%E6%B2%BB%E7%90%86%E5%B1%82"><span class="toc-number">4.5.</span> <span class="toc-text">第五层：治理层</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/gdBlog/2026/01/07/AI-Infra-%E7%BB%BC%E8%BF%B0/" title="AI Infra 综述">AI Infra 综述</a><time datetime="2026-01-06T16:00:00.000Z" title="发表于 2026-01-07 00:00:00">2026-01-07</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/gdBlog/2026/01/02/GRPO%EF%BC%88Group-Relative-Policy-Optimization%EF%BC%8C%E5%88%86%E7%BB%84%E7%9B%B8%E5%AF%B9%E7%AD%96%E7%95%A5%E4%BC%98%E5%8C%96%EF%BC%89/" title="GRPO（Group Relative Policy Optimization，分组相对策略优化）">GRPO（Group Relative Policy Optimization，分组相对策略优化）</a><time datetime="2026-01-01T16:00:00.000Z" title="发表于 2026-01-02 00:00:00">2026-01-02</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/gdBlog/2026/01/02/RLHF%EF%BC%88Reinforcement-Learning-from-Human-Feedback%EF%BC%8C%E5%9F%BA%E4%BA%8E%E4%BA%BA%E7%B1%BB%E5%8F%8D%E9%A6%88%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%EF%BC%89/" title="RLHF（Reinforcement Learning from Human Feedback，基于人类反馈的强化学习）">RLHF（Reinforcement Learning from Human Feedback，基于人类反馈的强化学习）</a><time datetime="2026-01-01T16:00:00.000Z" title="发表于 2026-01-02 00:00:00">2026-01-02</time></div></div></div></div></div></div></main><footer id="footer" style="background: transparent;"><div class="footer-other"><div class="footer-copyright"></div><div class="footer_custom_text"><style>
+  .footer {
+    text-align: center;
+    position: relative;
+  }
+  .social-links {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+  .social-links i {
+    color: #000000;
+  }
+  .social-link {
+    color: #000000;
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.1);
+  }
+  .social-link:hover {
+    color: #333333;
+    background: rgba(0, 0, 0, 0.2);
+    transform: translateY(-3px) scale(1.2);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    text-decoration: none !important; 
+  }
+  .footer p {
+    margin: 0.5rem 0;
+    line-height: 1;
+  }
+  .copyright {
+    font-size: 1.1rem; 
+    color: #000000;
+    font-weight: 400;
+  }
+  .tagline {
+    font-size: 0.8rem;
+    color: #333333;
+    font-style: italic;
+    font-weight: 500;
+  }
+  .visitor-count {
+    font-size: 0.75rem;
+    color: rgba(0, 0, 0, 0.7);
+    font-weight: 300;
+  }
+  #visitorCount {
+    font-weight: bold;
+  }
+</style>
+<div class="footer">
+  <p class="copyright">© 2025 果冻小配方 - 所有权利保留</p>
+  <p class="tagline">> 碎碎念念 岁岁年年 <</p>
+  <p class="visitor-count">访问量: <span id="visitorCount">1024</span> | 你是第 <span id="dailyVisitor">1</span> 位今日访客</p>
+</div>
+<script>
+  // 确保DOM加载完成后执行
+  document.addEventListener('DOMContentLoaded', function() {
+    // 模拟访问量增长
+    function updateVisitorCount() {
+      const countElement = document.getElementById('visitorCount');
+      let count = parseInt(countElement.textContent) || 1024;
+      // 从localStorage获取或初始化计数
+      const storedCount = localStorage.getItem('totalVisitors');
+      if (storedCount) {
+        count = parseInt(storedCount);
+        countElement.textContent = count;
+      }
+      // 每日访客计数
+      const today = new Date().toDateString();
+      const dailyData = JSON.parse(localStorage.getItem('dailyVisitors') || '{"date":"", "count":0}');
+      if (dailyData.date !== today) {
+        dailyData.date = today;
+        dailyData.count = 0;
+      }
+      dailyData.count += 1;
+      document.getElementById('dailyVisitor').textContent = dailyData.count;
+      localStorage.setItem('dailyVisitors', JSON.stringify(dailyData));
+      // 每30秒随机增加访问量
+      setInterval(() => {
+        count += Math.floor(Math.random() * 3);
+        countElement.textContent = count;
+        localStorage.setItem('totalVisitors', count.toString());
+      }, 30000);
+    }
+    updateVisitorCount();
+    // 添加点击动画效果
+    const socialLinks = document.querySelectorAll('.social-link');
+    socialLinks.forEach(link => {
+      link.addEventListener('click', function() {
+        this.style.transform = 'scale(0.9)';
+        setTimeout(() => {
+          this.style.transform = '';
+        }, 300);
+      });
+    });
+  });
+</script>
+</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/gdBlog/js/utils.js"></script><script src="/gdBlog/js/main.js"></script><div class="js-pjax"></div><script src="/config/js/happy-title.js" async></script><script src="/config/js/foot.js" async></script></div><!-- hexo injector body_end start --><script data-pjax>
+  function butterfly_categories_card_injector_config(){
+    // 检查容器是否存在
+    var parent_div_git = document.getElementById('recent-posts');
+    // 如果容器不存在，则动态创建
+    if (!parent_div_git) {
+      console.warn('butterfly_categories_card: 挂载容器不存在，正在动态创建...');
+      // 创建新容器（默认插入到页面主体顶部）
+      parent_div_git = document.createElement('div');
+      parent_div_git.id = 'recent-posts'; // 赋予配置的ID
+      document.querySelector('#page').prepend(parent_div_git); // 插入到 #content-inner 内
+    }
+    var item_html = '<style>li.categoryBar-list-item{width:32.3%;}.categoryBar-list{max-height: 950px;overflow:auto;}.categoryBar-list::-webkit-scrollbar{width:0!important}@media screen and (max-width: 650px){.categoryBar-list{max-height: 800px;}}</style><div class="recent-post-item" style="height:auto;width:100%;padding:0px;"><div id="categoryBar"><ul class="categoryBar-list"><li class="categoryBar-list-item" style="background:url(/img/logo.jpg);"> <a class="categoryBar-list-link" href="/categories/果冻的日记本/">果冻的日记本</a><span class="categoryBar-list-count">4</span><span class="categoryBar-list-descr">果冻的航海日记</span></li><li class="categoryBar-list-item" style="background:url(/img/logo.jpg);"> <a class="categoryBar-list-link" href="/categories/果冻的理论学习/">果冻的理论学习</a><span class="categoryBar-list-count">12</span><span class="categoryBar-list-descr">Hexo</span></li><li class="categoryBar-list-item" style="background:url(/img/logo.jpg);"> <a class="categoryBar-list-link" href="/categories/果冻的奇妙小工具/">果冻的奇妙小工具</a><span class="categoryBar-list-count">5</span><span class="categoryBar-list-descr">果冻的奇妙小工具</span></li><li class="categoryBar-list-item" style="background:url(/img/logo.jpg);"> <a class="categoryBar-list-link" href="/categories/果冻的航海日志/">果冻的航海日志</a><span class="categoryBar-list-count">5</span><span class="categoryBar-list-descr">果冻的日记本</span></li><li class="categoryBar-list-item" style="background:url(undefined);"> <a class="categoryBar-list-link" href="/categories/果冻的科普专区/">果冻的科普专区</a><span class="categoryBar-list-count">3</span><span class="categoryBar-list-descr"></span></li><li class="categoryBar-list-item" style="background:url(undefined);"> <a class="categoryBar-list-link" href="/categories/Hexo/">Hexo</a><span class="categoryBar-list-count">1</span><span class="categoryBar-list-descr"></span></li><li class="categoryBar-list-item" style="background:url(undefined);"> <a class="categoryBar-list-link" href="/categories/果冻的LeetCode刷题/">果冻的LeetCode刷题</a><span class="categoryBar-list-count">5</span><span class="categoryBar-list-descr"></span></li></ul></div></div>';
+    console.log('已挂载 butterfly_categories_card');
+    parent_div_git.insertAdjacentHTML("afterbegin",item_html)
+  }
+  // 路径匹配逻辑（使用 startsWith）
+  if (location.pathname.startsWith('/categories/') || '/categories/' === 'all') {
+    butterfly_categories_card_injector_config();
+  }
+  </script><div class="js-pjax"><script async="async">var arr = document.getElementsByClassName('recent-post-item');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__zoomIn');
+    arr[i].setAttribute('data-wow-duration', '300ms');
+    arr[i].setAttribute('data-wow-delay', '0ms');
+    arr[i].setAttribute('data-wow-offset', '0');
+    arr[i].setAttribute('data-wow-iteration', '1');
+  }</script><script async="async">var arr = document.getElementsByClassName('card-widget');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__zoomIn');
+    arr[i].setAttribute('data-wow-duration', '');
+    arr[i].setAttribute('data-wow-delay', '');
+    arr[i].setAttribute('data-wow-offset', '');
+    arr[i].setAttribute('data-wow-iteration', '');
+  }</script></div><script defer src="https://npm.elemecdn.com/hexo-butterfly-wowjs/lib/wow.min.js"></script><script defer src="https://npm.elemecdn.com/hexo-butterfly-wowjs/lib/wow_init.js"></script><script data-pjax>
+  function butterfly_swiper_injector_config(){
+    var parent_div_git = document.getElementById('recent-posts');
+    var item_html = '<div class="recent-post-item" style="height: auto;width: 100%"><div class="blog-slider swiper-container-fade swiper-container-horizontal" id="swiper_container"><div class="blog-slider__wrp swiper-wrapper" style="transition-duration: 0ms;"></div><div class="blog-slider__pagination swiper-pagination-clickable swiper-pagination-bullets"></div></div></div>';
+    console.log('已挂载butterfly_swiper')
+    parent_div_git.insertAdjacentHTML("afterbegin",item_html)
+    }
+  var elist = 'undefined'.split(',');
+  var cpage = location.pathname;
+  var epage = '/';
+  var flag = 0;
+
+  for (var i=0;i<elist.length;i++){
+    if (cpage.includes(elist[i])){
+      flag++;
+    }
+  }
+
+  if ((epage ==='all')&&(flag == 0)){
+    butterfly_swiper_injector_config();
+  }
+  else if (epage === cpage){
+    butterfly_swiper_injector_config();
+  }
+  </script><script defer src="https://npm.elemecdn.com/hexo-butterfly-swiper/lib/swiper.min.js"></script><script defer data-pjax src="https://npm.elemecdn.com/hexo-butterfly-swiper/lib/swiper_init.js"></script><!-- hexo injector body_end end --></body></html>

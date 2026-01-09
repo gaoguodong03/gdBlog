@@ -1,0 +1,443 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>大型语言模型架构比较 | 果冻小配方</title><meta name="author" content="GuoDong"><meta name="copyright" content="GuoDong"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="写在前面文章链接：从 DeepSeek V3 到 Mistral 3 Large：现代大型语言模型架构设计解析 [[2025年大型语言模型现状：进展、问题与预测]] 自最初的 GPT 架构开发以来，已经过去七年。乍一看，回顾 GPT-2（2019 年）以及 DeepSeek V3 和 Llama 4（2024-2025 年），你可能会惊讶于这些模型在结构上依然如此相似。当然，位置嵌入已经从绝对嵌入">
+<meta property="og:type" content="article">
+<meta property="og:title" content="大型语言模型架构比较">
+<meta property="og:url" content="https://gaoguodong03.github.io/gdBlog/2026/01/02/%E5%A4%A7%E5%9E%8B%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84%E6%AF%94%E8%BE%83/index.html">
+<meta property="og:site_name" content="果冻小配方">
+<meta property="og:description" content="写在前面文章链接：从 DeepSeek V3 到 Mistral 3 Large：现代大型语言模型架构设计解析 [[2025年大型语言模型现状：进展、问题与预测]] 自最初的 GPT 架构开发以来，已经过去七年。乍一看，回顾 GPT-2（2019 年）以及 DeepSeek V3 和 Llama 4（2024-2025 年），你可能会惊讶于这些模型在结构上依然如此相似。当然，位置嵌入已经从绝对嵌入">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://gaoguodong03.github.io/gdBlog/img/logoLLM.png">
+<meta property="article:published_time" content="2026-01-01T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-01-08T11:29:27.124Z">
+<meta property="article:author" content="GuoDong">
+<meta property="article:tag" content="LLM">
+<meta property="article:tag" content="架构">
+<meta property="article:tag" content="调研">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://gaoguodong03.github.io/gdBlog/img/logoLLM.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "大型语言模型架构比较",
+  "url": "https://gaoguodong03.github.io/gdBlog/2026/01/02/%E5%A4%A7%E5%9E%8B%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84%E6%AF%94%E8%BE%83/",
+  "image": "https://gaoguodong03.github.io/gdBlog/img/logoLLM.png",
+  "datePublished": "2026-01-01T16:00:00.000Z",
+  "dateModified": "2026-01-08T11:29:27.124Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "GuoDong",
+      "url": "https://gaoguodong03.github.io/gdBlog"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/gdBlog/img/logo.jpg"><link rel="canonical" href="https://gaoguodong03.github.io/gdBlog/2026/01/02/%E5%A4%A7%E5%9E%8B%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84%E6%AF%94%E8%BE%83/index.html"><link rel="preconnect"/><link rel="stylesheet" href="/gdBlog/css/index.css"><link rel="stylesheet" href="/gdBlog/pluginsSrc/@fortawesome/fontawesome-free/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/gdBlog/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: '/gdBlog/pluginsSrc/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '大型语言模型架构比较',
+  isHighlightShrink: true,
+  isToc: true,
+  pageType: 'post'
+}</script><style>#article-container.post-content h1:before, h2:before, h3:before, h4:before, h5:before, h6:before { -webkit-animation: avatar_turn_around 1s linear infinite; -moz-animation: avatar_turn_around 1s linear infinite; -o-animation: avatar_turn_around 1s linear infinite; -ms-animation: avatar_turn_around 1s linear infinite; animation: avatar_turn_around 1s linear infinite; }</style><!-- hexo injector head_end start --><link rel="stylesheet" href="/gdBlog/./css/categorybar.css"><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-wowjs/lib/animate.min.css" media="print" onload="this.media='screen'"><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-swiper/lib/swiper.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-swiper/lib/swiperstyle.css" media="print" onload="this.media='all'"><!-- hexo injector head_end end --><meta name="generator" content="Hexo 8.0.0"></head><body><div id="web_bg" style="background-image: url(/gdBlog/img/bg1.jpg);"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/gdBlog/img/touxiang.jpg" onerror="this.onerror=null;this.src='/gdBlog/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/gdBlog/archives/"><div class="headline">文章</div><div class="length-num">31</div></a><a href="/gdBlog/tags/"><div class="headline">标签</div><div class="length-num">22</div></a><a href="/gdBlog/categories/"><div class="headline">分类</div><div class="length-num">7</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/gdBlog/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/link/"><i class="fa-fw fas fa-link"></i><span> 书签</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/gdBlog/./img/logoLLM.png);"><nav id="nav"><!-- 左侧博客信息区域--><span id="blog-info"><a class="nav-site-title" href="/gdBlog/"><img class="site-icon" src="/gdBlog/img/logo.jpg" alt="Logo"><span class="site-name">果冻小配方</span></a><a class="nav-page-title" href="/gdBlog/"><span class="site-name">大型语言模型架构比较</span></a></span><!-- 新增的导航菜单容器（居中布局关键）--><div id="nav-menus-container"><!-- 菜单主体部分--><div id="menus"><!-- 搜索按钮--><!-- 菜单项--><div class="menus_items"><div class="menus_item"><a class="site-page" href="/gdBlog/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/link/"><i class="fa-fw fas fa-link"></i><span> 书签</span></a></div></div></div><!-- 移动端汉堡菜单按钮（保持原位置）--><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">大型语言模型架构比较</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-01-01T16:00:00.000Z" title="发表于 2026-01-02 00:00:00">2026-01-02</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-01-08T11:29:27.124Z" title="更新于 2026-01-08 19:29:27">2026-01-08</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/gdBlog/categories/%E6%9E%9C%E5%86%BB%E7%9A%84%E7%90%86%E8%AE%BA%E5%AD%A6%E4%B9%A0/">果冻的理论学习</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">总字数:</span><span class="word-count">9.5k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>31分钟</span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h1 id="写在前面"><a href="#写在前面" class="headerlink" title="写在前面"></a>写在前面</h1><p>文章链接：<a target="_blank" rel="noopener" href="https://magazine.sebastianraschka.com/p/the-big-llm-architecture-comparison">从 DeepSeek V3 到 Mistral 3 Large：现代大型语言模型架构设计解析</a></p>
+<p>[[2025年大型语言模型现状：进展、问题与预测]]</p>
+<p>自最初的 GPT 架构开发以来，已经过去七年。乍一看，回顾 GPT-2（2019 年）以及 DeepSeek V3 和 Llama 4（2024-2025 年），你可能会惊讶于这些模型在结构上依然如此相似。当然，位置嵌入已经从绝对嵌入演变为旋转嵌入（RoPE），多头注意力基本被分组查询注意力取代，更高效的 SwiGLU 取代了像 GELU 这样的激活函数。但在这些细微的改进背后，我们真的见证了突破性的变革，还是仅仅在打磨相同的架构基础？</p>
+<p>比较大型语言模型以确定其表现良好（或不佳）的关键因素，向来具有挑战性：数据集、训练技术和超参数差异巨大，且通常缺乏充分的文档。不过，我认为审视架构本身的结构变化，对于了解 2025 年 LLM 开发者的动态，仍然有很大价值。（其中一部分见下图 1。）因此，在本文中，我将不讨论基准性能或训练算法，而是聚焦于定义当今旗舰开放模型的架构发展。</p>
+<p>![[ObsidianPicture&#x2F;Pasted image 20260107205054.png]]</p>
+<h1 id="1-DeepSeek-V3-R1"><a href="#1-DeepSeek-V3-R1" class="headerlink" title="1. DeepSeek V3&#x2F;R1"></a>1. DeepSeek V3&#x2F;R1</h1><p>正如你可能已经听说过不止一次的，<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2501.12948">DeepSeek R1</a> 在 2025 年 1 月发布时引起了巨大影响。DeepSeek R1 是一个基于 <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2412.19437">DeepSeek V3 架构</a>构建的推理模型，该架构于 2024 年 12 月推出。<br>在本节中，我将重点介绍 DeepSeek V3 引入的两项关键架构技术，这些技术提升了其计算效率，并将其区别于许多其他大型语言模型：</p>
+<ul>
+<li><p>Multi-Head Latent Attention (MLA)<br>  多头潜在注意力（MLA）</p>
+</li>
+<li><p>Mixture-of-Experts (MoE)  专家混合（MoE）</p>
+</li>
+</ul>
+<h2 id="1-1-Multi-Head-Latent-Attention-MLA-多头潜在注意力"><a href="#1-1-Multi-Head-Latent-Attention-MLA-多头潜在注意力" class="headerlink" title="1.1 Multi-Head Latent Attention (MLA)多头潜在注意力"></a><strong>1.1 Multi-Head Latent Attention (MLA)多头潜在注意力</strong></h2><p>在讨论多头潜在注意力（MLA）之前，我们先简单回顾一下背景，以动机解释为什么会使用它。为此，我们先从分组查询注意力（Grouped-Query Attention，GQA）说起，近年来它已成为多头注意力（Multi-Head Attention，MHA）更高效计算和参数效率更高的替代方案的新标准替代品。</p>
+<p>所以，这里有一个简要的 GQA 总结。与 MHA 不同，MHA 每个头都有自己的键和值集合，为了减少内存使用，GQA 将多个头分组共享相同的键和值投影。例如，如下图2进一步说明的，如果有两个键值组和4个注意力头，那么头1和2可能共享一组键和值，而头3和4共享另一组。这减少了关键值和值计算的总数，从而降低内存使用并提高效率（根据消融研究，建模性能并未明显影响）。<br>![[ObsidianPicture&#x2F;Pasted image 20260107205829.png]]<br><em>图 2：MHA 与 GQA 的比较。这里，组大小为 2，其中键和值对共享于两个查询中。</em></p>
+<p>因此，GQA 的核心理念是通过在多个查询头之间共享关键和值头，减少它们的数量。这（1）降低了模型的参数数量，（2）减少了推断过程中键和值张量的内存带宽使用，因为需要从 KV 缓存中存储和检索的键和值减少。虽然 GQA 主要是 MHA 的计算效率变通，但消融研究（如<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2305.13245">原始 GQA 论文</a>和 <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2307.09288">Llama 2 论文</a>中的研究）显示，它在 LLM 建模性能方面与标准 MHA 相当。</p>
+<p>现在，多头潜在注意力（MLA）提供了一种不同的内存节省策略，且与 KV 缓存配合得尤为出色。MLA 不像 GQA 那样共享键和值头，而是将键和值张量压缩到一个低维空间，然后存储在 KV 缓存中。在推断时，这些压缩张量会被投影回其原始大小，然后再使用，如下图3所示。这增加了额外的矩阵乘法，但减少了内存使用。<br>![[ObsidianPicture&#x2F;Pasted image 20260107210252.png]]<br><em>图 3：MLA（用于 DeepSeek V3 和 R1）与普通 MHA 的比较。</em></p>
+<p>顺便说一句，MLA 在 DeepSeek V3 中并不新鲜，因为它的<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2405.04434">前身 DeepSeek-V2</a> 也使用（甚至引入了）MLA。此外，V2 论文包含一些有趣的消融研究，或许能解释 DeepSeek 团队为何选择 MLA 而非 GQA。GQA 的表现似乎不如 MHA，而 MLA 的建模性能优于 MHA，这很可能是 DeepSeek 团队选择 MLA 而非 GQA 的原因。（如果能看到 MLA 和 GQA 之间“KV 缓存每令牌”节省的对比会很有趣！）</p>
+<p>在进入下一个架构组件之前，总结本节，MLA 是一个巧妙的技巧，可以减少 KV 缓存内存的使用，同时在建模性能上略优于 MHA。</p>
+<h2 id="1-2-Mixture-of-Experts-MoE-专家混合"><a href="#1-2-Mixture-of-Experts-MoE-专家混合" class="headerlink" title="1.2 Mixture-of-Experts (MoE)  专家混合"></a><strong>1.2 Mixture-of-Experts (MoE)  专家混合</strong></h2><p>DeepSeek 另一个值得强调的主要架构组成部分是其对专家混合层（Mixture-of-Experts，简称 Mixture-of-Experts，MoE）的使用。虽然 DeepSeek 并非 MoE 的发明者，但今年它迎来了复兴，许多我们稍后将介绍的架构也采用了它。</p>
+<p>MoE 的核心理念是用多个专家层替换transformer模块中的每个 FeedForward 模块，每个专家层也是一个 FeedForward 模块。这意味着我们将一个 FeedForward 块替换为多个 FeedForward 块，如下图 5 所示。<br>![[ObsidianPicture&#x2F;Pasted image 20260107210605.png]]<br><em>图 5：DeepSeek V3&#x2F;R1（右）中专家混合（MoE）模块与带有标准 FeedForward 模块的 LLM 的对比（左）。</em></p>
+<p>transformer模块内的前馈模块FeedForward block（如上图中深灰色模块所示）通常包含模型总参数的大量数据。（注意，FeedForward block在大型语言模型中会被重复多次;DeepSeek V3 中重复了 61 次。）</p>
+<p>因此，用_多个_前进块替换单个前进块 （如 MoE 设置中所做的那样）大幅增加了模型的总参数数。然而，关键技巧是我们不会为每个令牌都使用（“激活”）所有专家。相反，路由器每个令牌只选择一小部分专家。</p>
+<p>由于同时只有少数专家活跃，MoE 模块常被称为_稀疏_模组（<em>sparse</em>），与始终使用完整参数集的_稠密_模形（<em>dense</em>）成对比 。然而，通过 MoE 提供的大量参数增加了 LLM 的容量，这意味着它在训练中可以吸收更多知识。稀疏性保持了推理效率，因为我们不会同时使用所有参数。</p>
+<p>例如，DeepSeek V3 每个 MoE 模块有 256 位专家，总计 6710 亿个参数。但在推理过程中，同时只有 9 位专家处于活跃状态（1 位共享专家加上 8 位路由选定的专家）。这意味着每步推理仅使用 370 亿个参数，而非全部 6710 亿个</p>
+<p>DeepSeek V3 MoE 设计的一个显著特点是使用了共享专家。这是一个专家，每个token都处于活跃状态。这一观点并不新鲜，早在 <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2401.06066">2024 年 DeepSeek MoE</a> 和 <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2201.05596">2022 年 DeepSpeedMoE 论文</a>中就已提出 。<br>![[ObsidianPicture&#x2F;Pasted image 20260107211411.png]]<br><em>图 6：来自《DeepSeekMoE：迈向专家混合语言模型的终极专家专精》中的注释图</em> <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2401.06066">https://arxiv.org/abs/2401.06066</a>_</p>
+<p>共享专家的好处最早出现在 <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2201.05596">DeepSpeedMoE 的论文</a>中，他们发现相比没有共享专家，共享专家能提升整体建模性能。这很可能是因为常见或重复的图案不需要由多个专家共同学习，这让他们有更多空间去学习更专业的图案。</p>
+<h2 id="1-3-DeepSeek-摘要"><a href="#1-3-DeepSeek-摘要" class="headerlink" title="1.3 DeepSeek 摘要"></a><strong>1.3 DeepSeek 摘要</strong></h2><p>总之，DeepSeek V3 是一个参数达 6710 亿的庞大模型，发布时表现优于包括 405B Llama 3 在内的其他开放权重模型。尽管规模更大，但由于其专家混合架构（MoE），每token只激活一小部分（仅 37B）参数，推理时效率更高。</p>
+<p>另一个关键的区别在于 DeepSeek V3 采用多头潜在注意力（MLA）而非分组查询注意力（GQA）。MLA 和 GQA 都是标准多头注意力（MHA）的推理高效替代方案，尤其是在使用 KV 缓存时。虽然 MLA 实现更复杂，但 DeepSeek-V2 论文中的一项研究显示，MLA 在建模性能上优于 GQA。</p>
+<h1 id="2-OLMo-2"><a href="#2-OLMo-2" class="headerlink" title="2. OLMo 2"></a>2. OLMo 2</h1><p>非营利组织艾伦人工智能研究所（Allen Institute）开发的 OLMo 系列模型因其训练数据和代码的透明度以及相对详尽的技术报告而备受关注。</p>
+<p>虽然你可能不会在任何基准测试或排行榜上看到 OLMo 模型，但它们相当干净，更重要的是，由于其透明度，是开发大型语言模型的绝佳蓝图。</p>
+<p>虽然 OLMo 模型因其透明度而受欢迎，但它们也没那么差。事实上，在 2025 年1 月发布时（早于 Llama 4、Gemma 3 和 Qwen 3），<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2501.00656">OLMo 2</a> 模型正处于计算到性能的帕累托边界，如下图 7 所示。<br>![[ObsidianPicture&#x2F;Pasted image 20260107211901.png]]<br><em>图 7：不同 LLM 的基准测试性能建模（高越好）与预训练成本（FLOPs;低越好）。这是 OLMo 2 论文中的注释图，<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2501.00656">https://arxiv.org/abs/2501.00656</a></em></p>
+<p>OLMo2 中有哪些有趣的架构设计选择呢？这主要归结于归一化：RMSNorm 层的布置以及我将在下文讨论的 QK 范数的添加。还有一点值得一提的是，OLMo 2 依然使用传统的多头注意力（MHA）而不是 MLA 或 GQA。</p>
+<h2 id="2-1-归一化层-Normalization-Layer-的布置"><a href="#2-1-归一化层-Normalization-Layer-的布置" class="headerlink" title="2.1 归一化层(## Normalization Layer)的布置"></a><strong>2.1 归一化层(## Normalization Layer)的布置</strong></h2><p>总体而言，OLMo 2 在很大程度上遵循了原始 GPT 模型的架构，类似于其他当代大型语言模型。不过，也有一些值得注意的偏差。我们先从归一化层说起。与 Llama、Gemma 及大多数其他大型语言模型类似，OLMo 2 从 LayerNorm 切换到 RMSNorm。但由于 RMSNorm 已经是老生常谈了（它基本上是 LayerNorm 的简化版，但可训练参数更少），我就不讨论 RMSNorm 和 LayerNorm 的区别了。（好奇的读者可以在我的 <a target="_blank" rel="noopener" href="https://github.com/rasbt/LLMs-from-scratch/blob/main/ch05/07_gpt_to_llama/converting-gpt-to-llama2.ipynb">GPT-2 转 Llama 转换指南</a> 。）</p>
+<p>不过，值得讨论 RMSNorm 层的位置。原始transformer（摘自《<a target="_blank" rel="noopener" href="https://arxiv.org/abs/1706.03762">Attention is all you need</a>》论文）将两个规范化层分别置于transformer模块中，位于attention模块和 FeedForward 模块之后。这也被称为后 LN 或后规范(Post-LN or Post-Norm)。GPT 和大多数后续的大型语言模型将规范化层置于attention和 FeedForward 模块之前，这些模块被称为预-LN 或前规范( Pre-LN or Pre-Norm)。下图展示了后常态与前常态（Post- and Pre-Norm）的比较。<br>![[ObsidianPicture&#x2F;Pasted image 20260107212550.png]]<br><em>图 8：后规范、前规范和 OLMo 2 版本后规范的比较。</em></p>
+<p><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2002.04745">2020 年，熊等人。</a> 证明前 LN 在初始化时使梯度表现更为良好。此外，研究人员提到， Pre-LN即使在没有细致学习率热身的情况下也能很好地发挥作用，而热身是Post-LN中至关重要的工具。我之所以提到这个，是因为 OLMo 2 采用了一种Post-LN（但用 RMSNorm 代替 LayerNorm，所以我称之为_后规范_ ）。在 OLMo 2 中，他们没有将归一化层放在注意层和 FeedForward 层之前，而是将它们放在后面，如上图所示。然而，请注意，与原始transform架构不同，规范化层仍然位于残余层内（跳过连接）。那么，为什么他们会移动归一化层的位置呢？ 原因是它有助于提升训练稳定性。</p>
+<h2 id="2-2-QK-Norm-QK-范数"><a href="#2-2-QK-Norm-QK-范数" class="headerlink" title="2.2 QK-Norm  QK-范数"></a><strong>2.2 QK-Norm</strong>  <strong>QK-范数</strong></h2><p>QK-Norm 本质上是 RMSNorm 的又一层。它被放置在多头注意力（MHA）模块中，并应用到查询（q）和键（k）上，然后再应用 RoPE。QK-Norm 与后规范一起稳定了训练。注意，QK-norm 并非由 OLMo 2 发明，而是可追溯到 <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2302.05442">2023 年的 Scaling Vision Transformers 论文</a> 。</p>
+<h2 id="2-3-OLMo-2-总结"><a href="#2-3-OLMo-2-总结" class="headerlink" title="2.3 OLMo 2 总结"></a><strong>2.3 OLMo 2 总结</strong></h2><p>简而言之，OLMo 2 架构设计中值得注意的重大决策主要是 RMSNorm 的配置：RMSNorm 在注意力之后而非之前，以及 FeedForward 模块（类似后规范），以及为注意力机制（QK-Norm）中的查询和键添加 RMSNorm，这两者共同帮助稳定训练丢失。</p>
+<p>对比 OLMo 2 与 Llama 3：两者架构相对相似，唯一区别在于 OLMo 2 仍使用传统的 MHA 而非 GQA。（然而， <a target="_blank" rel="noopener" href="https://huggingface.co/allenai/OLMo-2-0325-32B-Instruct">OLMo 2 团队</a>在三个月后发布了使用 GQA 的 32B 版本。）</p>
+<h1 id="3-Gemma-3"><a href="#3-Gemma-3" class="headerlink" title="3. Gemma 3"></a>3. Gemma 3</h1><p>谷歌的 Gemma 模型一直都很不错，我觉得它们相比其他热门型号，比如 Llama 系列，有些被低估了。Gemma 的一个显著特点是词汇量较大（以更好地支持多种语言），并且更注重 27B 的规模（相较于 8B 或 70B）。但请注意，Gemma 2 也有更小的尺寸：1B、4B 和 12B。27B 的尺寸恰到好处：比 8B 型号功能更强，但资源消耗不像 70B 型号那么大。</p>
+<p>那么，<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2503.19786">《Gemma 3</a>》还有什么有趣的地方？如前所述，其他模型如 Deepseek V3&#x2F;R1 采用专家混合架构（Mixture-of-Experts，MoE）以降低推理时的内存需求，前提是模型大小固定。（MoE 方法也被我们稍后讨论的其他几个模型采用。）Gemma 3 采用了另一种“技巧”来降低计算成本，即滑动窗口注意力。</p>
+<h2 id="3-1-滑动窗户注意-Sliding-Window-Attention"><a href="#3-1-滑动窗户注意-Sliding-Window-Attention" class="headerlink" title="3.1 滑动窗户注意  Sliding Window Attention"></a><strong>3.1 滑动窗户注意</strong>  <strong>Sliding Window Attention</strong></h2><p>通过滑动窗口注意力（最初于 <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2004.05150">2020 年 LongFor</a> 文中引入，<a target="_blank" rel="noopener" href="http://arxiv.org/abs/2408.00118">Gemma 2</a> 也已使用 ），Gemma 3 团队大幅减少了 KV 缓存中的内存需求。那么，什么是滑动窗户关注呢？如果我们将正规自注意视为一种_全局_注意力机制，因为每个序列元素都可以访问其他所有序列元素，那么滑动窗口注意力可以视为_局部_注意力，因为这里我们限制了当前查询位置周围的上下文大小。这在下面的图中有说明。<br>![[ObsidianPicture&#x2F;Pasted image 20260107213512.png]]<br><em>图12：常规注意力（左）与滑动窗口注意力（右）的比较。</em></p>
+<p>请注意，滑动窗口注意力可以同时用于多头注意力和分组查询注意力;Gemma 3 采用分组查询注意力。</p>
+<p>如上所述，滑动窗口注意力也称为_局部_注意，因为本地窗口环绕并随当前查询位置移动。相比之下，常规关注是_全局_的，因为每个令牌都可以访问所有其他令牌。</p>
+<p>如上所述，Gemma 2 的前身架构也曾使用滑动窗口注意功能。Gemma 3 的区别在于他们调整了全局（常规）注意力和局部（滑动）注意力的比例。例如，Gemma 2 采用了混合注意力机制，将滑动窗口（局部）和全局注意力以 1：1 的比例结合起来。每个token可以关注一个 4k 令牌的邻近上下文窗口。Gemma 2 在每隔一层使用滑动窗口注意力，而 Gemma 3 现在采用了 5：1 的比例，意味着每 5 个滑动窗口（局部）注意力层只有 1 个完整的注意力图层;此外，滑动窗口的大小从 4096（Gemma 2）缩减到仅 1024（Gemma 3）。这使得模型的重点转向更高效、更局部化的计算。</p>
+<p>根据他们的消融研究，滑动窗口注意力对建模表现的影响很小。来自 Gemma 3 论文（<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2503.19786%EF%BC%89%E7%9A%84%E6%B3%A8%E9%87%8A%E5%9B%BE%EF%BC%8C%E6%98%BE%E7%A4%BA%E6%BB%91%E5%8A%A8%E7%AA%97%E5%8F%A3%E6%B3%A8%E6%84%8F%E5%8A%9B%E5%AF%B9">https://arxiv.org/abs/2503.19786）的注释图，显示滑动窗口注意力对</a> LLM 生成的输出困惑几乎没有影响。</p>
+<p>虽然滑动窗口关注是 Gemma 3 最显著的架构方面，但我也想简要介绍一下归一化图层的布置，作为之前 OLMo 2 部分的后续。</p>
+<h2 id="3-2-Gemma-3-中的归一化层布置"><a href="#3-2-Gemma-3-中的归一化层布置" class="headerlink" title="3.2   Gemma 3 中的归一化层布置"></a><strong>3.2   Gemma 3 中的归一化层布置</strong></h2><p>一个小但有趣的小细节是，Gemma 3 在其分组查询注意力模块中，在前规范和后规范两种环境中都使用了 RMSNorm。</p>
+<p>这与 Gemma 2 类似，但仍值得强调，因为它不同于（1）原始变换器中使用的后范数（“注意力就是你所需要的”），（2）由 GPT-2 推广并在许多其他架构中使用的预范数，以及（3）我们之前看到的 OLMo 2 中的后范数版本。<br>![[ObsidianPicture&#x2F;Pasted image 20260107214104.png]]<em>图 14：OLMo2 与 Gemma 3 的架构比较;注意 Gemma 3 中额外的归一化层。</em></p>
+<p>我认为这种归一化层的放置方式相对直观，因为它兼顾了前范数和后范数两种优势。在我看来，多一点正常化也无妨。最坏情况下，如果额外的归一化是冗余的，这会通过冗余增加一些效率。实际上，由于 RMSNorm 在整体上相对便宜，这不应该有明显影响。</p>
+<h2 id="3-3-Gemma-3-简介"><a href="#3-3-Gemma-3-简介" class="headerlink" title="3.3 Gemma 3 简介"></a><strong>3.3 Gemma 3 简介</strong></h2><p>Gemma 3 是一款性能良好的开权量大型语言模型，在我看来在开源圈子里有点被低估了。最有趣的是滑动窗口注意力的使用来提升效率（未来将它与 MoE 结合起来会很有趣）。<br>此外，Gemma 3 具有独特的归一化层布局，将 RMSNorm 图层放置在注意力和 FeedForward 模块之前和之后。</p>
+<h2 id="3-4-Bonus-Gemma-3n"><a href="#3-4-Bonus-Gemma-3n" class="headerlink" title="3.4 Bonus: Gemma 3n"></a><strong>3.4 Bonus: Gemma 3n</strong></h2><p>Gemma 3 发布几个月后，谷歌发布了 <a target="_blank" rel="noopener" href="https://developers.googleblog.com/en/introducing-gemma-3n/">Gemma 3n</a>，这是一款针对小型设备效率优化的 Gemma 3 型号，目标是能在手机上运行。</p>
+<p>Gemma 3n 中为提高效率所做的改动之一是所谓的层嵌入（ Per-Layer Embedding，PLE）参数层。关键思想是只保留模型参数的子集在 GPU 内存中。针对特定令牌层的嵌入，如文本、音频和视觉模态的嵌入，按需从 CPU 或 SSD 进行流式传输。</p>
+<p>下图展示了 PLE 内存节省情况，列出标准 Gemma 3 模型的 54.4 亿参数。这很可能指的是 Gemma 3,40 亿的变种。<br>![[ObsidianPicture&#x2F;Pasted image 20260107214330.png]]<br><em>图 15：来自谷歌 Gemma 3n 博客（<a target="_blank" rel="noopener" href="https://developers.googleblog.com/en/introducing-gemma-3n/%EF%BC%89%E7%9A%84%E6%B3%A8%E9%87%8A%E5%9B%BE%EF%BC%8C%E5%B1%95%E7%A4%BA%E4%BA%86">https://developers.googleblog.com/en/introducing-gemma-3n/）的注释图，展示了</a> PLE 内存节省情况。</em></p>
+<p>5.44亿和40亿参数的差异，是因为谷歌在大型语言模型中报告参数数量的方式很有趣。它们通常会排除嵌入参数以使模型看起来更小，除非在这种情况下，方便地包含这些参数以使模型看起来更大。这并非谷歌独有，这种做法已成为整个领域的普遍做法。</p>
+<p>另一个有趣的技巧是 <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2310.07707">MatForformer</a> 概念（Matryoshka Transformer的缩写）。例如，Gemma 3n 采用单一共享 LLM（transformer）架构，可以切入更小、独立可用的模型。每个切片都被训练成独立工作，所以在推理时，我们可以只运行你需要的部分（而不是大模型）。</p>
+<h1 id="4-Mistral-Small-3-1"><a href="#4-Mistral-Small-3-1" class="headerlink" title="4. Mistral Small 3.1"></a>4. Mistral Small 3.1</h1><p><a target="_blank" rel="noopener" href="https://mistral.ai/news/mistral-small-3-1">Mistral Small 3.1 24B</a> 于 Gemma 3 之后的三月发布，值得注意的是，它在多个基准测试（除数学测试外）上表现优于 Gemma 3 27B，同时速度更快。</p>
+<p>Mistral Small 3.1 相比 Gemma 3 的推理延迟更低，很可能是因为他们采用了自定义标记器，同时缩小了 KV 缓存和层数。它采用了如下图所示的标准架构。<br>![[ObsidianPicture&#x2F;Pasted image 20260107214630.png]]<br><em>图 16：Gemma 3 27B 与 Mistral 3.1 Small 24B 的架构比较</em></p>
+<p>有趣的是，早期的 Mistral 模型曾使用滑动窗口注意力，但如果考虑官方 Model Hub 配置文件中的默认设置（“sliding_window”： null），它们似乎在 Mistral Small 3.1 中放弃了该功能 <a target="_blank" rel="noopener" href="https://huggingface.co/mistralai/Mistral-Small-3.1-24B-Instruct-2503/blob/main/config.json"></a>。</p>
+<p>因此，由于 Mistral 使用常规的 Grouped-Query Attention，而不是像 Gemma 3 那样带有滑动窗口的 Grouped-Query Attention，也许由于可以使用更优化的代码（即 FlashAttention），从而节省了额外的推理计算。例如，我推测滑动窗口注意力虽然减少了内存使用，但不一定能降低推理延迟，而这正是 Mistral Small 3.1 的重点。</p>
+<h1 id="5-Llama-4"><a href="#5-Llama-4" class="headerlink" title="5. Llama 4"></a>5. Llama 4</h1><p>本文前面关于专家混合（MoE）的深入介绍再次带来了回报。 <a target="_blank" rel="noopener" href="https://ai.meta.com/blog/llama-4-multimodal-intelligence/">Llama 4</a> 也采用了 MoE 方法，其他方面遵循与 DeepSeek V3 非常相似的相对标准架构，如下图所示。（Llama 4 支持原生多模态，类似于 Gemma 和 Mistral 等模型。然而，由于本文聚焦于语言建模，我们只关注文本模型。）<br>![[ObsidianPicture&#x2F;Pasted image 20260108184620.png]]<br><em>图 17：DeepSeek V3（6710 亿参数）与 Llama 4 Maverick（4000 亿参数）的架构比较。</em><br>虽然 Llama 4 Maverick 架构整体上与 DeepSeek V3 非常相似，但也有一些值得强调的有趣差异。</p>
+<p>首先，Llama 4 使用类似于前代的分组查询注意力（Grouped-Query Attention），而 DeepSeek V3 则使用多头潜在注意力（Multi-head Latent Attention），这在本文开头讨论过。现在，DeepSeek V3 和 Llama 4 Maverick 都是非常大型的架构，其中 DeepSeek V3 的总参数数大约大了 68%。然而，DeepSeek V3 拥有 370 亿个活跃参数，其活跃参数数量是 Llama 4 Maverick（17B）的两倍多。</p>
+<p>Llama 4 Maverick 采用了更经典的 MoE 设定，专家人数较少但人数更大（2 名活跃专家，每个隐藏规模 8,192），而 DeepSeek V3 则有 9 名活跃专家，每个隐藏规模 2,048。此外，DeepSeek 在每个transform模块（前 3 个除外）中使用 MoE 层，而 Llama 4 则在每隔一个transform模块中交替使用 MoE 和稠密模块。</p>
+<p>鉴于架构间存在诸多细微差异，很难准确判断它们对最终模型性能的影响。然而，主要的结论是，MoE 架构在 2025 年人气显著上升。</p>
+<h1 id="6-Qwen3"><a href="#6-Qwen3" class="headerlink" title="6. Qwen3"></a>6. Qwen3</h1><p>Qwen3 又是一个热门模型系列，位居其体型类别排行榜前列。有 7 个密集模型：0.6B、1.7B、4B、8B、14B 和 32B。MoE 有两个型号：30B-A3B 和 235B-A22B。</p>
+<h2 id="6-1-Qwen3-Dense"><a href="#6-1-Qwen3-Dense" class="headerlink" title="6.1 Qwen3 (Dense)"></a><strong>6.1 Qwen3 (Dense)</strong></h2><p>我们先来讨论稠密模型架构。截至本文撰写时，0.6亿模型很可能是目前最小的一代开放权重模型。根据我个人的经验，考虑到体积小，它表现非常好。如果你打算本地运行，它有很好的令牌&#x2F;秒速传输率，内存占用也很低。更重要的是，由于规模较小，本地培训（用于教育目的）也非常容易。</p>
+<p>所以，Qwen3 0.6B 在大多数情况下已经取代了 Llama 3 1B。下面展示了这两种架构的比较。</p>
+<p>![[ObsidianPicture&#x2F;Pasted image 20260108185019.png]]<br><em>图 18：Qwen3 0.6B 与 Llama 3 1B 的架构比较;注意 Qwen3 是一个层次更多的更深层架构，而 Llama 3 则是一个更宽的架构，拥有更多的注意力磁头。</em></p>
+<h2 id="6-2-Qwen3-MoE"><a href="#6-2-Qwen3-MoE" class="headerlink" title="6.2 Qwen3 (MoE)"></a><strong>6.2 Qwen3 (MoE)</strong></h2><p>如前所述，Qwen3 也有两种 MoE 版本：30B-A3B 和 235B-A22B。为什么有些架构，比如 Qwen3，会有常规（密集）和 MoE（稀疏）两种变体？如本文开头所述，MoE 变体有助于降低大型基模型的推理成本。同时提供密集版和 MoE 版本，让用户根据目标和限制灵活应对。</p>
+<p>密集模型通常更易于在各种硬件上进行微调、部署和优化。另一方面，MoE 模型针对尺度推断进行了优化。例如，在固定的推理预算下，它们可以实现更高的整体模型容量（即由于体积更大，训练时的知识吸收率更高），而无需相应增加推理成本。</p>
+<p>总结本节，我们来看 Qwen3 235B-A22B（注意 A22B 代表“22B 主动参数”）到 DeepSeek V3，后者活动参数几乎是 37B 的两倍。</p>
+<p>![[ObsidianPicture&#x2F;Pasted image 20260108185540.png]]<br><em>图 19：DeepSeek V3 与 Qwen3 235B-A22B 的架构比较。</em></p>
+<p>如上图所示，DeepSeek V3 和 Qwen3 235B-A22B 架构极为相似。值得注意的是，Qwen3 模型逐渐不再使用共享专家（早期的 Qwen 模型，如 <a target="_blank" rel="noopener" href="https://qwenlm.github.io/blog/qwen2.5-max/">Qwen2.5-MoE</a> 确实使用过共享专家）。遗憾的是，Qwen3 团队未透露为何放弃共享专家的原因。如果让我猜，当他们把专家从 2（Qwen2.5-MoE）提升到 8（Qwen3）时，这可能根本不需要训练稳定性。然后他们通过只用 8 个专家而不是 8+1 个专家，节省了额外的计算和内存成本。（不过，这并不能解释为什么 DeepSeek V3 还保留他们共同的专家。）</p>
+<p>**更新。**Qwen3 的开发者之一<a target="_blank" rel="noopener" href="https://x.com/JustinLin610/status/1947364862184853626">林俊阳</a>回应如下：当时我们发现共享专家的改进不够显著，担心共享专家导致的推理优化。说实话，这个问题没有明确的答案。</p>
+<h1 id="7-SmolLM3"><a href="#7-SmolLM3" class="headerlink" title="7. SmolLM3"></a>7. SmolLM3</h1><p><a target="_blank" rel="noopener" href="https://huggingface.co/blog/smollm3">SmolLM3</a> 可能没有本文中提到的其他大型语言模型那么受欢迎，但我认为它仍然是一个有趣的模型，因为它在相对较小且方便的 30 亿参数模型规模下，提供了非常出色的建模性能，介于 1.7B 和 4B Qwen3 模型之间</p>
+<h2 id="7-1-无位置嵌入（NoPE）"><a href="#7-1-无位置嵌入（NoPE）" class="headerlink" title="7.1 无位置嵌入（NoPE）"></a><strong>7.1 无位置嵌入（NoPE）</strong></h2><p>在大型语言模型（LLM）的语境下，NoPE 是一个较早的想法，可以追溯到 2023 年的一篇论文《 <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2305.19466">位置编码对变换器中长度泛化的影响</a> 》，旨在去除显式的位置信息注入（比如早期 GPT 架构中的经典绝对位置嵌入层或现今的 RoPE）。</p>
+<p>在基于变换器的大型语言模型中，位置编码通常是必要的，因为自注意独立于顺序处理令牌。绝对位置嵌入通过增加一个额外的嵌入层，为令牌嵌入添加信息来解决这个问题。</p>
+<p>而 RoPE 则通过旋转查询和密钥向量相对于其令牌位置来解决这个问题。然而，在 NoPE 层中，完全不会添加这样的位置信号：既非固定信号，也非学习信号，也非相对信号。什么都没有。</p>
+<p>尽管没有位置嵌入，模型仍能通过因果注意力掩码知道哪些标记在前面。这个掩膜防止每个令牌处理后续的标记。因此，位置 <em>t</em> 的标记只能看到位置 <em>t≤</em> 位置的标记 ，保持自回归排序。</p>
+<p>因此，虽然没有明确添加位置信息，但模型结构中仍隐含着方向感，LLM 在常规梯度下降训练中，如果觉得对优化目标有益，可以学习如何利用它。（更多信息请参见 NoPE 论文的定理。）</p>
+<p>总体来看，<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2305.19466">NoPE 论文</a>不仅发现不需要位置信息注入，还发现 NoPE 具有更好的长度推广，这意味着 LLM 响应性能在序列长度增加时下降的幅度较小，如下图所示。<br>![[ObsidianPicture&#x2F;Pasted image 20260108190507.png]]<br><em>图 23：来自 NoPE 论文（<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2305.19466">https://arxiv.org/abs/2305.19466</a> 年）的注释图，展示了 NoPE 更优的长度推广。</em></p>
+<p>请注意，上述实验是在一个相对较小、约有 1 亿参数和较小上下文大小的 GPT 风格模型上进行的。目前尚不清楚这些发现在更大规模、当代大型语言模型中的推广效果。</p>
+<p>因此，SmolLM3 团队很可能只在每第四层“应用”NoPE（或者说省略了 RoPE）。</p>
+<h1 id="8-Kimi-K2-和-Kimi-K2-Thinking"><a href="#8-Kimi-K2-和-Kimi-K2-Thinking" class="headerlink" title="8. Kimi K2 和 Kimi K2 Thinking"></a>8. Kimi K2 和 Kimi K2 Thinking</h1><p><a target="_blank" rel="noopener" href="https://moonshotai.github.io/Kimi-K2/">Kimi K2</a> 最近在 AI 社区引起了巨大关注，因为它是一个开放权重模型，且性能极佳。根据基准测试，它与谷歌的 Gemini、Anthropic 的 Claude 和 OpenAI 的 ChatGPT 等顶级专有模型不相上下。</p>
+<p>一个显著特点是它在 AdamW 上使用了相对较新的 <a target="_blank" rel="noopener" href="https://github.com/KellerJordan/Muon">Muon</a> 优化器的变体。据我所知，这是首次在 AdamW 上使用 Muon，应用于任何如此规模的量产模型（ <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2502.16982">此前</a>仅显示其可放大至 16B）。这带来了非常优异的训练损失曲线，这很可能帮助该模型跃居上述基准测试榜首。模型本身的参数大达1万亿，这确实令人印象深刻。截至目前为止，它可能是本世代最大的大型语言模型（鉴于 Llama 4 Behemoth 尚未发布、专有 LLM 不计入，以及谷歌 1.6 万亿台 <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2101.03961">Switch Transformer</a> 是另一代编码-解码器架构的限制）。</p>
+<p>这也在形成一个完整的循环，Kimi K2 采用了本文开头提到的 DeepSeek V3 架构，只是他们做得更大，如下图所示。<br>![[ObsidianPicture&#x2F;Pasted image 20260108190811.png]]<br><em>图 25.1：DeepSeek V3 与 Kimi K2 的架构比较。</em></p>
+<p>如上图所示，Kimi K2 基本与 DeepSeek V3 相同，只是 MoE 模块中使用更多专家，而多头潜在注意力（MLA）模块中负责人更少。</p>
+<h1 id="9-GPT-OSS"><a href="#9-GPT-OSS" class="headerlink" title="9. GPT-OSS"></a>9. GPT-OSS</h1><p>OpenAI <a target="_blank" rel="noopener" href="https://openai.com/index/introducing-gpt-oss/">发布</a>了 gpt-oss-120b 和 gpt-oss-20b，这是自 2019 年 GPT-2 以来的首批开放权重模型。<br>![[ObsidianPicture&#x2F;Pasted image 20260108191142.png]]<br><em>图 26：两种 GPT-OSS 模型的架构概述。</em></p>
+<p>从图 26 来看，该架构包含了我们在之前讨论过的其他架构中见过的所有熟悉组件。例如，图 27 将较小的 gpt-oss 架构与 Qwen3 30B-A3B 并列，后者同样是一个 MoE 模型，活跃参数数量相近（gpt-oss 有 3.6B 活跃参数，Qwen3 30B-A3B 为 3.3B）。</p>
+<p>![[ObsidianPicture&#x2F;Pasted image 20260108191222.png]]<br><em>图 27：gpt-oss 与 Qwen3 的架构比较</em></p>
+<p>图 27 中未显示的一个方面是 gpt-oss 使用滑动窗口注意力（类似于 Gemma 3，但每隔一层，而非 5：1 比例）。</p>
+<h3 id="9-1-宽度与深度"><a href="#9-1-宽度与深度" class="headerlink" title="9.1 宽度与深度"></a><strong>9.1 宽度与深度</strong></h3><p>图 27 显示 gpt-oss 和 Qwen3 使用相似的组件。但如果仔细看这两个模型，会发现 Qwen3 的架构更为深厚，拥有 48 个transform模块，而非 24 个。</p>
+<p>还值得注意的是，GPT-OSS 使用了两倍的注意力磁头，但这并不会直接增加模型宽度。宽度由嵌入维数决定。</p>
+<p>在固定参数数量的情况下，哪种方法比另一种更有利？一般来说，深度模型灵活性更高，但由于不稳定性问题、爆炸和消失梯度（RMSNorm 和快捷连接旨在缓解这些问题）而训练起来更困难。更宽架构的优势在于推理速度更快（令牌数&#x2F;秒数更高），因为并行化更好，内存成本更高。</p>
+<h3 id="9-2-少数大专家与众多小专家的比较"><a href="#9-2-少数大专家与众多小专家的比较" class="headerlink" title="9.2 少数大专家与众多小专家的比较"></a><strong>9.2 少数大专家与众多小专家的比较</strong></h3><p>如上图 27 所示，GPT-OSS 的专家数量出人意料地少（32 人而非 128 人），每个token只使用 4 名活跃专家，而非 8 名。不过，每位专家的规模远大于 Qwen3 中的专家。这很有趣，因为最近的趋势和发展表明，更多、更小的模型是有益的。</p>
+<h3 id="9-3-注意力偏差与注意力下沉"><a href="#9-3-注意力偏差与注意力下沉" class="headerlink" title="9.3 注意力偏差与注意力下沉"></a><strong>9.3 注意力偏差与注意力下沉</strong></h3><p>GPT-OSS 和 Qwen3 都使用分组查询关注。主要区别在于，如前所述，gpt-oss 通过每层的滑动窗口注意力限制上下文大小。不过，有一个有趣的细节吸引了我的注意。gpt-oss 似乎使用偏置单位来表示注意力权重。 自 GPT-2 时代以来，我没见过这些偏置单元被使用，它们通常被认为是多余的。事实上，我找到了一篇最近的论文，数学上至少证明了密钥变换（<code>k_proj</code>）至少成立这一点。此外，实证结果显示，带偏置单位和无偏差单位之间的差异很小。在 GPT-OSS 实现中， _注意力消耗_不是输入序列中的实际令牌。相反，它们是学习到的每头偏差 logit，附加在注意力分数上。目标与上述注意力消耗相同，但不修改分词输入。</p>
+<h1 id="10-Grok-2-5"><a href="#10-Grok-2-5" class="headerlink" title="10. Grok 2.5"></a>10. Grok 2.5</h1><p>我觉得这里值得提及，因为 Grok 2.5 是 xAI 去年的旗舰生产机型。到目前为止，我们讨论的所有模型从一开始就以开放重量型号发布。例如，gpt-oss 很可能不是 GPT-4 的开权克隆，而是专门为开源社区训练的定制模型。有了 Grok 2.5，我们难得一见真正的生产系统，哪怕是去年的。从建筑角度看，Grok 2.5 整体看起来相当标准（见图 32），但有一些值得注意的细节。<br>![[ObsidianPicture&#x2F;Pasted image 20260108191857.png]]<br><em>图 32：Grok 2.5 与同等大小的 Qwen3 模型并列</em></p>
+<p>例如，Grok 2.5 使用少量大型专家（八人），反映了较早的趋势。如前所述，像 DeepSeekMoE 论文中的较新设计更倾向于使用更多小型专家（Qwen3 中也有体现）。</p>
+<p>另一个有趣的选择是使用共享专家。图 32 左侧显示的额外 SwiGLU 模块作为一个始终在线的共享专家。它与经典的共享专家设计不同，因为中间维度加倍，但理念相同。（我仍然觉得 Qwen3 省略了共享专家这一点很有趣，Qwen4 及后续模型是否会改变这一点也很有趣。）</p>
+<h1 id="11-GLM-4-5"><a href="#11-GLM-4-5" class="headerlink" title="11. GLM-4.5"></a>11. GLM-4.5</h1><p><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2508.06471">GLM-4.5</a> 是今年的又一重大发布。它是一种类似于 Qwen3 的指令&#x2F;推理混合体，但更适合函数调用和代理风格上下文。</p>
+<p>![[ObsidianPicture&#x2F;Pasted image 20260108192149.png]]<br>_图 33：来自官方 GitHub 仓库的 GLM-4.5 基准测试，链接 <a target="_blank" rel="noopener" href="https://github.com/zai-org/GLM-4.5">https://github.com/zai-org/GLM-4.5</a> _</p>
+<p>如图 34 所示，GLM-4.5 有两个变体。这款旗舰模型拥有 3550 亿参数，在 12 个基准测试中平均优于 Claude 4 Opus，仅略逊于 OpenAI 的 o3 和 xAI 的 Grok 4。还有 GLM-4.5-Air，这是一种更紧凑、参数达 1060 亿的版本，性能仅略低于 3550 亿型号。</p>
+<p>GLM-4.5 采用了 DeepSeek V3 首次引入的结构选择：在 Mixture-of-Experts（MoE）模块之前有 3 层致密层。为什么？从多个密集层开始，可以提升大型 MoE 系统的收敛稳定性和整体性能。如果立即引入 MoE 路由，稀疏专家选择的不稳定性可能会干扰早期句法和语义特征提取。因此，可以说保持初始层密集，确保模型在路由决策开始影响更高层处理之前形成稳定的低层表示。</p>
+<h1 id="12-Qwen3-Next"><a href="#12-Qwen3-Next" class="headerlink" title="12. Qwen3-Next"></a>12. Qwen3-Next</h1><p>2025 年 9 月 11 日，Qwen3 团队发布了 Qwen3 Next 80B-A3B（图 35），提供 Ininstruction 和 Thinking 两种版本。虽然其设计基于之前提到的 Qwen3 架构，但我将其作为单独条目收录，以保持数字一致并引起对设计变化的关注。</p>
+<h2 id="12-1-专家级尺寸与数量"><a href="#12-1-专家级尺寸与数量" class="headerlink" title="12.1 专家级尺寸与数量"></a><strong>12.1 专家级尺寸与数量</strong></h2><p>新的 Qwen3 Next 架构之所以突出，是因为尽管比之前的 235B-A22B 型号小了 3×，但它引入了四倍的专家，甚至增加了一名共享专家。<br>![[ObsidianPicture&#x2F;Pasted image 20260108192432.png]]<br><em>图 35：5 月发布的原 Qwen3 型号（左）与 9 月发布的 Qwen3 Next 型号（右）并列。</em></p>
+<h2 id="12-2-门控-DeltaNet-门控注意力混合"><a href="#12-2-门控-DeltaNet-门控注意力混合" class="headerlink" title="12.2 门控 DeltaNet + 门控注意力混合"></a><strong>12.2 门控 DeltaNet + 门控注意力混合</strong></h2><p>另一个亮点是它们用<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2412.06464">门控 DeltaNet</a> + <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2505.06708">门控注意力</a>混合方式取代了常规注意力机制 ，这有助于实现原生 262k 令牌上下文长度的内存使用（之前的 235B-A22B 模型原生支持 32k，YaRN 扩展支持 131k <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2309.00071"></a>）</p>
+<p>那么，这种新的注意力混合模式是如何运作的呢？与仍为标准的缩放点积注意力（如前所述，通过在查询头组共享 K&#x2F;V 以减少 KV 缓存大小和内存带宽，但译码成本和缓存仍随序列长度增长）相比，他们的混合机制以 3：1 比例混合了_门控 DeltaNet_ 块和_门控注意力_块，如图 36 所示。<br>![[ObsidianPicture&#x2F;Pasted image 20260108192534.png]]<br>图 36：门控 DeltaNet + 门控注意力混合机制。注意这些排列是 3：1 的比例，意味着 3 个带门控 DeltaNet 的变压器模块后面跟着 1 个带门控注意的变压器模块。右侧子图来自官方 Qwen3 博客：<a target="_blank" rel="noopener" href="https://qwen.ai/blog?id=4074cca80393150c248e508aa62983f9cb7d27cd&from=research.latest-advancements-list">https://qwen.ai/blog?id=4074cca80393150c248e508aa62983f9cb7d27cd&amp;from=research.latest-advancements-list</a><br>我们可以把门控注意力块看作 GQA 中使用的标准缩放点积注意力，但它在上面有一些调整。 _门禁式注意力_与普通 GQA 区块的主要区别有：</p>
+<ol>
+<li>输出门（S 形态控制，通常按通道计算），在注意力结果被加回残差之前进行调整;</li>
+<li>QKNorm 的零中心 RMSNorm，而非标准的 RMSNorm;</li>
+<li>部分 RoPE（在部分维度上）。<br>注意这些本质上只是对 GQA 的稳定性调整。</li>
+</ol>
+<p>门控 DeltaNet 是一个更为重要的变革。在 DeltaNet 块中，q、k、v 和两个门（α、β）由带归一化的线性和轻量卷积层生成，该层用快速权重_<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2412.06464">的 Delta 规则</a>_更新替代注意力。但代价是 DeltaNet 提供的内容检索不如全注意力精确，这也是为什么保留了一个门控关注层。</p>
+<p>鉴于注意力是平方增长的，加入了 DeltaNet 组件以提升内存效率。在“线性时间、无缓存”系列中，DeltaNet 块本质上是 Mamba 的替代方案。Mamba 通过学习的状态空间滤波器（本质上是随时间动态卷积）来保持状态。DeltaNet 保持一个小型快速权重内存，更新 α 和 β，并用 q 读取，只有小卷积只用于帮助形成 q、k、v、α、β。</p>
+<h2 id="12-3-多代币预测Multi-Token-Prediction-MTP"><a href="#12-3-多代币预测Multi-Token-Prediction-MTP" class="headerlink" title="12.3 多代币预测Multi-Token Prediction (MTP)"></a><strong>12.3 多代币预测<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2404.19737">Multi-Token Prediction</a> (MTP)</strong></h2><p>Qwen3-Next 引入了原生多标记预测（MTP）机制，不仅为投机性解码提供高接受率的 MTP 模块，还提升了整体性能。此外，Qwen3-Next 专门优化 MTP 的多步推理性能，通过多步训练进一步提升推测性解码在真实场景中的接受率，保持训练与推理之间的一致性。<a target="_blank" rel="noopener" href="https://qwen.ai/blog?id=4074cca80393150c248e508aa62983f9cb7d27cd&from=research.latest-advancements-list">Souce：Qwen3-下一篇博客</a></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://gaoguodong03.github.io/gdBlog">GuoDong</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://gaoguodong03.github.io/gdBlog/2026/01/02/%E5%A4%A7%E5%9E%8B%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84%E6%AF%94%E8%BE%83/">https://gaoguodong03.github.io/gdBlog/2026/01/02/%E5%A4%A7%E5%9E%8B%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84%E6%AF%94%E8%BE%83/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://gaoguodong03.github.io/gdBlog" target="_blank">果冻小配方</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/gdBlog/tags/%E8%B0%83%E7%A0%94/">调研</a><a class="post-meta__tags" href="/gdBlog/tags/LLM/">LLM</a><a class="post-meta__tags" href="/gdBlog/tags/%E6%9E%B6%E6%9E%84/">架构</a></div><div class="post-share"><div class="social-share" data-image="/gdBlog/./img/logoLLM.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="/gdBlog/pluginsSrc/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="/gdBlog/pluginsSrc/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/gdBlog/2026/01/02/2025%E5%B9%B4%E5%A4%A7%E5%9E%8B%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B%E7%8E%B0%E7%8A%B6%EF%BC%9A%E8%BF%9B%E5%B1%95%E3%80%81%E9%97%AE%E9%A2%98%E4%B8%8E%E9%A2%84%E6%B5%8B/" title="2025年大型语言模型现状：进展、问题与预测"><img class="cover" src="/gdBlog/./img/logoLLM.png" onerror="onerror=null;src='/gdBlog/img/404.jpg'" alt="cover of previous post"><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">2025年大型语言模型现状：进展、问题与预测</div></div><div class="info-2"><div class="info-item-1">原文链接 随着2025年即将结束，我想回顾今年大型语言模型中一些最重要的发展，反思那些仍然存在的局限性和未解决的问题，并分享一些对未来可能出现的展望。 1. 推理之年、RLVR 和 GRPO缩放依然有效，但实际上并没有改变大型语言模型的行为或实际体验（唯一的例外是 OpenAI 新发布的 o1，它增加了推理痕迹）。因此，当 DeepSeek 在 2025 年 1 月发布他们的 R1 论文 ，证明通过强化学习可以发展类推理行为时，这成为了一件大事。（在大型语言模型（LLM）中，推理意味着模型解释其答案，而这种解释本身通常会提高答案的准确性。） 1.1 The DeepSeek MomentDeepSeek R1 因多种原因备受关注： 首先，DeepSeek R1 作为一个开权重模型发布，表现非常好，可与当时最好的专有模型（ChatGPT、Gemini 等）相媲美。 其次，DeepSeek R1 论文促使许多人，尤其是投资者和记者，重新审视了 2024 年 12 月的 DeepSeek V3 早期论文 。这导致了一个修正的结论：虽然训练最先进的模型仍然昂贵，但可能比之前假设便宜一个数...</div></div></div></a><a class="pagination-related" href="/gdBlog/2026/01/02/%E6%8F%90%E7%A4%BA%E5%B7%A5%E7%A8%8B%E8%B0%83%E7%A0%94/" title="提示工程调研"><img class="cover" src="/gdBlog/./img/logoZiyouzhiyi.jpg" onerror="onerror=null;src='/gdBlog/img/404.jpg'" alt="cover of next post"><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">提示工程调研</div></div><div class="info-2"><div class="info-item-1">写在前面  文档链接 open ai 持续强化 ChatGPT 图谱以抵御即时注入攻击 [[..&#x2F;img&#x2F;logoZiyouzhiyi.jpg]][[基于提示词工程的通用大模型]] 参考文献提示工程指南 | Prompt Engineering Guide Google 《Prompt Engineering提示词手册》Prompt Engineering_v7.pdf 综述：大语言模型 THE CHINESE BOOK FOR LARGE LANGUAGE MODELS 内容速览一些编写提示词的建议 一些提示技术和思想 快速使用–好用的提示词框架—-&gt;****提示工程调研 一些值得思考的问题 提示工程简介定义：针对特定任务设计合适的任务提示,这一过程被称为提示工程。 提示工程(Prompt Engineering)是一门相对较新的学科，伴随大语言模型快速发展而兴起。提示工程不仅仅是关于设计提示词，它包含了与大语言模型交互和研发的各种技能和技术。 出现原因 同一个模型，通过不同的提示方式，效果差异巨大  低成本、快速迭代、无需训练、对所有人开放   提示...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/gdBlog/2026/01/02/GRPO%EF%BC%88Group-Relative-Policy-Optimization%EF%BC%8C%E5%88%86%E7%BB%84%E7%9B%B8%E5%AF%B9%E7%AD%96%E7%95%A5%E4%BC%98%E5%8C%96%EF%BC%89/" title="GRPO（Group Relative Policy Optimization，分组相对策略优化）"><img class="cover" src="/gdBlog/./img/logoLLM.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-01-02</div><div class="info-item-2">GRPO（Group Relative Policy Optimization，分组相对策略优化）</div></div><div class="info-2"><div class="info-item-1">GRPO（Group Relative Policy Optimization，分组相对策略优化） 是 DeepSeek 在 V3 模型训练中引入的一种无奖励模型的强化学习对齐技术。它是一种 RLHF（人类反馈强化学习）的变体或改进方法，旨在更高效、更稳定地训练模型与人类偏好对齐。[[RLHF（Reinforcement Learning from Human Feedback，基于人类反馈的强化学习）|RLHF（Reinforcement Learning from Human Feedback，基于人类反馈的强化学习）]] 核心思路GRPO 的核心创新在于摆脱了对独立奖励模型的依赖。传统的 RLHF 需要先训练一个复杂的奖励模型来评估生成内容，而 GRPO 直接利用人类偏好数据进行端到端的策略优化。 工作原理（简化版） 分组对比：  对于同一个问题（提示），模型会生成一组（例如 4 个）不同的回答。 这些回答根据质量被模型或参考标准排序。   相对偏好建模：  GRPO 的核心是直接比较同一组内回答的相对好坏，而不是像传统 RLHF 那样依赖一个绝对分数预测的奖励模型。 它通...</div></div></div></a><a class="pagination-related" href="/gdBlog/2025/10/01/DeepSearch%E7%9A%84%E8%AE%BA%E6%96%87%E8%B0%83%E7%A0%94/" title="DeepSearch的论文调研"><img class="cover" src="/gdBlog/./img/logoZiyouzhiyi.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-10-01</div><div class="info-item-2">DeepSearch的论文调研</div></div><div class="info-2"><div class="info-item-1">论文调研综述论文A Comprehensive Survey of Deep Research: Systems, Methodologies, and Applications该综述由浙江大学徐仁军和彭静雯撰写，系统研究了Deep Research 系统这一快速发展的领域 —— 这类系统通过整合大型语言模型（LLMs）、先进信息检索技术和自主推理能力，实现复杂研究工作流的自动化；综述分析了 2023 年以来出现的80 多个商业和非商业系统（如 OpenAI&#x2F;DeepResearch、Gemini&#x2F;DeepResearch 等），提出了基于 “基础模型与推理引擎、工具利用与环境交互、任务规划与执行控制、知识合成与输出生成” 的四层技术分类体系，探讨了系统在学术、科学、商业、教育等领域的架构模式与应用适配性，指出当前系统在信息准确性、隐私、知识产权等方面的技术与伦理挑战，并明确了先进推理架构、多模态融合、领域专业化等未来研究方向，同时提供了相关资源库（https://github.com/scienceaix/deepresearch）支持进一步研究 ![[Ob...</div></div></div></a><a class="pagination-related" href="/gdBlog/2025/10/11/%E4%B8%8A%E4%B8%8B%E6%96%87%E5%B7%A5%E7%A8%8B-Context-Engineering/" title="上下文工程(Context Engineering)"><img class="cover" src="/gdBlog/./img/logoZiyouzhiyi.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-10-11</div><div class="info-item-2">上下文工程(Context Engineering)</div></div><div class="info-2"><div class="info-item-1">前言随着大模型能力的快速发展，人们对大语言模型的使用方式越来越多的从简单的ChatBot，变成了各种Agent，而一个新的术语——上下文工程（Context Engineering），也逐步取代了[[提示工程]](Prompt Engineering）。 最近[Anthropic]发表了一篇文章，分享了他们在上下文工程上的探索，本文基于原文做了适当解读。 上下文工程和提示工程的区别—记忆简单来说，提示工程重点关注的是为了获得最佳结果而编写和组织的LLM指令的方法，各种在公众号、B站、小红书上所介绍的如何在某一款软件中输入特定的指令从而能够获得某种效果的方法，都属于提示工程，它通常涉及需要完成的任务、任务的背景信息、如何更好的完成任务、哪些是禁止的、受众是谁等，例如如何使用AI写文章、如何去除AI味、如何使用豆包生成特定的图片等。 而上下文工程指的是，在LLM推理过程中，如何管理和维护要输入给LLM的最佳信息的策略集，之所以叫信息，而没有叫Prompt或者提示语，是因为在上下文工程中，除了涉及给LLM安排任务，还涉及到工具、当前任务所需要的参考资料、之前交互过程中的记忆等，参考资料...</div></div></div></a><a class="pagination-related" href="/gdBlog/2025/10/11/%E5%A4%9A%E6%99%BA%E8%83%BD%E4%BD%93%E5%8D%8F%E5%90%8C%E6%9E%B6%E6%9E%84%E8%B0%83%E7%A0%94/" title="多智能体协同架构调研"><img class="cover" src="/gdBlog/./img/logoZiyouzhiyi.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-10-11</div><div class="info-item-2">多智能体协同架构调研</div></div><div class="info-2"><div class="info-item-1">上下文工程 任务管理者 依次往总线扔任务 会议时间文档链接：https://free4inno.feishu.cn/wiki/CxV0wuVATi8Z0hk6wF8cWgzCnTb报告时间：2025&#x2F;10&#x2F;10报告人：孟千斌 简要记录调研了多种多智能体协同架构，包括 OpenManus、微软开源的 AutoGen、字节开源的 LongManus（基于 LongGraph）等，并对它们进行了横向对比  OpenManus：因闭源，分析基于官网 Blog 及演示视频，聚焦其多智能体协同模式，单智能体模式未涉及。 AutoGen：提供 5 种多智能体协同解法： 双智能体聊天（带函数调用）：由用户代理和助手构成，通过交替对话、任务拆分函数调用逐步完成任务，支持人工在关键节点介入。 群聊（Group chat）：预设多角色智能体与群聊管理器，管理器根据上下文和角色能力自动路由任务，公共历史记录信息，支持发布 &#x2F; 订阅模式优化。 AutoBuild：能从自然语言需求出发，自动生成带角色定位的智能体并组成群聊，经协作完成任务后反思总结并返回结果。 Mixture ...</div></div></div></a><a class="pagination-related" href="/gdBlog/2026/01/02/2025%E5%B9%B4%E5%A4%A7%E5%9E%8B%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B%E7%8E%B0%E7%8A%B6%EF%BC%9A%E8%BF%9B%E5%B1%95%E3%80%81%E9%97%AE%E9%A2%98%E4%B8%8E%E9%A2%84%E6%B5%8B/" title="2025年大型语言模型现状：进展、问题与预测"><img class="cover" src="/gdBlog/./img/logoLLM.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-01-02</div><div class="info-item-2">2025年大型语言模型现状：进展、问题与预测</div></div><div class="info-2"><div class="info-item-1">原文链接 随着2025年即将结束，我想回顾今年大型语言模型中一些最重要的发展，反思那些仍然存在的局限性和未解决的问题，并分享一些对未来可能出现的展望。 1. 推理之年、RLVR 和 GRPO缩放依然有效，但实际上并没有改变大型语言模型的行为或实际体验（唯一的例外是 OpenAI 新发布的 o1，它增加了推理痕迹）。因此，当 DeepSeek 在 2025 年 1 月发布他们的 R1 论文 ，证明通过强化学习可以发展类推理行为时，这成为了一件大事。（在大型语言模型（LLM）中，推理意味着模型解释其答案，而这种解释本身通常会提高答案的准确性。） 1.1 The DeepSeek MomentDeepSeek R1 因多种原因备受关注： 首先，DeepSeek R1 作为一个开权重模型发布，表现非常好，可与当时最好的专有模型（ChatGPT、Gemini 等）相媲美。 其次，DeepSeek R1 论文促使许多人，尤其是投资者和记者，重新审视了 2024 年 12 月的 DeepSeek V3 早期论文 。这导致了一个修正的结论：虽然训练最先进的模型仍然昂贵，但可能比之前假设便宜一个数...</div></div></div></a><a class="pagination-related" href="/gdBlog/2026/01/07/AI-Infra-%E7%BB%BC%E8%BF%B0/" title="AI Infra 综述"><img class="cover" src="/gdBlog/./img/logoInfra.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-01-07</div><div class="info-item-2">AI Infra 综述</div></div><div class="info-2"><div class="info-item-1">AI Infra（人工智能基础设施）是为支持人工智能开发、训练、部署及规模化应用而构建的技术底层体系 AI基础设施是支撑现代人工智能应用的技术基石，涵盖从数据收集、模型训练到推理部署的全生命周期。与传统IT基础设施不同，AI Infra针对高度并行的计算、海量数据处理和动态资源分配进行了专门优化。  一、AI基础设施的起源与演进1.1 早期阶段：从符号AI到计算限制（1950s-1970s）AI基础设施的故事始于1944年的Bletchley Park，英国密码学家Alan Turing和Donald Michie首次讨论了创建具有智能的计算机程序的可能性。1956年的Dartmouth Summer Research Project正式确立了AI作为一门学科，John McCarthy在此次会议中创造了”人工智能”这一术语。​ 早期的AI基础设施极其原始。研究依赖于大型主机计算机，这些机器体积庞大、成本高昂，仅少数学府和研究机构能够使用。LISP和Prolog等专为符号处理设计的编程语言成为那个时代的标配，但受限于硬件能力，这些系统在处理能力和数据存储方面都面临严重瓶颈。​ 1...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/gdBlog/img/touxiang.jpg" onerror="this.onerror=null;this.src='/gdBlog/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">GuoDong</div><div class="author-info-description">碎碎念念 岁岁年年</div><div class="site-data"><a href="/gdBlog/archives/"><div class="headline">文章</div><div class="length-num">31</div></a><a href="/gdBlog/tags/"><div class="headline">标签</div><div class="length-num">22</div></a><a href="/gdBlog/categories/"><div class="headline">分类</div><div class="length-num">7</div></a></div><div class="card-info-social-icons"><a class="social-icon" href="https://www.douyin.com/" target="_blank" title="douyin"><i class="fab fa-tiktok" style="color: #24292e;"></i></a><a class="social-icon" href="https://www.bilibili.com/" target="_blank" title="bilibili"><i class="fab fa-bilibili" style="color: #24292e;"></i></a><a class="social-icon" href="https://github.com/gaoguodong03" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="https://leetcode.cn/studyplan/top-100-liked/" target="_blank" title="LeetCode"><i class="fab fa-comments" style="color: #24292e;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">有重要的事情 得去趟南京<br>苦苦刷LeetCode<br>常驻实验室选手<br>健身房小小白</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%86%99%E5%9C%A8%E5%89%8D%E9%9D%A2"><span class="toc-number">1.</span> <span class="toc-text">写在前面</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#1-DeepSeek-V3-R1"><span class="toc-number">2.</span> <span class="toc-text">1. DeepSeek V3&#x2F;R1</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-1-Multi-Head-Latent-Attention-MLA-%E5%A4%9A%E5%A4%B4%E6%BD%9C%E5%9C%A8%E6%B3%A8%E6%84%8F%E5%8A%9B"><span class="toc-number">2.1.</span> <span class="toc-text">1.1 Multi-Head Latent Attention (MLA)多头潜在注意力</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-2-Mixture-of-Experts-MoE-%E4%B8%93%E5%AE%B6%E6%B7%B7%E5%90%88"><span class="toc-number">2.2.</span> <span class="toc-text">1.2 Mixture-of-Experts (MoE)  专家混合</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-3-DeepSeek-%E6%91%98%E8%A6%81"><span class="toc-number">2.3.</span> <span class="toc-text">1.3 DeepSeek 摘要</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2-OLMo-2"><span class="toc-number">3.</span> <span class="toc-text">2. OLMo 2</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#2-1-%E5%BD%92%E4%B8%80%E5%8C%96%E5%B1%82-Normalization-Layer-%E7%9A%84%E5%B8%83%E7%BD%AE"><span class="toc-number">3.1.</span> <span class="toc-text">2.1 归一化层(## Normalization Layer)的布置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-2-QK-Norm-QK-%E8%8C%83%E6%95%B0"><span class="toc-number">3.2.</span> <span class="toc-text">2.2 QK-Norm  QK-范数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-3-OLMo-2-%E6%80%BB%E7%BB%93"><span class="toc-number">3.3.</span> <span class="toc-text">2.3 OLMo 2 总结</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3-Gemma-3"><span class="toc-number">4.</span> <span class="toc-text">3. Gemma 3</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#3-1-%E6%BB%91%E5%8A%A8%E7%AA%97%E6%88%B7%E6%B3%A8%E6%84%8F-Sliding-Window-Attention"><span class="toc-number">4.1.</span> <span class="toc-text">3.1 滑动窗户注意  Sliding Window Attention</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-2-Gemma-3-%E4%B8%AD%E7%9A%84%E5%BD%92%E4%B8%80%E5%8C%96%E5%B1%82%E5%B8%83%E7%BD%AE"><span class="toc-number">4.2.</span> <span class="toc-text">3.2   Gemma 3 中的归一化层布置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-3-Gemma-3-%E7%AE%80%E4%BB%8B"><span class="toc-number">4.3.</span> <span class="toc-text">3.3 Gemma 3 简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-4-Bonus-Gemma-3n"><span class="toc-number">4.4.</span> <span class="toc-text">3.4 Bonus: Gemma 3n</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#4-Mistral-Small-3-1"><span class="toc-number">5.</span> <span class="toc-text">4. Mistral Small 3.1</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#5-Llama-4"><span class="toc-number">6.</span> <span class="toc-text">5. Llama 4</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#6-Qwen3"><span class="toc-number">7.</span> <span class="toc-text">6. Qwen3</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#6-1-Qwen3-Dense"><span class="toc-number">7.1.</span> <span class="toc-text">6.1 Qwen3 (Dense)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-2-Qwen3-MoE"><span class="toc-number">7.2.</span> <span class="toc-text">6.2 Qwen3 (MoE)</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#7-SmolLM3"><span class="toc-number">8.</span> <span class="toc-text">7. SmolLM3</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#7-1-%E6%97%A0%E4%BD%8D%E7%BD%AE%E5%B5%8C%E5%85%A5%EF%BC%88NoPE%EF%BC%89"><span class="toc-number">8.1.</span> <span class="toc-text">7.1 无位置嵌入（NoPE）</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#8-Kimi-K2-%E5%92%8C-Kimi-K2-Thinking"><span class="toc-number">9.</span> <span class="toc-text">8. Kimi K2 和 Kimi K2 Thinking</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#9-GPT-OSS"><span class="toc-number">10.</span> <span class="toc-text">9. GPT-OSS</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#9-1-%E5%AE%BD%E5%BA%A6%E4%B8%8E%E6%B7%B1%E5%BA%A6"><span class="toc-number">10.0.1.</span> <span class="toc-text">9.1 宽度与深度</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#9-2-%E5%B0%91%E6%95%B0%E5%A4%A7%E4%B8%93%E5%AE%B6%E4%B8%8E%E4%BC%97%E5%A4%9A%E5%B0%8F%E4%B8%93%E5%AE%B6%E7%9A%84%E6%AF%94%E8%BE%83"><span class="toc-number">10.0.2.</span> <span class="toc-text">9.2 少数大专家与众多小专家的比较</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#9-3-%E6%B3%A8%E6%84%8F%E5%8A%9B%E5%81%8F%E5%B7%AE%E4%B8%8E%E6%B3%A8%E6%84%8F%E5%8A%9B%E4%B8%8B%E6%B2%89"><span class="toc-number">10.0.3.</span> <span class="toc-text">9.3 注意力偏差与注意力下沉</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#10-Grok-2-5"><span class="toc-number">11.</span> <span class="toc-text">10. Grok 2.5</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#11-GLM-4-5"><span class="toc-number">12.</span> <span class="toc-text">11. GLM-4.5</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#12-Qwen3-Next"><span class="toc-number">13.</span> <span class="toc-text">12. Qwen3-Next</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#12-1-%E4%B8%93%E5%AE%B6%E7%BA%A7%E5%B0%BA%E5%AF%B8%E4%B8%8E%E6%95%B0%E9%87%8F"><span class="toc-number">13.1.</span> <span class="toc-text">12.1 专家级尺寸与数量</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#12-2-%E9%97%A8%E6%8E%A7-DeltaNet-%E9%97%A8%E6%8E%A7%E6%B3%A8%E6%84%8F%E5%8A%9B%E6%B7%B7%E5%90%88"><span class="toc-number">13.2.</span> <span class="toc-text">12.2 门控 DeltaNet + 门控注意力混合</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#12-3-%E5%A4%9A%E4%BB%A3%E5%B8%81%E9%A2%84%E6%B5%8BMulti-Token-Prediction-MTP"><span class="toc-number">13.3.</span> <span class="toc-text">12.3 多代币预测Multi-Token Prediction (MTP)</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/gdBlog/2026/01/07/AI-Infra-%E7%BB%BC%E8%BF%B0/" title="AI Infra 综述">AI Infra 综述</a><time datetime="2026-01-06T16:00:00.000Z" title="发表于 2026-01-07 00:00:00">2026-01-07</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/gdBlog/2026/01/02/GRPO%EF%BC%88Group-Relative-Policy-Optimization%EF%BC%8C%E5%88%86%E7%BB%84%E7%9B%B8%E5%AF%B9%E7%AD%96%E7%95%A5%E4%BC%98%E5%8C%96%EF%BC%89/" title="GRPO（Group Relative Policy Optimization，分组相对策略优化）">GRPO（Group Relative Policy Optimization，分组相对策略优化）</a><time datetime="2026-01-01T16:00:00.000Z" title="发表于 2026-01-02 00:00:00">2026-01-02</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/gdBlog/2026/01/02/RLHF%EF%BC%88Reinforcement-Learning-from-Human-Feedback%EF%BC%8C%E5%9F%BA%E4%BA%8E%E4%BA%BA%E7%B1%BB%E5%8F%8D%E9%A6%88%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%EF%BC%89/" title="RLHF（Reinforcement Learning from Human Feedback，基于人类反馈的强化学习）">RLHF（Reinforcement Learning from Human Feedback，基于人类反馈的强化学习）</a><time datetime="2026-01-01T16:00:00.000Z" title="发表于 2026-01-02 00:00:00">2026-01-02</time></div></div></div></div></div></div></main><footer id="footer" style="background: transparent;"><div class="footer-other"><div class="footer-copyright"></div><div class="footer_custom_text"><style>
+  .footer {
+    text-align: center;
+    position: relative;
+  }
+  .social-links {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+  .social-links i {
+    color: #000000;
+  }
+  .social-link {
+    color: #000000;
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.1);
+  }
+  .social-link:hover {
+    color: #333333;
+    background: rgba(0, 0, 0, 0.2);
+    transform: translateY(-3px) scale(1.2);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    text-decoration: none !important; 
+  }
+  .footer p {
+    margin: 0.5rem 0;
+    line-height: 1;
+  }
+  .copyright {
+    font-size: 1.1rem; 
+    color: #000000;
+    font-weight: 400;
+  }
+  .tagline {
+    font-size: 0.8rem;
+    color: #333333;
+    font-style: italic;
+    font-weight: 500;
+  }
+  .visitor-count {
+    font-size: 0.75rem;
+    color: rgba(0, 0, 0, 0.7);
+    font-weight: 300;
+  }
+  #visitorCount {
+    font-weight: bold;
+  }
+</style>
+<div class="footer">
+  <p class="copyright">© 2025 果冻小配方 - 所有权利保留</p>
+  <p class="tagline">> 碎碎念念 岁岁年年 <</p>
+  <p class="visitor-count">访问量: <span id="visitorCount">1024</span> | 你是第 <span id="dailyVisitor">1</span> 位今日访客</p>
+</div>
+<script>
+  // 确保DOM加载完成后执行
+  document.addEventListener('DOMContentLoaded', function() {
+    // 模拟访问量增长
+    function updateVisitorCount() {
+      const countElement = document.getElementById('visitorCount');
+      let count = parseInt(countElement.textContent) || 1024;
+      // 从localStorage获取或初始化计数
+      const storedCount = localStorage.getItem('totalVisitors');
+      if (storedCount) {
+        count = parseInt(storedCount);
+        countElement.textContent = count;
+      }
+      // 每日访客计数
+      const today = new Date().toDateString();
+      const dailyData = JSON.parse(localStorage.getItem('dailyVisitors') || '{"date":"", "count":0}');
+      if (dailyData.date !== today) {
+        dailyData.date = today;
+        dailyData.count = 0;
+      }
+      dailyData.count += 1;
+      document.getElementById('dailyVisitor').textContent = dailyData.count;
+      localStorage.setItem('dailyVisitors', JSON.stringify(dailyData));
+      // 每30秒随机增加访问量
+      setInterval(() => {
+        count += Math.floor(Math.random() * 3);
+        countElement.textContent = count;
+        localStorage.setItem('totalVisitors', count.toString());
+      }, 30000);
+    }
+    updateVisitorCount();
+    // 添加点击动画效果
+    const socialLinks = document.querySelectorAll('.social-link');
+    socialLinks.forEach(link => {
+      link.addEventListener('click', function() {
+        this.style.transform = 'scale(0.9)';
+        setTimeout(() => {
+          this.style.transform = '';
+        }, 300);
+      });
+    });
+  });
+</script>
+</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/gdBlog/js/utils.js"></script><script src="/gdBlog/js/main.js"></script><div class="js-pjax"></div><script src="/config/js/happy-title.js" async></script><script src="/config/js/foot.js" async></script></div><!-- hexo injector body_end start --><script data-pjax>
+  function butterfly_categories_card_injector_config(){
+    // 检查容器是否存在
+    var parent_div_git = document.getElementById('recent-posts');
+    // 如果容器不存在，则动态创建
+    if (!parent_div_git) {
+      console.warn('butterfly_categories_card: 挂载容器不存在，正在动态创建...');
+      // 创建新容器（默认插入到页面主体顶部）
+      parent_div_git = document.createElement('div');
+      parent_div_git.id = 'recent-posts'; // 赋予配置的ID
+      document.querySelector('#page').prepend(parent_div_git); // 插入到 #content-inner 内
+    }
+    var item_html = '<style>li.categoryBar-list-item{width:32.3%;}.categoryBar-list{max-height: 950px;overflow:auto;}.categoryBar-list::-webkit-scrollbar{width:0!important}@media screen and (max-width: 650px){.categoryBar-list{max-height: 800px;}}</style><div class="recent-post-item" style="height:auto;width:100%;padding:0px;"><div id="categoryBar"><ul class="categoryBar-list"><li class="categoryBar-list-item" style="background:url(/img/logo.jpg);"> <a class="categoryBar-list-link" href="/categories/果冻的日记本/">果冻的日记本</a><span class="categoryBar-list-count">4</span><span class="categoryBar-list-descr">果冻的航海日记</span></li><li class="categoryBar-list-item" style="background:url(/img/logo.jpg);"> <a class="categoryBar-list-link" href="/categories/果冻的理论学习/">果冻的理论学习</a><span class="categoryBar-list-count">12</span><span class="categoryBar-list-descr">Hexo</span></li><li class="categoryBar-list-item" style="background:url(/img/logo.jpg);"> <a class="categoryBar-list-link" href="/categories/果冻的奇妙小工具/">果冻的奇妙小工具</a><span class="categoryBar-list-count">5</span><span class="categoryBar-list-descr">果冻的奇妙小工具</span></li><li class="categoryBar-list-item" style="background:url(/img/logo.jpg);"> <a class="categoryBar-list-link" href="/categories/果冻的航海日志/">果冻的航海日志</a><span class="categoryBar-list-count">5</span><span class="categoryBar-list-descr">果冻的日记本</span></li><li class="categoryBar-list-item" style="background:url(undefined);"> <a class="categoryBar-list-link" href="/categories/果冻的科普专区/">果冻的科普专区</a><span class="categoryBar-list-count">3</span><span class="categoryBar-list-descr"></span></li><li class="categoryBar-list-item" style="background:url(undefined);"> <a class="categoryBar-list-link" href="/categories/Hexo/">Hexo</a><span class="categoryBar-list-count">1</span><span class="categoryBar-list-descr"></span></li><li class="categoryBar-list-item" style="background:url(undefined);"> <a class="categoryBar-list-link" href="/categories/果冻的LeetCode刷题/">果冻的LeetCode刷题</a><span class="categoryBar-list-count">5</span><span class="categoryBar-list-descr"></span></li></ul></div></div>';
+    console.log('已挂载 butterfly_categories_card');
+    parent_div_git.insertAdjacentHTML("afterbegin",item_html)
+  }
+  // 路径匹配逻辑（使用 startsWith）
+  if (location.pathname.startsWith('/categories/') || '/categories/' === 'all') {
+    butterfly_categories_card_injector_config();
+  }
+  </script><div class="js-pjax"><script async="async">var arr = document.getElementsByClassName('recent-post-item');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__zoomIn');
+    arr[i].setAttribute('data-wow-duration', '300ms');
+    arr[i].setAttribute('data-wow-delay', '0ms');
+    arr[i].setAttribute('data-wow-offset', '0');
+    arr[i].setAttribute('data-wow-iteration', '1');
+  }</script><script async="async">var arr = document.getElementsByClassName('card-widget');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__zoomIn');
+    arr[i].setAttribute('data-wow-duration', '');
+    arr[i].setAttribute('data-wow-delay', '');
+    arr[i].setAttribute('data-wow-offset', '');
+    arr[i].setAttribute('data-wow-iteration', '');
+  }</script></div><script defer src="https://npm.elemecdn.com/hexo-butterfly-wowjs/lib/wow.min.js"></script><script defer src="https://npm.elemecdn.com/hexo-butterfly-wowjs/lib/wow_init.js"></script><script data-pjax>
+  function butterfly_swiper_injector_config(){
+    var parent_div_git = document.getElementById('recent-posts');
+    var item_html = '<div class="recent-post-item" style="height: auto;width: 100%"><div class="blog-slider swiper-container-fade swiper-container-horizontal" id="swiper_container"><div class="blog-slider__wrp swiper-wrapper" style="transition-duration: 0ms;"></div><div class="blog-slider__pagination swiper-pagination-clickable swiper-pagination-bullets"></div></div></div>';
+    console.log('已挂载butterfly_swiper')
+    parent_div_git.insertAdjacentHTML("afterbegin",item_html)
+    }
+  var elist = 'undefined'.split(',');
+  var cpage = location.pathname;
+  var epage = '/';
+  var flag = 0;
+
+  for (var i=0;i<elist.length;i++){
+    if (cpage.includes(elist[i])){
+      flag++;
+    }
+  }
+
+  if ((epage ==='all')&&(flag == 0)){
+    butterfly_swiper_injector_config();
+  }
+  else if (epage === cpage){
+    butterfly_swiper_injector_config();
+  }
+  </script><script defer src="https://npm.elemecdn.com/hexo-butterfly-swiper/lib/swiper.min.js"></script><script defer data-pjax src="https://npm.elemecdn.com/hexo-butterfly-swiper/lib/swiper_init.js"></script><!-- hexo injector body_end end --></body></html>
