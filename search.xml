@@ -1,6 +1,234 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>A2UI(Agent to User Interface)</title>
+    <url>/gdBlog/2026/01/12/A2UI/</url>
+    <content><![CDATA[背景现有AI交互模式的局限性
+
+低效对话交互：用户需通过多轮文本对话完成简单任务（如订餐厅需反复确认时间、人数等细节），效率”低的像蜗牛爬”。
+
+生成式UI技术缺陷：以Copilot Kit为代表的方案存在前端依赖过重问题，AI仅作为”提线木偶”，无法自主定义界面结构。
+
+行业标准碎片化：动态性、安全性、跨平台适配等关键问题缺乏统一解决方案，导致”各搞各的，标准不统一，像一盘散沙”。
+
+
+A2UI协议核心架构定义与核心理念A2UI（Agent to User Interface）是Google提出的AI界面描述协议，指的是 智能体到用户界面 的无缝集成框架。它代表了一种新的AI交互范式，将大型语言模型&#x2F;智能体与实际用户界面直接连接，实现AI驱动的自动化交互。
+┌────────────────────┐    ┌────────────────────┐    ┌────────────────────┐│   AI智能体/LLM     │ →  │    A2UI框架层       │ →  │  应用UI/操作系统   ││  (如GPT、Claude)   │    │ (理解+转换+执行)    │    │ (App、网站、系统)  │└────────────────────┘    └────────────────────┘    └────────────────────┘       │                          │                          │       └── 自然语言理解 ───────────┘                          │                                    └── UI指令转换 ────────────┘
+四步工作流程
+
+
+
+
+
+
+
+
+步骤
+描述
+技术细节
+
+
+1. AI生成UI描述
+Agent使用JSON输出界面结构（组件类型、布局、数据绑定）
+支持流式生成，可逐步输出容器→标题→选择框→按钮等元素
+
+
+2. 协议传输
+通过AGUI协议（Agent-GUI通信协议）传输JSON数据
+标准化消息格式，确保跨平台兼容性
+
+
+3. 前端渲染
+前端从可信组件库中调用预定义组件组装界面
+组件需预先登记，仅允许使用已批准元素
+
+
+4. 用户交互
+用户操作触发事件，前端打包为User Action消息回传Agent
+形成”Agent-前端-用户”闭环交互
+
+
+数据交互机制
+Data Model Update：Agent通过消息实时更新界面数据（如将按钮文字改为”Processing”），无需重绘整个界面。
+
+User Action Event：前端将用户操作（如点击按钮、填写表单）打包为标准化消息回传Agent，形成完整交互闭环。
+
+
+实际应用案例：餐厅预订流程
+界面生成阶段：
+
+Agent通过SSE（Server-Sent Events）协议流式发送JSON消息，包含标题、日期选择器、确认按钮等组件描述。
+
+关键JSON示例：
+  &#123;  &quot;type&quot;: &quot;surface_update&quot;,  &quot;surface_id&quot;: &quot;main&quot;,  &quot;components&quot;: [    &#123;&quot;id&quot;: &quot;root&quot;, &quot;type&quot;: &quot;container&quot;&#125;,    &#123;&quot;id&quot;: &quot;head&quot;, &quot;type&quot;: &quot;title&quot;, &quot;text&quot;: &quot;餐厅预订&quot;&#125;,    &#123;&quot;id&quot;: &quot;date_input&quot;, &quot;type&quot;: &quot;date_picker&quot;, &quot;data_binding&quot;: &quot;/reservation/date&quot;&#125;,    &#123;&quot;id&quot;: &quot;confirm_btn&quot;, &quot;type&quot;: &quot;button&quot;, &quot;action&quot;: &quot;confirm_reservation&quot;&#125;  ]&#125;
+
+
+数据填充阶段：
+
+Agent发送date_model_update消息，指定reservation.daytime = &quot;2025-12-18T19:00:00&quot;。
+
+前端收到begin_rendering信号后，结合组件描述和数据渲染完整界面。
+
+
+
+用户交互阶段：
+
+用户选择日期并点击确认，前端生成user_action消息：
+  &#123;  &quot;name&quot;: &quot;confirm&quot;,  &quot;surface_id&quot;: &quot;main&quot;,  &quot;context&quot;: &#123;&quot;date&quot;: &quot;2025-12-18&quot;, &quot;time&quot;: &quot;19:00&quot;&#125;&#125;
+
+Agent接收后调用预订服务，完成后续流程。
+
+
+
+
+相关技术关系解析
+
+
+
+
+
+
+
+
+
+技术
+定位
+作用
+类比
+
+
+A2UI
+界面描述语言
+定义UI结构、组件、数据绑定
+剧本（规定剧情和人物）
+
+
+AGUI
+通信协议
+传输A2UI描述和用户操作消息
+快递公司（负责信息传递）
+
+
+Copilot Kit
+开发工具包
+提供AGUI协议实现和A2UI渲染器
+套餐服务（含剧本+快递）
+
+
+技术生态与未来展望
+协议版本：当前为0.8版本，仍处发展阶段，但”方向是对的”。
+
+技术协同：需与MCP（工具连接协议）、ARA（多Agent协作协议）等组合使用，形成完整AI应用开发链条。
+
+应用前景：有望推动”新的应用浪潮”，使AI能力从文本交互升级为直观图形交互。
+
+
+]]></content>
+      <categories>
+        <category>果冻的科普专区</category>
+      </categories>
+      <tags>
+        <tag>调研</tag>
+        <tag>LLM</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>2025年大型语言模型现状：进展、问题与预测</title>
+    <url>/gdBlog/2026/01/02/2025%E5%B9%B4%E5%A4%A7%E5%9E%8B%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B%E7%8E%B0%E7%8A%B6%EF%BC%9A%E8%BF%9B%E5%B1%95%E3%80%81%E9%97%AE%E9%A2%98%E4%B8%8E%E9%A2%84%E6%B5%8B/</url>
+    <content><![CDATA[原文链接
+随着2025年即将结束，我想回顾今年大型语言模型中一些最重要的发展，反思那些仍然存在的局限性和未解决的问题，并分享一些对未来可能出现的展望。
+1. 推理之年、RLVR 和 GRPO缩放依然有效，但实际上并没有改变大型语言模型的行为或实际体验（唯一的例外是 OpenAI 新发布的 o1，它增加了推理痕迹）。因此，当 DeepSeek 在 2025 年 1 月发布他们的 R1 论文 ，证明通过强化学习可以发展类推理行为时，这成为了一件大事。（在大型语言模型（LLM）中，推理意味着模型解释其答案，而这种解释本身通常会提高答案的准确性。）
+1.1 The DeepSeek MomentDeepSeek R1 因多种原因备受关注：
+首先，DeepSeek R1 作为一个开权重模型发布，表现非常好，可与当时最好的专有模型（ChatGPT、Gemini 等）相媲美。
+其次，DeepSeek R1 论文促使许多人，尤其是投资者和记者，重新审视了 2024 年 12 月的 DeepSeek V3 早期论文 。这导致了一个修正的结论：虽然训练最先进的模型仍然昂贵，但可能比之前假设便宜一个数量级，估计成本接近 500 万美元，而非 500 万或 5 亿美元。DeepSeek R1 补充材料估计，在 DeepSeek V3 基础上训练 DeepSeek R1 模型又需要额外花费 294,000 美元，这远低于所有人的预期。
+第三，也是最有趣的是，论文提出了_带有可验证奖励的强化学习_ （RLVR）与 GRPO 算法，作为一种新的（或至少是修改的）算法方法，用于开发所谓的推理模型并在训练后改进 LLMs。[[RLHF（Reinforcement Learning from Human Feedback，基于人类反馈的强化学习）|RLHF（Reinforcement Learning from Human Feedback，基于人类反馈的强化学习）]]![[ObsidianPicture&#x2F;Pasted image 20260102103717.png]]
+到目前为止，像监督式指令微调（SFT）和人类反馈强化学习（RLHF）等培训后方法，仍然是培训流程的重要组成部分，但由于需要昂贵的书面回应或偏好标签，这些方法都受到瓶颈。（当然，也可以用其他大型语言模型合成生成，但这有点像先有蛋的问题。）
+DeepSeek R1 和 RLVR 的重要之处在于，它们允许我们对大量数据进行后训练，这使它们成为通过后训练时（在可用计算预算下）提升和解锁能力的优秀候选。
+RLVR 中的 V 代表“可验证”，这意味着我们可以使用确定性方法来分配正确性标签，这些标签足以让大型语言模型学习复杂问题解决。（典型类别是数学和代码，但也可以将这一思想扩展到其他领域。）
+话虽如此，结论是今年的 LLM 开发基本上被使用 RLVR 和 GRPO 的推理模型主导。
+基本上，每个主要的开放权重或专有 LLM 开发者都发布了基于 DeepSeek R1 的推理（通常称为“思考”）模型变体。
+1.2 LLM Focus Points如果我要简明扼要地总结每年 LLM 开发重点，除了仅仅扩展架构和预训练计算，我的清单会是这样：
+
+2022 RLHF + PPO  2022 年 RLHF+PPO
+
+2023 LoRA SFT  2023 年 LoRA 系列赛
+
+2024 Mid-Training  2024年中期训练
+
+2025 RLVR + GRPO  2025 年 RLVR+GRPO
+
+
+预培训仍然是一切的必要基础。除此之外，RLHF（通过 PPO 算法）当然也是 2022 年我们最初出现 ChatGPT 模型的关键。
+2023 年，人们非常关注 LoRA 及其类似 LoRA 的参数高效微调技术，用于训练小型定制 LLM。
+随后，在2024年，所有主要实验室开始通过专注于合成数据、优化数据组合、使用领域特定数据以及增加专门的长上下文训练阶段，使其（预）训练流程更加复杂。我在2024年的文章中总结了这些不同的方法（我把这些技术归为预训练，因为当时“中期训练”这个词还没被创造出来）：
+当时，我把这些看作预训练技术，因为它们使用相同的预训练算法和目标。如今，这些稍为专业化的预培训阶段，紧随常规预培训，基于一般数据，通常被称为“中期培训”（作为常规预培训与后培训之间的桥梁，后期培训包括 SFT、RLHF 以及现在的 RLVR）。
+我认为明年我们会看到（甚至）更多关注 RLVR。目前，RLVR 主要应用于数学和代码领域。下一步是不仅将最终答案的正确性作为奖励信号，还要在 RLVR 训练中评判 LLM 的解释。这在过去很多年里就已经有人在研究名称下进行过，称为“过程奖励模型”（PRMs）。不过，目前还没有特别成功。
+不过，看看上个月发布的 DeepSeekMath-V2 论文，我在之前的文章 《 从 DeepSeek V3 到 V3.2：架构、稀疏注意力与强化学习更新 》中讨论过，我认为未来我们会看到更多“解释评分”作为训练信号。
+目前解释的评分方式涉及第二个大型语言模型。这引出了我看到的 RLVR 的另一个方向：向数学和编程以外的其他领域扩展。
+所以，如果你今天问我2026年和2027年我对未来的看法，我会说：
+
+2026 RLVR extensions and more inference-time scaling  2026 年 RLVR 扩展及更多推理时间尺度
+
+2027 Continual learning  2027年持续学习
+
+
+推理扩展并不是新范式，大型语言模型平台已经在底层使用了一些技术。这是延迟、成本和响应准确性之间的权衡。然而，在某些应用中，准确性比延迟和成本更重要，极端的推理缩放完全值得。例如，正如最近的 DeepSeekV2-Math 论文所示，它将模型推向了挑战数学竞赛基准测试中的金牌表现。
+今年同事们也在讨论持续学习。简而言之，持续学习就是用新数据或知识训练模型，而不是从零开始重新训练。这并不是新想法，我很好奇为什么今年它被提得这么多，因为到目前为止，持续学习方面还没有任何新的或实质性的突破。持续学习的挑战是灾难性的遗忘（正如持续预训练实验所示，学习新知识意味着 LLM 在某种程度上会遗忘旧知识）。不过，既然这话题如此热门，我预计未来几年会在减少灾难性遗忘和使持续学习方法开发成为重要发展方面取得更多进展。
+2. GRPO，年度研究宠儿[[GRPO（Group Relative Policy Optimization，分组相对策略优化）|GRPO（Group Relative Policy Optimization，分组相对策略优化）]]在昂贵的大型语言模型时代，近年来学术研究变得有些挑战。当然，那些成为主流且成为 LLM 进展和突破的关键支柱的重要发现，即使（或正因）预算较少，学术界也能实现。
+近年来，流行的例子包括 LoRA（LoRA：大型语言模型的低阶适应 2021）及相关参数高效微调方法。
+另一个是 DPO（ 直接偏好优化：你的语言模型其实是奖励模型 ）及其相关的无奖励模型对齐方法，作为一种基于人类反馈的替代强化学习。
+今年的研究亮点是 GRPO。虽然它是在 DeepSeek R1 论文中提出的，而非学术界的发端，但它依然为研究人员带来了激动人心的一年：RLVR 和 GRPO 在概念上都很有趣，且根据规模不同，实验成本并不高昂。在 LLM 研究文献中看到了许多 GRPO 的数学改进（包括公司和学术研究者），这些改进后来被采用进了最先进的 LLM 的培训流程。
+3. LLM 架构：分岔路口在大型语言模型架构中，最先进的模型仍然使用传统的解码器式变换器。然而，今年开权重大型语言模型基本趋向于使用专家混合层（MoE），以及至少一种“效率调整”的注意力机制：分组查询注意力、滑动窗口注意力或多头潜在注意力。
+除了这些相当标准的大型语言模型架构外，我们还看到更为激进的效率调整，针对注意力机制以随序列长度线性扩展。例如 Qwen3-Next 和 Kimi Linear 中的门控 DeltaNet，以及 NVIDIA Nemotron 3 中的 Mamba-2 层
+总之，我不想在这里讲得太详细，因为如果你想了解更多，我有一篇 1.3 万字且最近更新的文章专门讲这些架构：《大型语言模型架构比较》，https://magazine.sebastianraschka.com/p/the-big-llm-architecture-comparison
+我的预测是，我们至少还会继续建设，并且在transformer架构上至少还会有几年，至少在最先进的建模性能方面是这样
+同时，我确实认为我们会看到越来越多的效率和工程调整，比如门控 DeltaNet 和 Mamba 层，因为在 LLM 的训练、部署和使用规模上，从财务角度来看，这对这些仍在为 LLM 服务花费大量资金的公司来说是合理的。
+这并不意味着没有其他选择。正如我在 《超越标准大语言模型 》中写过的， 文本扩散模型是一种有趣的方法。
+4. 这也是推理尺度与工具使用的年份通过扩展训练数据和架构来改进大型语言模型已成为一个既定的公式，并且（至今）仍在不断带来成果。不过，尤其是今年，它已经不再是“唯一”足够的食谱了
+我们在 GPT 4.5（2025 年 2 月）中看到了这一点，据传它比 GPT 4（以及后来发布的 GPT 5）大得多，单纯的缩放通常并不是最明智的做法。GPT 4.5 的能力可能优于 GPT 4，但增加的训练预算被认为是“性价比不高”。相反，更好的培训流程（更注重中期和后培训）和推理扩展推动了今年的大部分进展。
+另一个重大进步来自于训练 LLM 时考虑使用工具。正如你可能知道的，幻觉是大型语言模型最大的问题之一。可以说，幻觉率一直在改善，我认为这很大程度上归功于这些工具的使用。例如，当被问及 1998 年国际足联足球世界杯冠军时，大语言模型不依赖记忆，而是通过传统搜索引擎工具，从相关可信网站（例如，这里指官方国际足联网站）中选择并抓取这些信息。数学题、计算器 API 等也是如此。
+遗憾的是，开源生态系统尚未完全跟上这一趋势，许多甚至大多数工具仍然默认运行这些大型语言模型为非工具使用模式。其中一个原因是这是一个更新且不断演变的范式，工具需要相应调整。另一个原因是，这个问题更难解决，主要是因为安全性问题（允许大型语言模型无限制使用工具可能存在安全风险，或者对系统造成其他破坏）。我认为最合理的问题是：你会信任一个新实习生在你系统上有这么多访问权限的情况下做这件事吗？）
+我确实认为，在未来几年，本地使用 LLM 时，启用和允许使用工具将变得越来越普遍。
+5. 年度词汇：Benchmaxxing这里的 benchmaxxing 意味着高度关注排行榜数据，有时甚至将基准测试性能本身作为目标，而非整体能力的代理指标。
+一个显著的例子是 Llama 4，它在许多既定基准测试中得分极高。然而，用户和开发者一旦接触到它，就会发现这些分数并不能反映实际的实际能力和实用性。
+俗话说，如果测试集是公开的，那就不是真正的测试集。而现在的问题是，测试集数据不仅是训练语料库的一部分（无论是有意还是无意的），而且在 LLM 开发过程中经常被直接优化。
+在 LLM 开发中，基准数据已不再是衡量 LLM 性能的可靠指标。
+不过，我确实认为基准测试仍然是大型语言模型必须跨越的必要门槛。也就是说，如果我看到一个大型语言模型在基准测试 Y 中得分低于 X，我就已经知道它不是个好 LLM。然而，如果它在基准测试 Y 上得分高于 X，并不意味着它比另一个在同一基准测试中得分高于 X 的 LLM 好多少
+另一个需要考虑的方面是，图像分类器只有一个任务，即对图像进行分类。然而，LLM 被用于许多不同的任务：文本翻译、摘要、编写代码、头脑风暴、解决数学问题等等。在有明确指标如分类准确率的情况下，评估图像分类器比在确定性和自由形式任务上评估 LLM 要简单得多。
+顺便说一句，如果你想了解更多关于 LLM 评估的主要类别，你可能会喜欢我的文章《从零开始理解 LLM 评估的四大主要方法》[[从零开始理解 LLM 评估的四大主要方法]]
+6. 人工智能用于编码、写作和研究7. 边缘：私人数据LLM 的一般编码、知识解答和写作能力不断提升。这在很大程度上是正确的，因为扩展性依然能带来正向的投资回报，这得益于训练流程和范式（例如 RLVR）以及推理扩展和工具使用的改进。然而，除非我们继续发明新的训练方法和&#x2F;或架构（目前没人知道这些方法会是什么样子），否则这一趋势迟早会趋于平稳（类似于我们看到的 GPT 4 到 GPT 4.5 开发阶段）。LLM 目前能够解决很多通用任务和较容易完成的任务。但要让他们在某些行业扎根，就需要更多的领域专精。我认为 LLM 提供商会很想获得高质量、领域特定的数据。目前来看，这将是一个挑战。
+目前，大型语言模型的开发成本高昂且规模化挑战巨大，这也是为什么只有少数大型公司开发最先进的大型语言模型。不过，我认为 LLM 开发正变得越来越商品化，因为 LLM 开发者经常在不同雇主之间轮换，最终会被大型金融机构、生物技术公司以及其他有预算的公司聘用，开发具有竞争力的内部 LLMs，这些 LLM 能利用他们的私有数据
+8. 2025年的惊喜
+已有多个推理模型在主要数学竞赛中达到金牌级表现 （OpenAI 的未命名模型、Gemini Deep Think 和开权重的 DeepSeekMath-V2）。我并不惊讶这种情况发生在整体上，但我很惊讶这事已经发生在 2025 年，而不是 2026 年。
+Llama 4（或称 Llama）在开放权重社区中几乎完全失宠，而 Qwen 则在受欢迎程度上超过了 Llama（根据 Nathan Lambert 的 ATOM 项目报告的下载和衍生品数量 ）。
+Mistral AI 在 2025 年 12 月宣布的最新旗舰 Mistral 3 型号中采用了 DeepSeek V3 架构。
+除了 Qwen3 和 DeepSeek R1&#x2F;V3.2 外，许多其他竞争者也在争夺开放重量级最先进车型的竞争中涌现，包括 Kimi、GLM、MiniMax 和Yi
+更便宜、更高效的混合架构已经成为领先实验室（如 Qwen3-Next、Kimi Linear、Nemotron 3）中优先考虑的重点 ，而不是由独立实验室开发。
+OpenAI 发布了一个开放权重模型（gpt-oss），我今年早些时候写过一篇独立文章介绍它。
+MCP（ 加入 Linux 基金会 ）已经成为代理风格 LLM 系统中工具和数据访问的标准（目前如此）;我预计 2025 年生态系统会更加分散，至少直到 2026 年。
+
+9 2026年预测
+我们很可能会看到一个面向消费者的行业规模扩散模型，实现廉价、可靠、低延迟的推断，Gemini Diffusion 很可能率先出现。
+开放权重社区将缓慢但稳步地采用具有本地工具使用和日益代理能力的大型语言模型。
+RLVR 将更广泛地扩展到数学和编程以外的其他领域（例如化学、生物等）。
+经典的 RAG 将逐渐淡出文档查询的默认解决方案。开发者将不再对每个文档相关查询都使用检索，而是更多依赖更好的长上下文处理，尤其是随着更多“小”开权重模型的出现。
+大量大型语言模型基准和性能提升将来自改进的工具和推理时间扩展，而非训练或核心模型本身。看起来 LLM 变得越来越好，但这主要是因为周边应用在不断进步。与此同时，开发者将更多地关注降低延迟，使推理模型在不必要的推理标记上扩展更少。别误会，2026 年会推动最先进的技术，但今年的进步更多来自推断，而不仅仅是训练方面。
+
+总结来说，如果说2025年有一个元教训，那就是大型语言模型的进步不再依赖单一突破，而是通过多个独立杠杆在多个领域取得改进。这包括架构调整、数据质量改进、推理训练、推理扩展、工具调用等。
+与此同时，评估依然艰难，基准并不完美，关于何时以及如何使用这些系统的良好判断依然至关重要。
+我对2026年的期望是，我们能继续看到有趣的改进，同时也明白这些改进的来源。这需要更好且更一致的基准测试，当然也需要透明度。
+]]></content>
+      <categories>
+        <category>果冻的理论学习</category>
+      </categories>
+      <tags>
+        <tag>调研</tag>
+        <tag>LLM</tag>
+        <tag>总结</tag>
+        <tag>强化学习</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>AI Infra 综述</title>
     <url>/gdBlog/2026/01/07/AI-Infra-%E7%BB%BC%E8%BF%B0/</url>
     <content><![CDATA[AI Infra（人工智能基础设施）是为支持人工智能开发、训练、部署及规模化应用而构建的技术底层体系
@@ -156,131 +384,9 @@ AI行为监测以检测异常、降低风险、防止无意或不合规的输出
         <category>果冻的理论学习</category>
       </categories>
       <tags>
-        <tag>infra</tag>
+        <tag>调研</tag>
         <tag>总结</tag>
-        <tag>调研</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Dify本地部署</title>
-    <url>/gdBlog/2025/10/09/Dify%E6%9C%AC%E5%9C%B0%E9%83%A8%E7%BD%B2/</url>
-    <content><![CDATA[什么是Dify？Dify 是一款开源的大语言模型（LLM）应用开发平台，它巧妙地融合了后端即服务（BaaS）与大型语言模型运维（LLMOps）的核心理念。Dify 的命名源自“Define + Modify”，寓意着开发者可以定义并持续改进其 AI 应用，同时也致力于“为你而做”（Do it for you）。该平台旨在帮助开发者乃至非技术人员，快速构建并上线生产级的生成式 AI 应用，并支持非技术人员便捷地参与 AI 应用的定义与数据运营。
-Dify搭建用户既可以通过访问 “https://cloud.dify.ai/” 在线使用 Dify（需要 GitHub 或 Google 账号授权），也可以选择在本地环境中部署 Dify 社区版（此为开源版本）。下文将重点介绍如何基于 Docker Compose 部署 Dify 社区版。在开始安装 Dify 之前，请确保您的设备至少具备 双核（2 core）处理器 和 4GB 以上内存。以下步骤将演示如何在 Mac 系统中运行 Dify。首先，您需要安装 Docker Desktop 以支持 Docker 容器的运行，随后即可通过 Docker 来部署和运行 Dify。
-下载安装Docker Desktop我们可以使用官网链接“https://docs.docker.com/get-started/get-docker/”下载Docker Desktop使用[[Docker]]
-基于Docker部署Dify在”https://github.com/langgenius/dify″中下载Dify，，下载完成后，将压缩包解压到我们指定的位置，通过如下命令启动Dify:进入 Dify 的 Docker 配置目录:
-在终端中，我们需要进入到包含 docker-compose.yaml 文件的目录，使用终端命令进行本地部署Dify,  -d 参数表示在后台运行。
-cd dify/dockerdocker-compose up -d
-
-一旦所有容器都成功启动，你就可以在你的网页浏览器中访问 Dify 了。
-默认情况下，Dify 应该可以通过以下地址访问：http://localhost/ 或 http://127.0.0.1/
-运行停止命令
-docker-compose down]]></content>
-      <categories>
-        <category>果冻的奇妙小工具</category>
-      </categories>
-      <tags>
-        <tag>Dify</tag>
-        <tag>LLM</tag>
-        <tag>tools</tag>
-        <tag>Docker</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Docker</title>
-    <url>/gdBlog/2025/10/08/Docker/</url>
-    <content><![CDATA[远程镜像仓库本地镜像(镜像是只读的)本地仓库
-镜像版本tag版本是完全独立的,last是最新的docker pull&#x2F;push 镜像名docker images 查看本地镜像docker search
-容器真正的示例,隔离网络,文件.不同容器可能会争抢资源1容器打包成镜像,再上传到仓库docker psdocker ps -adocekr start&#x2F;stop&#x2F;rm IDdocker commit -a “作者名称” -m “log信息” ID 打包成镜像docker cp 文件目录 容器ID:目标目录   从前拷贝到后docker exec -it ID &#x2F;bin&#x2F;bash  进入容器内部
-dickerfile脚本 是可以通过下载文件的一些来创建脚本
-网络中的映射一般是端口映射,容器端口8001映射到宿主机的8080
-Docker安装不要用homebrew 以前其他软件使用下载都很顺利，但这一次安装Docker却不太行，使用了代理，但总是出现报错
-Error response from daemon: Get “https://registry-1.docker.io/v2/“: EOF
-虽然改了很多代理，但是一直不信。知道去官网下载后就没问题了。
-出问题的可能是：1）Mac的新款M4芯片2）homebrew安装位置不对，或者版本过低
-]]></content>
-      <categories>
-        <category>果冻的航海日志</category>
-      </categories>
-      <tags>
-        <tag>tools</tag>
-        <tag>Docker</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>GRPO（Group Relative Policy Optimization，分组相对策略优化）</title>
-    <url>/gdBlog/2026/01/02/GRPO%EF%BC%88Group-Relative-Policy-Optimization%EF%BC%8C%E5%88%86%E7%BB%84%E7%9B%B8%E5%AF%B9%E7%AD%96%E7%95%A5%E4%BC%98%E5%8C%96%EF%BC%89/</url>
-    <content><![CDATA[GRPO（Group Relative Policy Optimization，分组相对策略优化） 是 DeepSeek 在 V3 模型训练中引入的一种无奖励模型的强化学习对齐技术。它是一种 RLHF（人类反馈强化学习）的变体或改进方法，旨在更高效、更稳定地训练模型与人类偏好对齐。[[RLHF（Reinforcement Learning from Human Feedback，基于人类反馈的强化学习）|RLHF（Reinforcement Learning from Human Feedback，基于人类反馈的强化学习）]]
-核心思路GRPO 的核心创新在于摆脱了对独立奖励模型的依赖。传统的 RLHF 需要先训练一个复杂的奖励模型来评估生成内容，而 GRPO 直接利用人类偏好数据进行端到端的策略优化。
-工作原理（简化版）
-分组对比：
-
-对于同一个问题（提示），模型会生成一组（例如 4 个）不同的回答。
-这些回答根据质量被模型或参考标准排序。
-
-
-相对偏好建模：
-
-GRPO 的核心是直接比较同一组内回答的相对好坏，而不是像传统 RLHF 那样依赖一个绝对分数预测的奖励模型。
-它通过策略模型本身来估计不同回答的偏好排名概率（例如，回答 A 优于回答 B 的概率）。
-
-
-优化目标：
-
-训练目标是调整策略模型（即要被优化的 LLM），使其生成高质量回答的概率增加，生成低质量回答的概率降低。
-这通过一个对比损失函数实现，它直接优化策略，使得模型输出更偏向人类偏好的回答。
-
-
-
-与传统 RLHF（如 PPO）相比的优势
-
-
-方面
-传统 RLHF (PPO + 奖励模型)
-GRPO
-
-
-
-技术栈
-复杂：需要独立的奖励模型和强化学习算法
-简单：端到端，不依赖额外奖励模型
-
-
-训练稳定性
-奖励函数的微小变化可能导致训练不稳定
-利用组内相对比较，对比损失更稳定
-
-
-奖励黑客
-容易发生（模型钻奖励模型空子）
-缓解（因为没有可被黑客攻击的显式奖励函数）
-
-
-计算开销
-高（需分别训练奖励模型、价值网络和策略）
-显著降低（直接在策略模型上优化）
-
-
-数据形式
-偏好排序数据可用于训练奖励模型
-偏好排序数据直接用于策略模型优化
-
-
-为什么 DeepSeek 等公司采用它？
-简化流程：绕过了奖励模型训练的复杂性和不稳定性，直接利用偏好数据对齐模型。
-效率提升：计算成本更低，训练更高效。
-效果对标：在某些评测中，GRPO 能取得与复杂 PPO 流程相当甚至更好的对齐效果，尤其在提升模型拒绝回答有害问题的能力方面。
-前沿方向：它代表了当前 LLM 对齐研究的一个前沿方向——更简单、更直接地从人类反馈中学习。
-
-简而言之，GRPO 是一种“轻量级”却有效的 RLHF 替代方案。它放弃了复杂的奖励模型，转而利用分组回答的直接比较数据来训练模型，使其输出更符合人类的偏好。 这就像不是让一个老师给学生每个答案打分（奖励模型），而是让学生在小组内互相比较答案的好坏来学习（GRPO），从而进行自我提升。
-]]></content>
-      <categories>
-        <category>果冻的科普专区</category>
-      </categories>
-      <tags>
-        <tag>调研</tag>
-        <tag>LLM</tag>
-        <tag>科普</tag>
-        <tag>强化学习</tag>
+        <tag>infra</tag>
       </tags>
   </entry>
   <entry>
@@ -544,6 +650,158 @@ Agent-RL&#x2F;ReSearch
       </tags>
   </entry>
   <entry>
+    <title>Dify本地部署</title>
+    <url>/gdBlog/2025/10/09/Dify%E6%9C%AC%E5%9C%B0%E9%83%A8%E7%BD%B2/</url>
+    <content><![CDATA[什么是Dify？Dify 是一款开源的大语言模型（LLM）应用开发平台，它巧妙地融合了后端即服务（BaaS）与大型语言模型运维（LLMOps）的核心理念。Dify 的命名源自“Define + Modify”，寓意着开发者可以定义并持续改进其 AI 应用，同时也致力于“为你而做”（Do it for you）。该平台旨在帮助开发者乃至非技术人员，快速构建并上线生产级的生成式 AI 应用，并支持非技术人员便捷地参与 AI 应用的定义与数据运营。
+Dify搭建用户既可以通过访问 “https://cloud.dify.ai/” 在线使用 Dify（需要 GitHub 或 Google 账号授权），也可以选择在本地环境中部署 Dify 社区版（此为开源版本）。下文将重点介绍如何基于 Docker Compose 部署 Dify 社区版。在开始安装 Dify 之前，请确保您的设备至少具备 双核（2 core）处理器 和 4GB 以上内存。以下步骤将演示如何在 Mac 系统中运行 Dify。首先，您需要安装 Docker Desktop 以支持 Docker 容器的运行，随后即可通过 Docker 来部署和运行 Dify。
+下载安装Docker Desktop我们可以使用官网链接“https://docs.docker.com/get-started/get-docker/”下载Docker Desktop使用[[Docker]]
+基于Docker部署Dify在”https://github.com/langgenius/dify″中下载Dify，，下载完成后，将压缩包解压到我们指定的位置，通过如下命令启动Dify:进入 Dify 的 Docker 配置目录:
+在终端中，我们需要进入到包含 docker-compose.yaml 文件的目录，使用终端命令进行本地部署Dify,  -d 参数表示在后台运行。
+cd dify/dockerdocker-compose up -d
+
+一旦所有容器都成功启动，你就可以在你的网页浏览器中访问 Dify 了。
+默认情况下，Dify 应该可以通过以下地址访问：http://localhost/ 或 http://127.0.0.1/
+运行停止命令
+docker-compose down]]></content>
+      <categories>
+        <category>果冻的奇妙小工具</category>
+      </categories>
+      <tags>
+        <tag>LLM</tag>
+        <tag>Dify</tag>
+        <tag>tools</tag>
+        <tag>Docker</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Docker</title>
+    <url>/gdBlog/2025/10/08/Docker/</url>
+    <content><![CDATA[远程镜像仓库本地镜像(镜像是只读的)本地仓库
+镜像版本tag版本是完全独立的,last是最新的docker pull&#x2F;push 镜像名docker images 查看本地镜像docker search
+容器真正的示例,隔离网络,文件.不同容器可能会争抢资源1容器打包成镜像,再上传到仓库docker psdocker ps -adocekr start&#x2F;stop&#x2F;rm IDdocker commit -a “作者名称” -m “log信息” ID 打包成镜像docker cp 文件目录 容器ID:目标目录   从前拷贝到后docker exec -it ID &#x2F;bin&#x2F;bash  进入容器内部
+dickerfile脚本 是可以通过下载文件的一些来创建脚本
+网络中的映射一般是端口映射,容器端口8001映射到宿主机的8080
+Docker安装不要用homebrew 以前其他软件使用下载都很顺利，但这一次安装Docker却不太行，使用了代理，但总是出现报错
+Error response from daemon: Get “https://registry-1.docker.io/v2/“: EOF
+虽然改了很多代理，但是一直不信。知道去官网下载后就没问题了。
+出问题的可能是：1）Mac的新款M4芯片2）homebrew安装位置不对，或者版本过低
+]]></content>
+      <categories>
+        <category>果冻的航海日志</category>
+      </categories>
+      <tags>
+        <tag>tools</tag>
+        <tag>Docker</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>GRPO（Group Relative Policy Optimization，分组相对策略优化）</title>
+    <url>/gdBlog/2026/01/02/GRPO%EF%BC%88Group-Relative-Policy-Optimization%EF%BC%8C%E5%88%86%E7%BB%84%E7%9B%B8%E5%AF%B9%E7%AD%96%E7%95%A5%E4%BC%98%E5%8C%96%EF%BC%89/</url>
+    <content><![CDATA[GRPO（Group Relative Policy Optimization，分组相对策略优化） 是 DeepSeek 在 V3 模型训练中引入的一种无奖励模型的强化学习对齐技术。它是一种 RLHF（人类反馈强化学习）的变体或改进方法，旨在更高效、更稳定地训练模型与人类偏好对齐。[[RLHF（Reinforcement Learning from Human Feedback，基于人类反馈的强化学习）|RLHF（Reinforcement Learning from Human Feedback，基于人类反馈的强化学习）]]
+核心思路GRPO 的核心创新在于摆脱了对独立奖励模型的依赖。传统的 RLHF 需要先训练一个复杂的奖励模型来评估生成内容，而 GRPO 直接利用人类偏好数据进行端到端的策略优化。
+工作原理（简化版）
+分组对比：
+
+对于同一个问题（提示），模型会生成一组（例如 4 个）不同的回答。
+这些回答根据质量被模型或参考标准排序。
+
+
+相对偏好建模：
+
+GRPO 的核心是直接比较同一组内回答的相对好坏，而不是像传统 RLHF 那样依赖一个绝对分数预测的奖励模型。
+它通过策略模型本身来估计不同回答的偏好排名概率（例如，回答 A 优于回答 B 的概率）。
+
+
+优化目标：
+
+训练目标是调整策略模型（即要被优化的 LLM），使其生成高质量回答的概率增加，生成低质量回答的概率降低。
+这通过一个对比损失函数实现，它直接优化策略，使得模型输出更偏向人类偏好的回答。
+
+
+
+与传统 RLHF（如 PPO）相比的优势
+
+
+方面
+传统 RLHF (PPO + 奖励模型)
+GRPO
+
+
+
+技术栈
+复杂：需要独立的奖励模型和强化学习算法
+简单：端到端，不依赖额外奖励模型
+
+
+训练稳定性
+奖励函数的微小变化可能导致训练不稳定
+利用组内相对比较，对比损失更稳定
+
+
+奖励黑客
+容易发生（模型钻奖励模型空子）
+缓解（因为没有可被黑客攻击的显式奖励函数）
+
+
+计算开销
+高（需分别训练奖励模型、价值网络和策略）
+显著降低（直接在策略模型上优化）
+
+
+数据形式
+偏好排序数据可用于训练奖励模型
+偏好排序数据直接用于策略模型优化
+
+
+为什么 DeepSeek 等公司采用它？
+简化流程：绕过了奖励模型训练的复杂性和不稳定性，直接利用偏好数据对齐模型。
+效率提升：计算成本更低，训练更高效。
+效果对标：在某些评测中，GRPO 能取得与复杂 PPO 流程相当甚至更好的对齐效果，尤其在提升模型拒绝回答有害问题的能力方面。
+前沿方向：它代表了当前 LLM 对齐研究的一个前沿方向——更简单、更直接地从人类反馈中学习。
+
+简而言之，GRPO 是一种“轻量级”却有效的 RLHF 替代方案。它放弃了复杂的奖励模型，转而利用分组回答的直接比较数据来训练模型，使其输出更符合人类的偏好。 这就像不是让一个老师给学生每个答案打分（奖励模型），而是让学生在小组内互相比较答案的好坏来学习（GRPO），从而进行自我提升。
+]]></content>
+      <categories>
+        <category>果冻的科普专区</category>
+      </categories>
+      <tags>
+        <tag>调研</tag>
+        <tag>LLM</tag>
+        <tag>强化学习</tag>
+        <tag>科普</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Github自动同步脚本</title>
+    <url>/gdBlog/2025/10/01/Github%E8%87%AA%E5%8A%A8%E5%90%8C%E6%AD%A5%E8%84%9A%E6%9C%AC/</url>
+    <content><![CDATA[实施步骤进入要同步的库中，切换至 Actions，点击后面的 New workflow 项
+打开新页面后，点击篮字的 set up a workflow yourself
+设置文件名 sync.yml「可自定义，不与其它脚本同名即可」
+将下面的脚本填到输入框中，点击右上方 Commit changes 即可：
+name: Upstream Syncpermissions:  contents: writeon:  schedule:    - cron: &quot;0 0 * * *&quot; # every day  workflow_dispatch:jobs:  sync_latest_from_upstream:    name: Sync latest commits from upstream repo    runs-on: ubuntu-latest    if: $&amp;#123;&amp;#123; github.event.repository.fork &amp;#125;&amp;#125;    steps:      # Step 1: run a standard checkout action      - name: Checkout target repo        uses: actions/checkout@v4      # Step 2: run the sync action      - name: Sync upstream changes        id: sync        uses: aormsby/Fork-Sync-With-Upstream-action@v3.4        with:          upstream_sync_repo: arnidan/nsfw-api          upstream_sync_branch: main          target_sync_branch: main          target_repo_token: $&amp;#123;&amp;#123; secrets.GITHUB_TOKEN &amp;#125;&amp;#125; # automatically generated, no need to set          # Set test_mode true to run tests instead of the true action!!          test_mode: false      - name: Sync check        if: failure()        run: |          echo &quot;[Error] 由于上游仓库的 workflow 文件变更，导致 GitHub 自动暂停了本次自动更新，您需要手动 Sync Fork 一次。&quot;          echo &quot;[Error] Due to a change in the workflow file of the upstream repository, GitHub has automatically suspended the scheduled automatic update. You need to manually sync your fork.&quot;          exit 1]]></content>
+      <categories>
+        <category>果冻的奇妙小工具</category>
+      </categories>
+      <tags>
+        <tag>tools</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>JSON</title>
+    <url>/gdBlog/2025/09/29/JSON/</url>
+    <content><![CDATA[JSON是一种文本数据格式!
+json和xml之间一般可以转换json文本实际上是一条字符串json的四种类型不允许嵌套,字符串,数值,布尔,null(你也没法嵌套)两种可以嵌套:哈希值:「“字符串”:剩下六种随便,“”:“”」最后一个键值对后不能加“,”数组:[],用“,”隔开,最后一个不加,六种随便一种,不用统一类型
+空格和换行无所谓
+一般数据量不大,大了的话一般用xml,比较方便.
+]]></content>
+      <categories>
+        <category>果冻的奇妙小工具</category>
+      </categories>
+      <tags>
+        <tag>tools</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Hexo通过插件隐藏指定文章</title>
     <url>/gdBlog/2025/10/02/Hexo%E9%80%9A%E8%BF%87%E6%8F%92%E4%BB%B6%E9%9A%90%E8%97%8F%E6%8C%87%E5%AE%9A%E6%96%87%E7%AB%A0/</url>
     <content><![CDATA[由于本人感觉记不住昨天或者前几天发生的事情, 因此打算写点日记, 但是又没必要让所有人看到, 不必在首页展示, 因此想添加文章隐藏功能. 同时又不想修改Butterfly主题源代码, 原因在于作为一名开发者，还是想使用增量更新，而不是修改原来的内容. 终于！找到了hexo-hide-posts这个Hexo 插件，它能够隐藏指定的文章，并使它们仅可通过链接访问
@@ -562,21 +820,6 @@ npm install hexo-hide-posts
       </categories>
       <tags>
         <tag>Hexo</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Github自动同步脚本</title>
-    <url>/gdBlog/2025/10/01/Github%E8%87%AA%E5%8A%A8%E5%90%8C%E6%AD%A5%E8%84%9A%E6%9C%AC/</url>
-    <content><![CDATA[实施步骤进入要同步的库中，切换至 Actions，点击后面的 New workflow 项
-打开新页面后，点击篮字的 set up a workflow yourself
-设置文件名 sync.yml「可自定义，不与其它脚本同名即可」
-将下面的脚本填到输入框中，点击右上方 Commit changes 即可：
-name: Upstream Syncpermissions:  contents: writeon:  schedule:    - cron: &quot;0 0 * * *&quot; # every day  workflow_dispatch:jobs:  sync_latest_from_upstream:    name: Sync latest commits from upstream repo    runs-on: ubuntu-latest    if: $&amp;#123;&amp;#123; github.event.repository.fork &amp;#125;&amp;#125;    steps:      # Step 1: run a standard checkout action      - name: Checkout target repo        uses: actions/checkout@v4      # Step 2: run the sync action      - name: Sync upstream changes        id: sync        uses: aormsby/Fork-Sync-With-Upstream-action@v3.4        with:          upstream_sync_repo: arnidan/nsfw-api          upstream_sync_branch: main          target_sync_branch: main          target_repo_token: $&amp;#123;&amp;#123; secrets.GITHUB_TOKEN &amp;#125;&amp;#125; # automatically generated, no need to set          # Set test_mode true to run tests instead of the true action!!          test_mode: false      - name: Sync check        if: failure()        run: |          echo &quot;[Error] 由于上游仓库的 workflow 文件变更，导致 GitHub 自动暂停了本次自动更新，您需要手动 Sync Fork 一次。&quot;          echo &quot;[Error] Due to a change in the workflow file of the upstream repository, GitHub has automatically suspended the scheduled automatic update. You need to manually sync your fork.&quot;          exit 1]]></content>
-      <categories>
-        <category>果冻的奇妙小工具</category>
-      </categories>
-      <tags>
-        <tag>tools</tag>
       </tags>
   </entry>
   <entry>
@@ -612,63 +855,59 @@ name: Upstream Syncpermissions:  contents: writeon:  schedule:    - cron: &quot;
       </tags>
   </entry>
   <entry>
-    <title>MVC（Model-View-Controller，模型 - 视图 - 控制器）</title>
-    <url>/gdBlog/2025/09/30/MVC%EF%BC%88Model-View-Controller%EF%BC%8C%E6%A8%A1%E5%9E%8B-%E8%A7%86%E5%9B%BE-%E6%8E%A7%E5%88%B6%E5%99%A8%EF%BC%89/</url>
-    <content><![CDATA[简介MVC（Model-View-Controller，模型 - 视图 - 控制器）是一种软件架构设计模式，其核心思想是分离关注点，通过将应用程序划分为三个相互关联但功能独立的组件.
-各组件的具体作用模型（Model）模型是应用程序的数据中心和业务逻辑核心，负责管理应用程序的数据和处理业务规则，是整个应用的 “大脑”。
-主要职责：
+    <title>Open Spec -- AI编码助手时代的规范驱动开发框架</title>
+    <url>/gdBlog/2026/01/12/Open-Spec/</url>
+    <content><![CDATA[框架定位Open Spec是一款专为AI编码助手设计的开源规范驱动开发(Spec-Driven Development)框架，旨在解决AI编码过程中因需求不明确导致的不可预测性问题。其核心价值在于通过轻量级工作流，使开发团队与AI助手在编码前达成需求共识，特别优化了现有项目的增量迭代场景（从1到N阶段）。
+完整工作流程Open Spec执行流程分为五个核心阶段，形成闭环开发周期：
+1. 创建提议（Proposal）
+环境准备：安装Node.js（≥20.19版本），通过命令行安装Open Spec
 
-存储和管理应用程序的数据（可以是数据库、内存数据结构等）
-实现核心业务逻辑和数据处理规则
-提供数据访问接口（供控制器调用）
-当数据发生变化时，通知相关视图进行更新（观察者模式）
-独立于视图和控制器，不关心数据如何展示和用户如何操作
+项目初始化：执行初始化命令，选择AI助手（如Cloud Code）
 
-视图（View）视图是应用程序的用户界面，负责数据的展示和用户交互的呈现，是用户能直接看到和操作的部分
-主要职责：
+生成项目文档：AI助手自动分析项目，生成包含技术栈、架构模式、测试策略的project.md
 
-从模型获取数据并以特定形式展示给用户（如网页、桌面窗口、移动端界面）
-接收用户的界面操作（如点击按钮、输入文本等），但不处理这些操作的业务逻辑
-不直接与模型交互，通过控制器获取需要展示的数据
-一个模型可以对应多个视图（如同一组数据可以用表格、图表、列表等不同形式展示）
 
-控制器（Controller）控制器是模型和视图之间的协调者，负责处理用户输入并协调模型和视图完成相应操作。
-主要职责：
+2. 审核规范（Review）
+功能提议创建：通过open spec proposal命令定义新增功能（如”自定义专注时长”）
 
-接收并解析用户的输入请求（来自视图）
-根据用户请求调用相应的模型方法处理数据
-决定处理完成后使用哪个视图展示结果
-不处理业务逻辑，也不负责数据展示，仅负责流程控制
-维护模型和视图之间的映射关系
+需求澄清：AI助手自动识别模糊点（如时长范围、配置位置），开发者补充细节
 
-MVC 工作流程
-用户交互：用户通过视图（如点击按钮、提交表单）发起操作请求
-请求传递：视图将用户请求传递给对应的控制器
-业务处理：控制器调用相应的模型方法，处理业务逻辑和数据
-数据更新：模型处理完成后更新数据状态，必要时通知视图
-视图渲染：控制器选择合适的视图，视图从模型获取最新数据并展示给用户
+规范文件生成：生成proposal.md（需求与设计）和task.md（任务分解）
+
+人工审核：直接在VS Code中查看&#x2F;修改规范文件，支持自然语言调整
+
+
+3. 编码实施（Apply）
+自动开发：执行open spec apply命令，AI助手读取规范文件自动编码
+
+跨文件修改：AI根据任务分解，自动处理多模块代码变更
+
+实施反馈：生成功能实现总结，包含修改文件列表与核心逻辑说明
+
+
+4. 测试验证（Test）
+功能验证：在开发环境中运行项目，测试新增功能（如自定义时长滑块、预设选项）
+
+数据验证：检查功能对现有数据流程的影响（如专注统计数据更新）
+
+问题修复：若存在缺陷，返回审核阶段调整规范后重新实施
+
+
+5. 归档文档（Archive）
+变更归档：执行open spec archive命令，合并变更记录至主规范库
+
+历史追踪：自动生成归档时间戳，保留完整变更轨迹
+
+版本控制：建议提交代码与文档至Git，形成可追溯的开发历史
+
 
 ]]></content>
       <categories>
-        <category>果冻的理论学习</category>
+        <category>果冻的科普专区</category>
       </categories>
       <tags>
-        <tag>tools</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>JSON</title>
-    <url>/gdBlog/2025/09/29/JSON/</url>
-    <content><![CDATA[JSON是一种文本数据格式!
-json和xml之间一般可以转换json文本实际上是一条字符串json的四种类型不允许嵌套,字符串,数值,布尔,null(你也没法嵌套)两种可以嵌套:哈希值:「“字符串”:剩下六种随便,“”:“”」最后一个键值对后不能加“,”数组:[],用“,”隔开,最后一个不加,六种随便一种,不用统一类型
-空格和换行无所谓
-一般数据量不大,大了的话一般用xml,比较方便.
-]]></content>
-      <categories>
-        <category>果冻的奇妙小工具</category>
-      </categories>
-      <tags>
-        <tag>tools</tag>
+        <tag>LLM</tag>
+        <tag>科普</tag>
       </tags>
   </entry>
   <entry>
@@ -764,8 +1003,142 @@ Modular RAG：它将 RAG 的各个部分进行模块化，您可以根据自己�
       </categories>
       <tags>
         <tag>调研</tag>
-        <tag>科普</tag>
         <tag>强化学习</tag>
+        <tag>科普</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>MVC（Model-View-Controller，模型 - 视图 - 控制器）</title>
+    <url>/gdBlog/2025/09/30/MVC%EF%BC%88Model-View-Controller%EF%BC%8C%E6%A8%A1%E5%9E%8B-%E8%A7%86%E5%9B%BE-%E6%8E%A7%E5%88%B6%E5%99%A8%EF%BC%89/</url>
+    <content><![CDATA[简介MVC（Model-View-Controller，模型 - 视图 - 控制器）是一种软件架构设计模式，其核心思想是分离关注点，通过将应用程序划分为三个相互关联但功能独立的组件.
+各组件的具体作用模型（Model）模型是应用程序的数据中心和业务逻辑核心，负责管理应用程序的数据和处理业务规则，是整个应用的 “大脑”。
+主要职责：
+
+存储和管理应用程序的数据（可以是数据库、内存数据结构等）
+实现核心业务逻辑和数据处理规则
+提供数据访问接口（供控制器调用）
+当数据发生变化时，通知相关视图进行更新（观察者模式）
+独立于视图和控制器，不关心数据如何展示和用户如何操作
+
+视图（View）视图是应用程序的用户界面，负责数据的展示和用户交互的呈现，是用户能直接看到和操作的部分
+主要职责：
+
+从模型获取数据并以特定形式展示给用户（如网页、桌面窗口、移动端界面）
+接收用户的界面操作（如点击按钮、输入文本等），但不处理这些操作的业务逻辑
+不直接与模型交互，通过控制器获取需要展示的数据
+一个模型可以对应多个视图（如同一组数据可以用表格、图表、列表等不同形式展示）
+
+控制器（Controller）控制器是模型和视图之间的协调者，负责处理用户输入并协调模型和视图完成相应操作。
+主要职责：
+
+接收并解析用户的输入请求（来自视图）
+根据用户请求调用相应的模型方法处理数据
+决定处理完成后使用哪个视图展示结果
+不处理业务逻辑，也不负责数据展示，仅负责流程控制
+维护模型和视图之间的映射关系
+
+MVC 工作流程
+用户交互：用户通过视图（如点击按钮、提交表单）发起操作请求
+请求传递：视图将用户请求传递给对应的控制器
+业务处理：控制器调用相应的模型方法，处理业务逻辑和数据
+数据更新：模型处理完成后更新数据状态，必要时通知视图
+视图渲染：控制器选择合适的视图，视图从模型获取最新数据并展示给用户
+
+]]></content>
+      <categories>
+        <category>果冻的理论学习</category>
+      </categories>
+      <tags>
+        <tag>tools</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>有了 MCP，为什么Claude 还要推出 Skills？</title>
+    <url>/gdBlog/2026/01/12/Skills/</url>
+    <content><![CDATA[
+## Skills 是什么？
+
+要想知道区别，先要知道是什么。
+根据官方介绍，Claude 的 Skills 是一种模块化的能力包，它以文件夹的形式组织，
+每个 Skill 包含：
+
+一个 **SKILL.md** 文件——描述该技能的详细用途和操作流程
+
+脚本与模板——自动化执行复杂任务，比如处理 Excel、生成 PowerPoint，或遵循品牌规范等。
+
+资源文件——辅助技能运行的必要材料（如代码片段、流程文档等）。
+
+
+![[ObsidianPicture&#x2F;Pasted image 20260112094242.png]]Claude 只会在需要时，动态加载对应的 Skills。
+类似于给 AI 助手装上专业“技能包”，以便完成一些特定的复杂工作。
+Skills 与 MCP 的区别用人类可以理解的话来说：
+Skills 主要聚焦于工具处理。 例如处理文件、设计、写文章。
+
+MCP 主要起到连接作用。 适合深度集成外部系统，自定义上传、下载、推送等流程。[[MCP(Model Context Protocol模型上下文协议)]]
+
+
+Skills 与 MCP 并不是竞争或替代的关系，而是结合关系。
+对于普通用户、日常工作，大部分时候只需要 Skills 就足够；
+对于复杂的企业场景、跨平台&#x2F;自动分发等任务，使用 Skills + MCP 可以实现更加稳定和高效的输出。
+更直观的对比
+
+
+场景
+Claude Skills
+MCP
+
+
+
+提取 PDF 表格并转成 Excel
+安装 Skill 后一句话搞定，自动转换
+需开发 Skill 或直接用默认 Skill
+
+
+处理网盘里的20个 PDF
+需手动批量上传，Skill 单个处理
+可自动批量调用网盘接口拉取文件并写入指定存储
+
+
+处理文件同步到ERP系统
+手动下载、再人工上传&#x2F;导入
+解析后可自动推送到ERP，通过定制化流程自动化同步
+
+
+融合自定义OCR&#x2F;业务接口
+Skill仅能封装有限组件
+MCP可接入任意外部API，实现自定义的数据管道
+
+
+对比普通方式拿处理 PDF 文件来举例，直接处理和使用 Skills 的步骤：
+1. 不用 Skills （传统方式，现场组合）
+用户上传 PDF 文件。
+
+在 Claude Code 对话中发出处理请求，例如“提取 PDF 中的表格”。
+
+Claude AI 根据提示生成处理脚本（如用 Python 调用 pdfplumber 或 PyPDF2），并自动运行。
+
+Claude 解析结果并返回。
+
+
+整个过程依赖 Claude 临时生成代码 → 运行 → 修正 → 再运行。
+2. 用 Skills 技能包（自动调用已封装脚本）
+用户上传 PDF 文件。
+
+Claude 自动识别任务类型（如 PDF 提取、表单排序等）。
+
+Claude 自动加载已经封装好的 Skill（如“PDF 处理技能包”），调用预写的脚本。
+
+几乎瞬时返回结果，无需反复生成和调试代码。
+
+
+任务标准化，处理流程由 Skill 固化，Claude 类似于“调用工具箱里的工具”。
+]]></content>
+      <categories>
+        <category>果冻的科普专区</category>
+      </categories>
+      <tags>
+        <tag>科普</tag>
+        <tag>MCP</tag>
       </tags>
   </entry>
   <entry>
@@ -851,50 +1224,6 @@ D 论坛的特定板块
       </tags>
   </entry>
   <entry>
-    <title>元芳接入DeepSearch</title>
-    <url>/gdBlog/2025/10/02/%E5%85%83%E8%8A%B3%E6%8E%A5%E5%85%A5DeepSearch/</url>
-    <content><![CDATA[实现过程部署在虎符上, 因此Flask Web服务, 最后提供HTTP API接口.在元芳上新增工具为[MCP]问答_DeepResearch深度思考_服务,[MCP]问答_arXiv_服务(并没有用到在应用上), 新增应用为Deep Research应用.
-
-首先使用了DashScope翻译服务完成中译英, 因为arXiv的中文搜索不太行
-使用官方提供的arXiv库实现arXiv论文检索
-最后使用DeepSeek推理模型, 将论文检索的内容作为输入再加上用户原本的输入作为最终的输入给DeepSeekR1模型(在元芳上)
-返回1.论文 2.深度思考 3.最后回答 作为输出.相当于实现了[[DeepSearch的论文调研]]
-
-备份在github上了Deepsearch
-流程核心功能1. 多语言智能处理
-中文检测与翻译 ：自动检测用户查询是否为中文，如果是则调用DashScope API翻译为英文
-翻译容错机制 ：翻译失败时回退到原始查询，确保系统稳定性
-
-2. 学术资源搜索
-arXiv论文检索 ：将翻译后的英文查询用于搜索相关学术论文
-结果格式化 ：提取论文标题和PDF链接，生成易读的参考信息
-
-3. AI深度推理
-DeepSeek Reasoner模型 ：使用专门的推理模型进行深度思考
-上下文增强 ：结合用户查询和论文信息生成全面回答
-结构化响应 ：提取角色、内容和推理过程三个维度的信息
-
-4. 完整响应返回
-双数据源 ：同时返回论文搜索结果和AI生成的回答
-错误处理 ：完善的异常捕获机制，确保服务稳定性
-
-技术亮点
-多API集成 ：DashScope翻译 + arXiv搜索 + DeepSeek推理
-智能语言处理 ：中英文无缝切换
-学术级回答 ：基于最新研究论文提供权威解答这个DeepSearch系统特别适合需要学术背景知识的深度问答场景，能够为用户提供基于最新研究的专业回答。
-
-]]></content>
-      <categories>
-        <category>果冻的航海日志</category>
-      </categories>
-      <tags>
-        <tag>LLM</tag>
-        <tag>tools</tag>
-        <tag>DeepSearch</tag>
-        <tag>元芳</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>上下文工程(Context Engineering)</title>
     <url>/gdBlog/2025/10/11/%E4%B8%8A%E4%B8%8B%E6%96%87%E5%B7%A5%E7%A8%8B-Context-Engineering/</url>
     <content><![CDATA[前言随着大模型能力的快速发展，人们对大语言模型的使用方式越来越多的从简单的ChatBot，变成了各种Agent，而一个新的术语——上下文工程（Context Engineering），也逐步取代了[[提示工程]](Prompt Engineering）。
@@ -950,6 +1279,50 @@ Anthropic的实践是采用混合策略，像CLAUDE.md（里面一般会有开�
       </tags>
   </entry>
   <entry>
+    <title>元芳接入DeepSearch</title>
+    <url>/gdBlog/2025/10/02/%E5%85%83%E8%8A%B3%E6%8E%A5%E5%85%A5DeepSearch/</url>
+    <content><![CDATA[实现过程部署在虎符上, 因此Flask Web服务, 最后提供HTTP API接口.在元芳上新增工具为[MCP]问答_DeepResearch深度思考_服务,[MCP]问答_arXiv_服务(并没有用到在应用上), 新增应用为Deep Research应用.
+
+首先使用了DashScope翻译服务完成中译英, 因为arXiv的中文搜索不太行
+使用官方提供的arXiv库实现arXiv论文检索
+最后使用DeepSeek推理模型, 将论文检索的内容作为输入再加上用户原本的输入作为最终的输入给DeepSeekR1模型(在元芳上)
+返回1.论文 2.深度思考 3.最后回答 作为输出.相当于实现了[[DeepSearch的论文调研]]
+
+备份在github上了Deepsearch
+流程核心功能1. 多语言智能处理
+中文检测与翻译 ：自动检测用户查询是否为中文，如果是则调用DashScope API翻译为英文
+翻译容错机制 ：翻译失败时回退到原始查询，确保系统稳定性
+
+2. 学术资源搜索
+arXiv论文检索 ：将翻译后的英文查询用于搜索相关学术论文
+结果格式化 ：提取论文标题和PDF链接，生成易读的参考信息
+
+3. AI深度推理
+DeepSeek Reasoner模型 ：使用专门的推理模型进行深度思考
+上下文增强 ：结合用户查询和论文信息生成全面回答
+结构化响应 ：提取角色、内容和推理过程三个维度的信息
+
+4. 完整响应返回
+双数据源 ：同时返回论文搜索结果和AI生成的回答
+错误处理 ：完善的异常捕获机制，确保服务稳定性
+
+技术亮点
+多API集成 ：DashScope翻译 + arXiv搜索 + DeepSeek推理
+智能语言处理 ：中英文无缝切换
+学术级回答 ：基于最新研究论文提供权威解答这个DeepSearch系统特别适合需要学术背景知识的深度问答场景，能够为用户提供基于最新研究的专业回答。
+
+]]></content>
+      <categories>
+        <category>果冻的航海日志</category>
+      </categories>
+      <tags>
+        <tag>LLM</tag>
+        <tag>DeepSearch</tag>
+        <tag>tools</tag>
+        <tag>元芳</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>元芳接入Gemini</title>
     <url>/gdBlog/2025/10/02/%E5%85%83%E8%8A%B3%E6%8E%A5%E5%85%A5Gemini/</url>
     <content><![CDATA[写在前面 我的实现方式gemini是google的 所以需要注册google对应的账号,由于需要翻墙再加上需要资金往来,所以放弃这条路了.最后选择使用国内的代理网站 简易,调用了一个 API 接口, 确实挺好用的.注册链接https://jeniya.top/register?aff=tUUD
@@ -998,38 +1371,6 @@ Gemini Nano：是最高效的模型，用于特定任务和移动设备。该模
         <tag>LLM</tag>
         <tag>tools</tag>
         <tag>元芳</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>外链播放器</title>
-    <url>/gdBlog/2023/05/05/%E5%A4%96%E9%93%BE%E6%92%AD%E6%94%BE%E5%99%A8/</url>
-    <content><![CDATA[为Hexo添加外链播放器
-
-
-
-
-
-
-
-
-&lt;div style=&quot;position: relative; padding: 30% 45%;&quot;&gt;&lt;iframe style=&quot;position: absolute; width: 100%; height: 100%; left: 0; top: 0;&quot; src=&quot;https://player.bilibili.com/player.html?aid=76053337&amp;;bvid=BV11J41127DF&amp;cid=130096191&amp;page=1&amp;as_wide=1&amp;high_quality=1&amp;danmaku=0&quot; frameborder=&quot;no&quot; scrolling=&quot;no&quot;&gt;&lt;/iframe&gt;&lt;/div&gt;
-稍微解释一下上面代码的含义：
-page -&gt; 起始下标为 1 (默认值也是为1)
-as_wide -&gt; 是否宽屏 【1: 宽屏, 0: 小屏】
-high_quality -&gt; 是否高清 【1: 高清(最高1080p) &#x2F; 0: 最低视频质量(默认)】
-danmaku -&gt; 是否开启弹幕 【1: 开启(默认), 0: 关闭】
-allowfullscreen -&gt; allowfullscreen&#x3D; “ture” 允许全屏，使用该参数可以在浏览器中全屏播放 作者：Mackxin https://www.bilibili.com/read/cv6775208/ 出处：bilibili
-
-&lt;iframe src=&quot;//player.bilibili.com/player.html?bvid=BV1PC4y1t77X&amp;page=1&amp;danmaku=0&amp;high_quality=1&quot; scrolling=&quot;no&quot; border=&quot;0&quot; frameborder=&quot;no&quot; framespacing=&quot;0&quot; allowfullscreen=&quot;true&quot;&gt;&lt;/iframe&gt;
-
-&lt;div style=&quot;position: relative; width: 100%; height: 0; padding-bottom: 75%;&quot;&gt;    &lt;iframe src=&quot;//player.bilibili.com/player.html?bvid=BV1PC4y1t77X&amp;page=1&amp;danmaku=0&amp;high_quality=1&quot; scrolling=&quot;no&quot; border=&quot;0&quot; frameborder=&quot;no&quot; framespacing=&quot;0&quot; allowfullscreen=&quot;true&quot; style=&quot;position: absolute; width: 100%; height: 100%; left: 0; top: 0;&quot;&gt;&lt;/iframe&gt;&lt;/div&gt;
-
-&lt;div style=&quot;position: relative; width: 100%; height: 0; padding-bottom: 75%;&quot;&gt;    &lt;iframe src=&quot;//player.bilibili.com/player.html?bvid=BV1PC4y1t77X&amp;page=1&amp;danmaku=0&amp;high_quality=1&quot; scrolling=&quot;no&quot; border=&quot;0&quot; frameborder=&quot;no&quot; framespacing=&quot;0&quot; allowfullscreen=&quot;true&quot; style=&quot;position: absolute; width: 100%; height: 100%; left: 0; top: 0;&quot; sandbox=&quot;allow-top-navigation allow-same-origin allow-forms allow-scripts&quot;&gt;&lt;/iframe&gt;&lt;/div&gt;]]></content>
-      <categories>
-        <category>Hexo</category>
-      </categories>
-      <tags>
-        <tag>Hexo</tag>
       </tags>
   </entry>
   <entry>
@@ -1100,6 +1441,115 @@ Qwen的MCP格式final_response&#123;    &quot;status_code&quot;: 200,           
         <tag>tools</tag>
         <tag>MCP</tag>
         <tag>元芳</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>为元芳接入提示词工程</title>
+    <url>/gdBlog/2025/10/09/%E5%9F%BA%E4%BA%8E%E6%8F%90%E7%A4%BA%E8%AF%8D%E5%B7%A5%E7%A8%8B%E7%9A%84%E9%80%9A%E7%94%A8%E5%A4%A7%E6%A8%A1%E5%9E%8B/</url>
+    <content><![CDATA[[[提示工程调研]]一个好的 prompt 能让 AI 更准确地理解需求，从而生成更符合预期的结果。在实际使用中，通过优化 prompt 的清晰度、详细度和结构，可以显著提升 AI 的响应质量，这也被称为 “提示词工程”（prompt engineering）
+GRPS 框架：构建完美提示词GRPS 框架是构建高效 Manus 提示词的强大工具，具体包括：
+Goal（目标）清晰定义你期望获得的最终成果：
+
+明确交付物类型：报告、代码、图表、演示文稿、网页等。
+指明用途：「用于内部决策参考」、「用于客户展示」、「用于公开发表」等。
+设定完成标准：什么样的结果才算成功完成任务？
+
+示例：「目标：创建一个交互式数据仪表板，展示过去 12 个月的销售趋势，用于月度管理层会议」
+Role（角色）为 Manus 赋予适合任务的专业身份：
+
+职业角色：分析师、工程师、作家、营销专家、教师等。
+经验水平：初级、资深、专家、权威等。
+特定专长：「精通 Python 数据分析的工程师」、「专注于 B2B 营销的策略专家」。
+
+示例：「角色：作为一名精通讲故事技巧的高级内容营销专家」
+Process（流程）
+可选，在特定情况下，你可能需要指定关键流程步骤：
+关键节点：只列出必须经过的重要环节，而非详细步骤。
+决策点：在哪些环节需要做出重要判断。
+质量检查：在流程中需要特别关注质量的部分。
+
+
+
+示例：「流程：1. 收集并分析竞争对手的社交媒体数据 2. 识别其内容策略模式 3. 评估其受众反响 4. 提出我们可借鉴的策略」
+Specification（规范）设定明确的质量和格式要求：
+
+格式要求：文件类型、结构、布局等。
+长度限制：字数、页数、时长等。
+风格规范：正式、轻松、技术性、通俗易懂等。
+必备内容：必须包含的关键部分或信息。
+排除内容：明确禁止出现的内容或风格。
+
+示例：「规范：-PDF 格式 - 不超过 20 页 - 包含执行摘要、方法论、发现和建议四个部分 - 使用简明专业的语言 - 避免过于技术性的术语 - 包含至少 5 个数据可视化图表」
+完整 GRPS 框架示例
+目标：开发一个个人财务健康评估工具，帮助初入职场的年轻人了解自己的财务状况和提升建议
+角色：作为拥有 10 年经验的个人理财顾问，专注于年轻专业人士的财务规划
+流程：
+设计评估用户收入、支出、债务和储蓄情况的问卷
+创建评分系统，对不同财务指标进行权重分配
+开发针对不同得分范围的个性化建议库
+设计直观的结果展示界面
+
+
+规范：
+终端产品为可交互的网页应用
+问卷不超过 15 个问题
+结果页面需包含总体健康评分、各维度得分及彩色仪表盘
+建议须具体可行，避免泛泛而谈
+语言风格亲切、鼓励，适合 25-35 岁年龄段
+包含资源链接和后续行动计划
+
+
+
+我的设计共分为八个：角色1个，目标2个，流程1个，规范4个
+角色描述：职业角色，如：作家、Python工程师等；经验水平，如：初级、资深、专家等 资深小说家
+输出目标：如一周的饮食计划，为考试准备的习题集等 写一篇励志文章
+用途：如用于内部决策参考、用于公开发表等 用于出版的书籍
+流程描述：关键节点，只列出必须经过的重要环节，而非详细步骤 1. 开篇 2. 过程 3. 转折 4. 结尾
+规范描述：格式要求，如文件类型、结构、布局等 纯文本格式
+长度限制：如字数、页数、时长等 200字以内
+风格规范：如正式、轻松、技术性、通俗易懂等 温暖治愈
+排除内容：明确禁止出现的内容或风格 禁止儿童不宜内容
+]]></content>
+      <categories>
+        <category>果冻的理论学习</category>
+      </categories>
+      <tags>
+        <tag>LLM</tag>
+        <tag>tools</tag>
+        <tag>元芳</tag>
+        <tag>prompt</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>外链播放器</title>
+    <url>/gdBlog/2023/05/05/%E5%A4%96%E9%93%BE%E6%92%AD%E6%94%BE%E5%99%A8/</url>
+    <content><![CDATA[为Hexo添加外链播放器
+
+
+
+
+
+
+
+
+&lt;div style=&quot;position: relative; padding: 30% 45%;&quot;&gt;&lt;iframe style=&quot;position: absolute; width: 100%; height: 100%; left: 0; top: 0;&quot; src=&quot;https://player.bilibili.com/player.html?aid=76053337&amp;;bvid=BV11J41127DF&amp;cid=130096191&amp;page=1&amp;as_wide=1&amp;high_quality=1&amp;danmaku=0&quot; frameborder=&quot;no&quot; scrolling=&quot;no&quot;&gt;&lt;/iframe&gt;&lt;/div&gt;
+稍微解释一下上面代码的含义：
+page -&gt; 起始下标为 1 (默认值也是为1)
+as_wide -&gt; 是否宽屏 【1: 宽屏, 0: 小屏】
+high_quality -&gt; 是否高清 【1: 高清(最高1080p) &#x2F; 0: 最低视频质量(默认)】
+danmaku -&gt; 是否开启弹幕 【1: 开启(默认), 0: 关闭】
+allowfullscreen -&gt; allowfullscreen&#x3D; “ture” 允许全屏，使用该参数可以在浏览器中全屏播放 作者：Mackxin https://www.bilibili.com/read/cv6775208/ 出处：bilibili
+
+&lt;iframe src=&quot;//player.bilibili.com/player.html?bvid=BV1PC4y1t77X&amp;page=1&amp;danmaku=0&amp;high_quality=1&quot; scrolling=&quot;no&quot; border=&quot;0&quot; frameborder=&quot;no&quot; framespacing=&quot;0&quot; allowfullscreen=&quot;true&quot;&gt;&lt;/iframe&gt;
+
+&lt;div style=&quot;position: relative; width: 100%; height: 0; padding-bottom: 75%;&quot;&gt;    &lt;iframe src=&quot;//player.bilibili.com/player.html?bvid=BV1PC4y1t77X&amp;page=1&amp;danmaku=0&amp;high_quality=1&quot; scrolling=&quot;no&quot; border=&quot;0&quot; frameborder=&quot;no&quot; framespacing=&quot;0&quot; allowfullscreen=&quot;true&quot; style=&quot;position: absolute; width: 100%; height: 100%; left: 0; top: 0;&quot;&gt;&lt;/iframe&gt;&lt;/div&gt;
+
+&lt;div style=&quot;position: relative; width: 100%; height: 0; padding-bottom: 75%;&quot;&gt;    &lt;iframe src=&quot;//player.bilibili.com/player.html?bvid=BV1PC4y1t77X&amp;page=1&amp;danmaku=0&amp;high_quality=1&quot; scrolling=&quot;no&quot; border=&quot;0&quot; frameborder=&quot;no&quot; framespacing=&quot;0&quot; allowfullscreen=&quot;true&quot; style=&quot;position: absolute; width: 100%; height: 100%; left: 0; top: 0;&quot; sandbox=&quot;allow-top-navigation allow-same-origin allow-forms allow-scripts&quot;&gt;&lt;/iframe&gt;&lt;/div&gt;]]></content>
+      <categories>
+        <category>Hexo</category>
+      </categories>
+      <tags>
+        <tag>Hexo</tag>
       </tags>
   </entry>
   <entry>
@@ -1325,6 +1775,233 @@ class Solution:    def groupAnagrams(self, strs: List[str]) -&gt; List[List[str]
       </tags>
   </entry>
   <entry>
+    <title>LeeCode接雨水</title>
+    <url>/gdBlog/2025/10/15/%E6%8E%A5%E9%9B%A8%E6%B0%B4/</url>
+    <content><![CDATA[[[Template&#x2F;LeetCode|LeetCode]]
+原题链接https://leetcode.cn/problems/trapping-rain-water/submissions/670872502/?envType=study-plan-v2&amp;envId=top-100-liked
+题目给定 n 个非负整数表示每个宽度为 1 的柱子的高度图，计算按此排列的柱子，下雨之后能接多少雨水。
+**输入：**height &#x3D; [0,1,0,2,1,0,1,3,2,1,2,1]**输出：**6**解释：**上面是由数组 [0,1,0,2,1,0,1,3,2,1,2,1] 表示的高度图，在这种情况下，可以接 6 个单位的雨水（蓝色部分表示雨水）。
+题解方法一：动态规划对于下标 i，下雨后水能到达的最大高度等于下标 i 两边的最大高度的最小值，下标 i 处能接的雨水量等于下标 i 处的水能到达的最大高度减去 height[i]。
+朴素的做法是对于数组 height 中的每个元素，分别向左和向右扫描并记录左边和右边的最大高度，然后计算每个下标位置能接的雨水量。
+class Solution(object):def trap(self, height):&quot;&quot;&quot;:type height: List[int]:rtype: int&quot;&quot;&quot;if not height:return 0n = len(height)left_max = [0] * nright_max = [0] * nleft_max[0] = height[0]right_max[n-1] = height[n-1]for i in range(1, n):left_max[i] = max(left_max[i-1], height[i])right_max[n-i-1] = max(right_max[n-i], height[n-i-1])res = 0for i in range(n):res += min(left_max[i], right_max[i]) - height[i]return res
+
+方法二：单调栈除了计算并存储每个位置两边的最大高度以外，也可以用单调栈计算能接的雨水总量。
+维护一个单调栈，单调栈存储的是下标，满足从栈底到栈顶的下标对应的数组 height 中的元素递减。
+从左到右遍历数组，遍历到下标 i 时，如果栈内至少有两个元素，记栈顶元素为 top，top 的下面一个元素是 left，则一定有 height[left]≥height[top]。如果 height[i]&gt;height[top]，则得到一个可以接雨水的区域，该区域的宽度是 i−left−1，高度是 min(height[left],height[i])−height[top]，根据宽度和高度即可计算得到该区域能接的雨水量。
+为了得到 left，需要将 top 出栈。在对 top 计算能接的雨水量之后，left 变成新的 top，重复上述操作，直到栈变为空，或者栈顶下标对应的 height 中的元素大于或等于 height[i]。
+在对下标 i 处计算能接的雨水量之后，将 i 入栈，继续遍历后面的下标，计算能接的雨水量。遍历结束之后即可得到能接的雨水总量。
+class Solution:def trap(self, height: List[int]) -&gt; int:ans = 0stack = list()n = len(height)for i, h in enumerate(height):while stack and h &gt; height[stack[-1]]:top = stack.pop()if not stack:breakleft = stack[-1]currWidth = i - left - 1currHeight = min(height[left], height[i]) - height[top]ans += currWidth * currHeightstack.append(i)return ans
+
+方法三：双指针动态规划的做法中，需要维护两个数组 leftMax 和 rightMax，因此空间复杂度是 O(n)。是否可以将空间复杂度降到 O(1)？
+注意到下标 i 处能接的雨水量由 leftMax[i] 和 rightMax[i] 中的最小值决定。由于数组 leftMax 是从左往右计算，数组 rightMax 是从右往左计算，因此可以使用双指针和两个变量代替两个数组。
+维护两个指针 left 和 right，以及两个变量 leftMax 和 rightMax，初始时 left&#x3D;0,right&#x3D;n−1,leftMax&#x3D;0,rightMax&#x3D;0。指针 left 只会向右移动，指针 right 只会向左移动，在移动指针的过程中维护两个变量 leftMax 和 rightMax 的值。
+当两个指针没有相遇时，进行如下操作：
+使用 height[left] 和 height[right] 的值更新 leftMax 和 rightMax 的值；
+如果 height[left]&lt;height[right]，则必有 leftMax&lt;rightMax，下标 left 处能接的雨水量等于 leftMax−height[left]，将下标 left 处能接的雨水量加到能接的雨水总量，然后将 left 加 1（即向右移动一位）；
+如果 height[left]≥height[right]，则必有 leftMax≥rightMax，下标 right 处能接的雨水量等于 rightMax−height[right]，将下标 right 处能接的雨水量加到能接的雨水总量，然后将 right 减 1（即向左移动一位）。
+当两个指针相遇时，即可得到能接的雨水总量。
+class Solution:def trap(self, height: List[int]) -&gt; int:ans = 0left, right = 0, len(height) - 1leftMax = rightMax = 0  while left &lt; right:leftMax = max(leftMax, height[left])rightMax = max(rightMax, height[right])if height[left] &lt; height[right]:ans += leftMax - height[left]left += 1else:ans += rightMax - height[right]right -= 1return ans]]></content>
+      <categories>
+        <category>果冻的LeetCode刷题</category>
+      </categories>
+      <tags>
+        <tag>LeetCode</tag>
+        <tag>动态规划</tag>
+        <tag>双指针</tag>
+        <tag>单调栈</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>大型语言模型架构比较</title>
+    <url>/gdBlog/2026/01/02/%E5%A4%A7%E5%9E%8B%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84%E6%AF%94%E8%BE%83/</url>
+    <content><![CDATA[写在前面文章链接：从 DeepSeek V3 到 Mistral 3 Large：现代大型语言模型架构设计解析
+[[2025年大型语言模型现状：进展、问题与预测]]
+自最初的 GPT 架构开发以来，已经过去七年。乍一看，回顾 GPT-2（2019 年）以及 DeepSeek V3 和 Llama 4（2024-2025 年），你可能会惊讶于这些模型在结构上依然如此相似。当然，位置嵌入已经从绝对嵌入演变为旋转嵌入（RoPE），多头注意力基本被分组查询注意力取代，更高效的 SwiGLU 取代了像 GELU 这样的激活函数。但在这些细微的改进背后，我们真的见证了突破性的变革，还是仅仅在打磨相同的架构基础？
+比较大型语言模型以确定其表现良好（或不佳）的关键因素，向来具有挑战性：数据集、训练技术和超参数差异巨大，且通常缺乏充分的文档。不过，我认为审视架构本身的结构变化，对于了解 2025 年 LLM 开发者的动态，仍然有很大价值。（其中一部分见下图 1。）因此，在本文中，我将不讨论基准性能或训练算法，而是聚焦于定义当今旗舰开放模型的架构发展。
+![[ObsidianPicture&#x2F;Pasted image 20260107205054.png]]
+1. DeepSeek V3&#x2F;R1正如你可能已经听说过不止一次的，DeepSeek R1 在 2025 年 1 月发布时引起了巨大影响。DeepSeek R1 是一个基于 DeepSeek V3 架构构建的推理模型，该架构于 2024 年 12 月推出。在本节中，我将重点介绍 DeepSeek V3 引入的两项关键架构技术，这些技术提升了其计算效率，并将其区别于许多其他大型语言模型：
+
+Multi-Head Latent Attention (MLA)  多头潜在注意力（MLA）
+
+Mixture-of-Experts (MoE)  专家混合（MoE）
+
+
+1.1 Multi-Head Latent Attention (MLA)多头潜在注意力在讨论多头潜在注意力（MLA）之前，我们先简单回顾一下背景，以动机解释为什么会使用它。为此，我们先从分组查询注意力（Grouped-Query Attention，GQA）说起，近年来它已成为多头注意力（Multi-Head Attention，MHA）更高效计算和参数效率更高的替代方案的新标准替代品。
+所以，这里有一个简要的 GQA 总结。与 MHA 不同，MHA 每个头都有自己的键和值集合，为了减少内存使用，GQA 将多个头分组共享相同的键和值投影。例如，如下图2进一步说明的，如果有两个键值组和4个注意力头，那么头1和2可能共享一组键和值，而头3和4共享另一组。这减少了关键值和值计算的总数，从而降低内存使用并提高效率（根据消融研究，建模性能并未明显影响）。![[ObsidianPicture&#x2F;Pasted image 20260107205829.png]]图 2：MHA 与 GQA 的比较。这里，组大小为 2，其中键和值对共享于两个查询中。
+因此，GQA 的核心理念是通过在多个查询头之间共享关键和值头，减少它们的数量。这（1）降低了模型的参数数量，（2）减少了推断过程中键和值张量的内存带宽使用，因为需要从 KV 缓存中存储和检索的键和值减少。虽然 GQA 主要是 MHA 的计算效率变通，但消融研究（如原始 GQA 论文和 Llama 2 论文中的研究）显示，它在 LLM 建模性能方面与标准 MHA 相当。
+现在，多头潜在注意力（MLA）提供了一种不同的内存节省策略，且与 KV 缓存配合得尤为出色。MLA 不像 GQA 那样共享键和值头，而是将键和值张量压缩到一个低维空间，然后存储在 KV 缓存中。在推断时，这些压缩张量会被投影回其原始大小，然后再使用，如下图3所示。这增加了额外的矩阵乘法，但减少了内存使用。![[ObsidianPicture&#x2F;Pasted image 20260107210252.png]]图 3：MLA（用于 DeepSeek V3 和 R1）与普通 MHA 的比较。
+顺便说一句，MLA 在 DeepSeek V3 中并不新鲜，因为它的前身 DeepSeek-V2 也使用（甚至引入了）MLA。此外，V2 论文包含一些有趣的消融研究，或许能解释 DeepSeek 团队为何选择 MLA 而非 GQA。GQA 的表现似乎不如 MHA，而 MLA 的建模性能优于 MHA，这很可能是 DeepSeek 团队选择 MLA 而非 GQA 的原因。（如果能看到 MLA 和 GQA 之间“KV 缓存每令牌”节省的对比会很有趣！）
+在进入下一个架构组件之前，总结本节，MLA 是一个巧妙的技巧，可以减少 KV 缓存内存的使用，同时在建模性能上略优于 MHA。
+1.2 Mixture-of-Experts (MoE)  专家混合DeepSeek 另一个值得强调的主要架构组成部分是其对专家混合层（Mixture-of-Experts，简称 Mixture-of-Experts，MoE）的使用。虽然 DeepSeek 并非 MoE 的发明者，但今年它迎来了复兴，许多我们稍后将介绍的架构也采用了它。
+MoE 的核心理念是用多个专家层替换transformer模块中的每个 FeedForward 模块，每个专家层也是一个 FeedForward 模块。这意味着我们将一个 FeedForward 块替换为多个 FeedForward 块，如下图 5 所示。![[ObsidianPicture&#x2F;Pasted image 20260107210605.png]]图 5：DeepSeek V3&#x2F;R1（右）中专家混合（MoE）模块与带有标准 FeedForward 模块的 LLM 的对比（左）。
+transformer模块内的前馈模块FeedForward block（如上图中深灰色模块所示）通常包含模型总参数的大量数据。（注意，FeedForward block在大型语言模型中会被重复多次;DeepSeek V3 中重复了 61 次。）
+因此，用_多个_前进块替换单个前进块 （如 MoE 设置中所做的那样）大幅增加了模型的总参数数。然而，关键技巧是我们不会为每个令牌都使用（“激活”）所有专家。相反，路由器每个令牌只选择一小部分专家。
+由于同时只有少数专家活跃，MoE 模块常被称为_稀疏_模组（sparse），与始终使用完整参数集的_稠密_模形（dense）成对比 。然而，通过 MoE 提供的大量参数增加了 LLM 的容量，这意味着它在训练中可以吸收更多知识。稀疏性保持了推理效率，因为我们不会同时使用所有参数。
+例如，DeepSeek V3 每个 MoE 模块有 256 位专家，总计 6710 亿个参数。但在推理过程中，同时只有 9 位专家处于活跃状态（1 位共享专家加上 8 位路由选定的专家）。这意味着每步推理仅使用 370 亿个参数，而非全部 6710 亿个
+DeepSeek V3 MoE 设计的一个显著特点是使用了共享专家。这是一个专家，每个token都处于活跃状态。这一观点并不新鲜，早在 2024 年 DeepSeek MoE 和 2022 年 DeepSpeedMoE 论文中就已提出 。![[ObsidianPicture&#x2F;Pasted image 20260107211411.png]]图 6：来自《DeepSeekMoE：迈向专家混合语言模型的终极专家专精》中的注释图 https://arxiv.org/abs/2401.06066_
+共享专家的好处最早出现在 DeepSpeedMoE 的论文中，他们发现相比没有共享专家，共享专家能提升整体建模性能。这很可能是因为常见或重复的图案不需要由多个专家共同学习，这让他们有更多空间去学习更专业的图案。
+1.3 DeepSeek 摘要总之，DeepSeek V3 是一个参数达 6710 亿的庞大模型，发布时表现优于包括 405B Llama 3 在内的其他开放权重模型。尽管规模更大，但由于其专家混合架构（MoE），每token只激活一小部分（仅 37B）参数，推理时效率更高。
+另一个关键的区别在于 DeepSeek V3 采用多头潜在注意力（MLA）而非分组查询注意力（GQA）。MLA 和 GQA 都是标准多头注意力（MHA）的推理高效替代方案，尤其是在使用 KV 缓存时。虽然 MLA 实现更复杂，但 DeepSeek-V2 论文中的一项研究显示，MLA 在建模性能上优于 GQA。
+2. OLMo 2非营利组织艾伦人工智能研究所（Allen Institute）开发的 OLMo 系列模型因其训练数据和代码的透明度以及相对详尽的技术报告而备受关注。
+虽然你可能不会在任何基准测试或排行榜上看到 OLMo 模型，但它们相当干净，更重要的是，由于其透明度，是开发大型语言模型的绝佳蓝图。
+虽然 OLMo 模型因其透明度而受欢迎，但它们也没那么差。事实上，在 2025 年1 月发布时（早于 Llama 4、Gemma 3 和 Qwen 3），OLMo 2 模型正处于计算到性能的帕累托边界，如下图 7 所示。![[ObsidianPicture&#x2F;Pasted image 20260107211901.png]]图 7：不同 LLM 的基准测试性能建模（高越好）与预训练成本（FLOPs;低越好）。这是 OLMo 2 论文中的注释图，https://arxiv.org/abs/2501.00656
+OLMo2 中有哪些有趣的架构设计选择呢？这主要归结于归一化：RMSNorm 层的布置以及我将在下文讨论的 QK 范数的添加。还有一点值得一提的是，OLMo 2 依然使用传统的多头注意力（MHA）而不是 MLA 或 GQA。
+2.1 归一化层(## Normalization Layer)的布置总体而言，OLMo 2 在很大程度上遵循了原始 GPT 模型的架构，类似于其他当代大型语言模型。不过，也有一些值得注意的偏差。我们先从归一化层说起。与 Llama、Gemma 及大多数其他大型语言模型类似，OLMo 2 从 LayerNorm 切换到 RMSNorm。但由于 RMSNorm 已经是老生常谈了（它基本上是 LayerNorm 的简化版，但可训练参数更少），我就不讨论 RMSNorm 和 LayerNorm 的区别了。（好奇的读者可以在我的 GPT-2 转 Llama 转换指南 。）
+不过，值得讨论 RMSNorm 层的位置。原始transformer（摘自《Attention is all you need》论文）将两个规范化层分别置于transformer模块中，位于attention模块和 FeedForward 模块之后。这也被称为后 LN 或后规范(Post-LN or Post-Norm)。GPT 和大多数后续的大型语言模型将规范化层置于attention和 FeedForward 模块之前，这些模块被称为预-LN 或前规范( Pre-LN or Pre-Norm)。下图展示了后常态与前常态（Post- and Pre-Norm）的比较。![[ObsidianPicture&#x2F;Pasted image 20260107212550.png]]图 8：后规范、前规范和 OLMo 2 版本后规范的比较。
+2020 年，熊等人。 证明前 LN 在初始化时使梯度表现更为良好。此外，研究人员提到， Pre-LN即使在没有细致学习率热身的情况下也能很好地发挥作用，而热身是Post-LN中至关重要的工具。我之所以提到这个，是因为 OLMo 2 采用了一种Post-LN（但用 RMSNorm 代替 LayerNorm，所以我称之为_后规范_ ）。在 OLMo 2 中，他们没有将归一化层放在注意层和 FeedForward 层之前，而是将它们放在后面，如上图所示。然而，请注意，与原始transform架构不同，规范化层仍然位于残余层内（跳过连接）。那么，为什么他们会移动归一化层的位置呢？ 原因是它有助于提升训练稳定性。
+2.2 QK-Norm  QK-范数QK-Norm 本质上是 RMSNorm 的又一层。它被放置在多头注意力（MHA）模块中，并应用到查询（q）和键（k）上，然后再应用 RoPE。QK-Norm 与后规范一起稳定了训练。注意，QK-norm 并非由 OLMo 2 发明，而是可追溯到 2023 年的 Scaling Vision Transformers 论文 。
+2.3 OLMo 2 总结简而言之，OLMo 2 架构设计中值得注意的重大决策主要是 RMSNorm 的配置：RMSNorm 在注意力之后而非之前，以及 FeedForward 模块（类似后规范），以及为注意力机制（QK-Norm）中的查询和键添加 RMSNorm，这两者共同帮助稳定训练丢失。
+对比 OLMo 2 与 Llama 3：两者架构相对相似，唯一区别在于 OLMo 2 仍使用传统的 MHA 而非 GQA。（然而， OLMo 2 团队在三个月后发布了使用 GQA 的 32B 版本。）
+3. Gemma 3谷歌的 Gemma 模型一直都很不错，我觉得它们相比其他热门型号，比如 Llama 系列，有些被低估了。Gemma 的一个显著特点是词汇量较大（以更好地支持多种语言），并且更注重 27B 的规模（相较于 8B 或 70B）。但请注意，Gemma 2 也有更小的尺寸：1B、4B 和 12B。27B 的尺寸恰到好处：比 8B 型号功能更强，但资源消耗不像 70B 型号那么大。
+那么，《Gemma 3》还有什么有趣的地方？如前所述，其他模型如 Deepseek V3&#x2F;R1 采用专家混合架构（Mixture-of-Experts，MoE）以降低推理时的内存需求，前提是模型大小固定。（MoE 方法也被我们稍后讨论的其他几个模型采用。）Gemma 3 采用了另一种“技巧”来降低计算成本，即滑动窗口注意力。
+3.1 滑动窗户注意  Sliding Window Attention通过滑动窗口注意力（最初于 2020 年 LongFor 文中引入，Gemma 2 也已使用 ），Gemma 3 团队大幅减少了 KV 缓存中的内存需求。那么，什么是滑动窗户关注呢？如果我们将正规自注意视为一种_全局_注意力机制，因为每个序列元素都可以访问其他所有序列元素，那么滑动窗口注意力可以视为_局部_注意力，因为这里我们限制了当前查询位置周围的上下文大小。这在下面的图中有说明。![[ObsidianPicture&#x2F;Pasted image 20260107213512.png]]图12：常规注意力（左）与滑动窗口注意力（右）的比较。
+请注意，滑动窗口注意力可以同时用于多头注意力和分组查询注意力;Gemma 3 采用分组查询注意力。
+如上所述，滑动窗口注意力也称为_局部_注意，因为本地窗口环绕并随当前查询位置移动。相比之下，常规关注是_全局_的，因为每个令牌都可以访问所有其他令牌。
+如上所述，Gemma 2 的前身架构也曾使用滑动窗口注意功能。Gemma 3 的区别在于他们调整了全局（常规）注意力和局部（滑动）注意力的比例。例如，Gemma 2 采用了混合注意力机制，将滑动窗口（局部）和全局注意力以 1：1 的比例结合起来。每个token可以关注一个 4k 令牌的邻近上下文窗口。Gemma 2 在每隔一层使用滑动窗口注意力，而 Gemma 3 现在采用了 5：1 的比例，意味着每 5 个滑动窗口（局部）注意力层只有 1 个完整的注意力图层;此外，滑动窗口的大小从 4096（Gemma 2）缩减到仅 1024（Gemma 3）。这使得模型的重点转向更高效、更局部化的计算。
+根据他们的消融研究，滑动窗口注意力对建模表现的影响很小。来自 Gemma 3 论文（https://arxiv.org/abs/2503.19786）的注释图，显示滑动窗口注意力对 LLM 生成的输出困惑几乎没有影响。
+虽然滑动窗口关注是 Gemma 3 最显著的架构方面，但我也想简要介绍一下归一化图层的布置，作为之前 OLMo 2 部分的后续。
+3.2   Gemma 3 中的归一化层布置一个小但有趣的小细节是，Gemma 3 在其分组查询注意力模块中，在前规范和后规范两种环境中都使用了 RMSNorm。
+这与 Gemma 2 类似，但仍值得强调，因为它不同于（1）原始变换器中使用的后范数（“注意力就是你所需要的”），（2）由 GPT-2 推广并在许多其他架构中使用的预范数，以及（3）我们之前看到的 OLMo 2 中的后范数版本。![[ObsidianPicture&#x2F;Pasted image 20260107214104.png]]图 14：OLMo2 与 Gemma 3 的架构比较;注意 Gemma 3 中额外的归一化层。
+我认为这种归一化层的放置方式相对直观，因为它兼顾了前范数和后范数两种优势。在我看来，多一点正常化也无妨。最坏情况下，如果额外的归一化是冗余的，这会通过冗余增加一些效率。实际上，由于 RMSNorm 在整体上相对便宜，这不应该有明显影响。
+3.3 Gemma 3 简介Gemma 3 是一款性能良好的开权量大型语言模型，在我看来在开源圈子里有点被低估了。最有趣的是滑动窗口注意力的使用来提升效率（未来将它与 MoE 结合起来会很有趣）。此外，Gemma 3 具有独特的归一化层布局，将 RMSNorm 图层放置在注意力和 FeedForward 模块之前和之后。
+3.4 Bonus: Gemma 3nGemma 3 发布几个月后，谷歌发布了 Gemma 3n，这是一款针对小型设备效率优化的 Gemma 3 型号，目标是能在手机上运行。
+Gemma 3n 中为提高效率所做的改动之一是所谓的层嵌入（ Per-Layer Embedding，PLE）参数层。关键思想是只保留模型参数的子集在 GPU 内存中。针对特定令牌层的嵌入，如文本、音频和视觉模态的嵌入，按需从 CPU 或 SSD 进行流式传输。
+下图展示了 PLE 内存节省情况，列出标准 Gemma 3 模型的 54.4 亿参数。这很可能指的是 Gemma 3,40 亿的变种。![[ObsidianPicture&#x2F;Pasted image 20260107214330.png]]图 15：来自谷歌 Gemma 3n 博客（https://developers.googleblog.com/en/introducing-gemma-3n/）的注释图，展示了 PLE 内存节省情况。
+5.44亿和40亿参数的差异，是因为谷歌在大型语言模型中报告参数数量的方式很有趣。它们通常会排除嵌入参数以使模型看起来更小，除非在这种情况下，方便地包含这些参数以使模型看起来更大。这并非谷歌独有，这种做法已成为整个领域的普遍做法。
+另一个有趣的技巧是 MatForformer 概念（Matryoshka Transformer的缩写）。例如，Gemma 3n 采用单一共享 LLM（transformer）架构，可以切入更小、独立可用的模型。每个切片都被训练成独立工作，所以在推理时，我们可以只运行你需要的部分（而不是大模型）。
+4. Mistral Small 3.1Mistral Small 3.1 24B 于 Gemma 3 之后的三月发布，值得注意的是，它在多个基准测试（除数学测试外）上表现优于 Gemma 3 27B，同时速度更快。
+Mistral Small 3.1 相比 Gemma 3 的推理延迟更低，很可能是因为他们采用了自定义标记器，同时缩小了 KV 缓存和层数。它采用了如下图所示的标准架构。![[ObsidianPicture&#x2F;Pasted image 20260107214630.png]]图 16：Gemma 3 27B 与 Mistral 3.1 Small 24B 的架构比较
+有趣的是，早期的 Mistral 模型曾使用滑动窗口注意力，但如果考虑官方 Model Hub 配置文件中的默认设置（“sliding_window”： null），它们似乎在 Mistral Small 3.1 中放弃了该功能 。
+因此，由于 Mistral 使用常规的 Grouped-Query Attention，而不是像 Gemma 3 那样带有滑动窗口的 Grouped-Query Attention，也许由于可以使用更优化的代码（即 FlashAttention），从而节省了额外的推理计算。例如，我推测滑动窗口注意力虽然减少了内存使用，但不一定能降低推理延迟，而这正是 Mistral Small 3.1 的重点。
+5. Llama 4本文前面关于专家混合（MoE）的深入介绍再次带来了回报。 Llama 4 也采用了 MoE 方法，其他方面遵循与 DeepSeek V3 非常相似的相对标准架构，如下图所示。（Llama 4 支持原生多模态，类似于 Gemma 和 Mistral 等模型。然而，由于本文聚焦于语言建模，我们只关注文本模型。）![[ObsidianPicture&#x2F;Pasted image 20260108184620.png]]图 17：DeepSeek V3（6710 亿参数）与 Llama 4 Maverick（4000 亿参数）的架构比较。虽然 Llama 4 Maverick 架构整体上与 DeepSeek V3 非常相似，但也有一些值得强调的有趣差异。
+首先，Llama 4 使用类似于前代的分组查询注意力（Grouped-Query Attention），而 DeepSeek V3 则使用多头潜在注意力（Multi-head Latent Attention），这在本文开头讨论过。现在，DeepSeek V3 和 Llama 4 Maverick 都是非常大型的架构，其中 DeepSeek V3 的总参数数大约大了 68%。然而，DeepSeek V3 拥有 370 亿个活跃参数，其活跃参数数量是 Llama 4 Maverick（17B）的两倍多。
+Llama 4 Maverick 采用了更经典的 MoE 设定，专家人数较少但人数更大（2 名活跃专家，每个隐藏规模 8,192），而 DeepSeek V3 则有 9 名活跃专家，每个隐藏规模 2,048。此外，DeepSeek 在每个transform模块（前 3 个除外）中使用 MoE 层，而 Llama 4 则在每隔一个transform模块中交替使用 MoE 和稠密模块。
+鉴于架构间存在诸多细微差异，很难准确判断它们对最终模型性能的影响。然而，主要的结论是，MoE 架构在 2025 年人气显著上升。
+6. Qwen3Qwen3 又是一个热门模型系列，位居其体型类别排行榜前列。有 7 个密集模型：0.6B、1.7B、4B、8B、14B 和 32B。MoE 有两个型号：30B-A3B 和 235B-A22B。
+6.1 Qwen3 (Dense)我们先来讨论稠密模型架构。截至本文撰写时，0.6亿模型很可能是目前最小的一代开放权重模型。根据我个人的经验，考虑到体积小，它表现非常好。如果你打算本地运行，它有很好的令牌&#x2F;秒速传输率，内存占用也很低。更重要的是，由于规模较小，本地培训（用于教育目的）也非常容易。
+所以，Qwen3 0.6B 在大多数情况下已经取代了 Llama 3 1B。下面展示了这两种架构的比较。
+![[ObsidianPicture&#x2F;Pasted image 20260108185019.png]]图 18：Qwen3 0.6B 与 Llama 3 1B 的架构比较;注意 Qwen3 是一个层次更多的更深层架构，而 Llama 3 则是一个更宽的架构，拥有更多的注意力磁头。
+6.2 Qwen3 (MoE)如前所述，Qwen3 也有两种 MoE 版本：30B-A3B 和 235B-A22B。为什么有些架构，比如 Qwen3，会有常规（密集）和 MoE（稀疏）两种变体？如本文开头所述，MoE 变体有助于降低大型基模型的推理成本。同时提供密集版和 MoE 版本，让用户根据目标和限制灵活应对。
+密集模型通常更易于在各种硬件上进行微调、部署和优化。另一方面，MoE 模型针对尺度推断进行了优化。例如，在固定的推理预算下，它们可以实现更高的整体模型容量（即由于体积更大，训练时的知识吸收率更高），而无需相应增加推理成本。
+总结本节，我们来看 Qwen3 235B-A22B（注意 A22B 代表“22B 主动参数”）到 DeepSeek V3，后者活动参数几乎是 37B 的两倍。
+![[ObsidianPicture&#x2F;Pasted image 20260108185540.png]]图 19：DeepSeek V3 与 Qwen3 235B-A22B 的架构比较。
+如上图所示，DeepSeek V3 和 Qwen3 235B-A22B 架构极为相似。值得注意的是，Qwen3 模型逐渐不再使用共享专家（早期的 Qwen 模型，如 Qwen2.5-MoE 确实使用过共享专家）。遗憾的是，Qwen3 团队未透露为何放弃共享专家的原因。如果让我猜，当他们把专家从 2（Qwen2.5-MoE）提升到 8（Qwen3）时，这可能根本不需要训练稳定性。然后他们通过只用 8 个专家而不是 8+1 个专家，节省了额外的计算和内存成本。（不过，这并不能解释为什么 DeepSeek V3 还保留他们共同的专家。）
+**更新。**Qwen3 的开发者之一林俊阳回应如下：当时我们发现共享专家的改进不够显著，担心共享专家导致的推理优化。说实话，这个问题没有明确的答案。
+7. SmolLM3SmolLM3 可能没有本文中提到的其他大型语言模型那么受欢迎，但我认为它仍然是一个有趣的模型，因为它在相对较小且方便的 30 亿参数模型规模下，提供了非常出色的建模性能，介于 1.7B 和 4B Qwen3 模型之间
+7.1 无位置嵌入（NoPE）在大型语言模型（LLM）的语境下，NoPE 是一个较早的想法，可以追溯到 2023 年的一篇论文《 位置编码对变换器中长度泛化的影响 》，旨在去除显式的位置信息注入（比如早期 GPT 架构中的经典绝对位置嵌入层或现今的 RoPE）。
+在基于变换器的大型语言模型中，位置编码通常是必要的，因为自注意独立于顺序处理令牌。绝对位置嵌入通过增加一个额外的嵌入层，为令牌嵌入添加信息来解决这个问题。
+而 RoPE 则通过旋转查询和密钥向量相对于其令牌位置来解决这个问题。然而，在 NoPE 层中，完全不会添加这样的位置信号：既非固定信号，也非学习信号，也非相对信号。什么都没有。
+尽管没有位置嵌入，模型仍能通过因果注意力掩码知道哪些标记在前面。这个掩膜防止每个令牌处理后续的标记。因此，位置 t 的标记只能看到位置 t≤ 位置的标记 ，保持自回归排序。
+因此，虽然没有明确添加位置信息，但模型结构中仍隐含着方向感，LLM 在常规梯度下降训练中，如果觉得对优化目标有益，可以学习如何利用它。（更多信息请参见 NoPE 论文的定理。）
+总体来看，NoPE 论文不仅发现不需要位置信息注入，还发现 NoPE 具有更好的长度推广，这意味着 LLM 响应性能在序列长度增加时下降的幅度较小，如下图所示。![[ObsidianPicture&#x2F;Pasted image 20260108190507.png]]图 23：来自 NoPE 论文（https://arxiv.org/abs/2305.19466 年）的注释图，展示了 NoPE 更优的长度推广。
+请注意，上述实验是在一个相对较小、约有 1 亿参数和较小上下文大小的 GPT 风格模型上进行的。目前尚不清楚这些发现在更大规模、当代大型语言模型中的推广效果。
+因此，SmolLM3 团队很可能只在每第四层“应用”NoPE（或者说省略了 RoPE）。
+8. Kimi K2 和 Kimi K2 ThinkingKimi K2 最近在 AI 社区引起了巨大关注，因为它是一个开放权重模型，且性能极佳。根据基准测试，它与谷歌的 Gemini、Anthropic 的 Claude 和 OpenAI 的 ChatGPT 等顶级专有模型不相上下。
+一个显著特点是它在 AdamW 上使用了相对较新的 Muon 优化器的变体。据我所知，这是首次在 AdamW 上使用 Muon，应用于任何如此规模的量产模型（ 此前仅显示其可放大至 16B）。这带来了非常优异的训练损失曲线，这很可能帮助该模型跃居上述基准测试榜首。模型本身的参数大达1万亿，这确实令人印象深刻。截至目前为止，它可能是本世代最大的大型语言模型（鉴于 Llama 4 Behemoth 尚未发布、专有 LLM 不计入，以及谷歌 1.6 万亿台 Switch Transformer 是另一代编码-解码器架构的限制）。
+这也在形成一个完整的循环，Kimi K2 采用了本文开头提到的 DeepSeek V3 架构，只是他们做得更大，如下图所示。![[ObsidianPicture&#x2F;Pasted image 20260108190811.png]]图 25.1：DeepSeek V3 与 Kimi K2 的架构比较。
+如上图所示，Kimi K2 基本与 DeepSeek V3 相同，只是 MoE 模块中使用更多专家，而多头潜在注意力（MLA）模块中负责人更少。
+9. GPT-OSSOpenAI 发布了 gpt-oss-120b 和 gpt-oss-20b，这是自 2019 年 GPT-2 以来的首批开放权重模型。![[ObsidianPicture&#x2F;Pasted image 20260108191142.png]]图 26：两种 GPT-OSS 模型的架构概述。
+从图 26 来看，该架构包含了我们在之前讨论过的其他架构中见过的所有熟悉组件。例如，图 27 将较小的 gpt-oss 架构与 Qwen3 30B-A3B 并列，后者同样是一个 MoE 模型，活跃参数数量相近（gpt-oss 有 3.6B 活跃参数，Qwen3 30B-A3B 为 3.3B）。
+![[ObsidianPicture&#x2F;Pasted image 20260108191222.png]]图 27：gpt-oss 与 Qwen3 的架构比较
+图 27 中未显示的一个方面是 gpt-oss 使用滑动窗口注意力（类似于 Gemma 3，但每隔一层，而非 5：1 比例）。
+9.1 宽度与深度图 27 显示 gpt-oss 和 Qwen3 使用相似的组件。但如果仔细看这两个模型，会发现 Qwen3 的架构更为深厚，拥有 48 个transform模块，而非 24 个。
+还值得注意的是，GPT-OSS 使用了两倍的注意力磁头，但这并不会直接增加模型宽度。宽度由嵌入维数决定。
+在固定参数数量的情况下，哪种方法比另一种更有利？一般来说，深度模型灵活性更高，但由于不稳定性问题、爆炸和消失梯度（RMSNorm 和快捷连接旨在缓解这些问题）而训练起来更困难。更宽架构的优势在于推理速度更快（令牌数&#x2F;秒数更高），因为并行化更好，内存成本更高。
+9.2 少数大专家与众多小专家的比较如上图 27 所示，GPT-OSS 的专家数量出人意料地少（32 人而非 128 人），每个token只使用 4 名活跃专家，而非 8 名。不过，每位专家的规模远大于 Qwen3 中的专家。这很有趣，因为最近的趋势和发展表明，更多、更小的模型是有益的。
+9.3 注意力偏差与注意力下沉GPT-OSS 和 Qwen3 都使用分组查询关注。主要区别在于，如前所述，gpt-oss 通过每层的滑动窗口注意力限制上下文大小。不过，有一个有趣的细节吸引了我的注意。gpt-oss 似乎使用偏置单位来表示注意力权重。 自 GPT-2 时代以来，我没见过这些偏置单元被使用，它们通常被认为是多余的。事实上，我找到了一篇最近的论文，数学上至少证明了密钥变换（k_proj）至少成立这一点。此外，实证结果显示，带偏置单位和无偏差单位之间的差异很小。在 GPT-OSS 实现中， _注意力消耗_不是输入序列中的实际令牌。相反，它们是学习到的每头偏差 logit，附加在注意力分数上。目标与上述注意力消耗相同，但不修改分词输入。
+10. Grok 2.5我觉得这里值得提及，因为 Grok 2.5 是 xAI 去年的旗舰生产机型。到目前为止，我们讨论的所有模型从一开始就以开放重量型号发布。例如，gpt-oss 很可能不是 GPT-4 的开权克隆，而是专门为开源社区训练的定制模型。有了 Grok 2.5，我们难得一见真正的生产系统，哪怕是去年的。从建筑角度看，Grok 2.5 整体看起来相当标准（见图 32），但有一些值得注意的细节。![[ObsidianPicture&#x2F;Pasted image 20260108191857.png]]图 32：Grok 2.5 与同等大小的 Qwen3 模型并列
+例如，Grok 2.5 使用少量大型专家（八人），反映了较早的趋势。如前所述，像 DeepSeekMoE 论文中的较新设计更倾向于使用更多小型专家（Qwen3 中也有体现）。
+另一个有趣的选择是使用共享专家。图 32 左侧显示的额外 SwiGLU 模块作为一个始终在线的共享专家。它与经典的共享专家设计不同，因为中间维度加倍，但理念相同。（我仍然觉得 Qwen3 省略了共享专家这一点很有趣，Qwen4 及后续模型是否会改变这一点也很有趣。）
+11. GLM-4.5GLM-4.5 是今年的又一重大发布。它是一种类似于 Qwen3 的指令&#x2F;推理混合体，但更适合函数调用和代理风格上下文。
+![[ObsidianPicture&#x2F;Pasted image 20260108192149.png]]_图 33：来自官方 GitHub 仓库的 GLM-4.5 基准测试，链接 https://github.com/zai-org/GLM-4.5 _
+如图 34 所示，GLM-4.5 有两个变体。这款旗舰模型拥有 3550 亿参数，在 12 个基准测试中平均优于 Claude 4 Opus，仅略逊于 OpenAI 的 o3 和 xAI 的 Grok 4。还有 GLM-4.5-Air，这是一种更紧凑、参数达 1060 亿的版本，性能仅略低于 3550 亿型号。
+GLM-4.5 采用了 DeepSeek V3 首次引入的结构选择：在 Mixture-of-Experts（MoE）模块之前有 3 层致密层。为什么？从多个密集层开始，可以提升大型 MoE 系统的收敛稳定性和整体性能。如果立即引入 MoE 路由，稀疏专家选择的不稳定性可能会干扰早期句法和语义特征提取。因此，可以说保持初始层密集，确保模型在路由决策开始影响更高层处理之前形成稳定的低层表示。
+12. Qwen3-Next2025 年 9 月 11 日，Qwen3 团队发布了 Qwen3 Next 80B-A3B（图 35），提供 Ininstruction 和 Thinking 两种版本。虽然其设计基于之前提到的 Qwen3 架构，但我将其作为单独条目收录，以保持数字一致并引起对设计变化的关注。
+12.1 专家级尺寸与数量新的 Qwen3 Next 架构之所以突出，是因为尽管比之前的 235B-A22B 型号小了 3×，但它引入了四倍的专家，甚至增加了一名共享专家。![[ObsidianPicture&#x2F;Pasted image 20260108192432.png]]图 35：5 月发布的原 Qwen3 型号（左）与 9 月发布的 Qwen3 Next 型号（右）并列。
+12.2 门控 DeltaNet + 门控注意力混合另一个亮点是它们用门控 DeltaNet + 门控注意力混合方式取代了常规注意力机制 ，这有助于实现原生 262k 令牌上下文长度的内存使用（之前的 235B-A22B 模型原生支持 32k，YaRN 扩展支持 131k ）
+那么，这种新的注意力混合模式是如何运作的呢？与仍为标准的缩放点积注意力（如前所述，通过在查询头组共享 K&#x2F;V 以减少 KV 缓存大小和内存带宽，但译码成本和缓存仍随序列长度增长）相比，他们的混合机制以 3：1 比例混合了_门控 DeltaNet_ 块和_门控注意力_块，如图 36 所示。![[ObsidianPicture&#x2F;Pasted image 20260108192534.png]]图 36：门控 DeltaNet + 门控注意力混合机制。注意这些排列是 3：1 的比例，意味着 3 个带门控 DeltaNet 的变压器模块后面跟着 1 个带门控注意的变压器模块。右侧子图来自官方 Qwen3 博客：https://qwen.ai/blog?id=4074cca80393150c248e508aa62983f9cb7d27cd&amp;from=research.latest-advancements-list我们可以把门控注意力块看作 GQA 中使用的标准缩放点积注意力，但它在上面有一些调整。 _门禁式注意力_与普通 GQA 区块的主要区别有：
+
+输出门（S 形态控制，通常按通道计算），在注意力结果被加回残差之前进行调整;
+QKNorm 的零中心 RMSNorm，而非标准的 RMSNorm;
+部分 RoPE（在部分维度上）。注意这些本质上只是对 GQA 的稳定性调整。
+
+门控 DeltaNet 是一个更为重要的变革。在 DeltaNet 块中，q、k、v 和两个门（α、β）由带归一化的线性和轻量卷积层生成，该层用快速权重_的 Delta 规则_更新替代注意力。但代价是 DeltaNet 提供的内容检索不如全注意力精确，这也是为什么保留了一个门控关注层。
+鉴于注意力是平方增长的，加入了 DeltaNet 组件以提升内存效率。在“线性时间、无缓存”系列中，DeltaNet 块本质上是 Mamba 的替代方案。Mamba 通过学习的状态空间滤波器（本质上是随时间动态卷积）来保持状态。DeltaNet 保持一个小型快速权重内存，更新 α 和 β，并用 q 读取，只有小卷积只用于帮助形成 q、k、v、α、β。
+12.3 多代币预测Multi-Token Prediction (MTP)Qwen3-Next 引入了原生多标记预测（MTP）机制，不仅为投机性解码提供高接受率的 MTP 模块，还提升了整体性能。此外，Qwen3-Next 专门优化 MTP 的多步推理性能，通过多步训练进一步提升推测性解码在真实场景中的接受率，保持训练与推理之间的一致性。Souce：Qwen3-下一篇博客
+]]></content>
+      <categories>
+        <category>果冻的理论学习</category>
+      </categories>
+      <tags>
+        <tag>调研</tag>
+        <tag>LLM</tag>
+        <tag>架构</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>搜索效率翻倍小技巧</title>
+    <url>/gdBlog/2025/10/02/%E6%90%9C%E7%B4%A2%E6%95%88%E7%8E%87%E7%BF%BB%E5%80%8D%E5%B0%8F%E6%8A%80%E5%B7%A7/</url>
+    <content><![CDATA[还在为搜不到精准信息发愁？别再一页页翻找搜索结果了。掌握几个简单的搜索引擎快捷指令，就能把海量信息精准筛选，让你的查找效率直接翻倍。
+一、基础指令1. site：限定网站搜内容想在特定网站里找信息，用它准没错。
+
+语法：关键词 site:网址 或 site:网址 关键词
+示例：在知乎搜 “职场沟通技巧”，输入 职场沟通技巧 site:zhihu.com
+注意：网址不加http://，也不用带末尾的/，比如直接写zhihu.com，别写https://zhihu.com/。
+
+2. filetype：精准找特定格式文件找 PPT、PDF、Word 文档时，用它能跳过无关网页。
+
+语法：关键词 filetype:文件格式
+示例：找 “市场营销方案” 的 PPT，输入 市场营销方案 filetype:ppt
+支持格式：常见的pdf、doc、xls、ppt都能用。
+
+3. 双引号：完整匹配不拆分想搜固定短语或句子，避免搜索引擎拆分关键词，就加双引号。
+
+语法：&quot;完整关键词&quot;
+示例：搜诗句 “腹有诗书气自华”，输入 &quot;腹有诗书气自华&quot;
+作用：不会出现 “腹有”“诗书气” 这种拆分后的零散结果。
+
+4. 减号：排除不想要的内容搜索结果里总有无关信息？用减号把它剔除。
+
+语法：关键词 -要排除的词（减号前必须加空格）
+示例：搜 “苹果” 但不想看手机相关内容，输入 苹果 -手机
+注意：减号后不能加空格，直接跟要排除的词。
+
+
+二、精准定位掌握基础后，用这些指令能进一步缩小搜索范围，找到更精准的内容。
+1. intitle：只看标题含关键词的页面想找标题里明确包含目标词的网页，用它能过滤掉 “标题无关、内容沾边” 的结果。
+
+语法：intitle:关键词 或 关键词 intitle:次要词
+示例：找标题含 “人工智能” 的新闻，输入 intitle:人工智能 新闻
+
+2. inurl：从网址里找线索有些网页的网址会包含分类信息（比如 “news”“blog”），用 inurl 能定位这类页面。
+
+语法：inurl:关键词 内容词
+示例：找知乎里 “职场” 相关的专栏（网址含 “column”），输入 inurl:column 职场 site:zhihu.com
+
+3. 组合指令：威力加倍把两个指令结合用，能实现 “双重筛选”，精准度直接拉满。
+
+常用组合 1：intitle:关键词 site:网址
+  示例：找豆瓣里标题含 “读书笔记” 的内容，输入 intitle:读书笔记 site:douban.com
+
+常用组合 2：关键词 filetype:格式 -排除词
+  示例：找 “心理学论文” 的 PDF，且排除 “本科” 相关，输入 心理学论文 filetype:pdf -本科
+
+
+
+三、注意
+符号用全角：一定要用英文半角符号，比如英文冒号:、英文双引号&quot;，用中文的：或“”会失效。
+网址带前缀：site:后面直接写域名，别加http://或www，比如site:baidu.com，不是site:https://www.baidu.com。
+减号没空格：减号前面必须加空格，否则会被当成关键词的一部分，比如苹果 -手机是对的，苹果-手机是错的。
+
+]]></content>
+      <categories>
+        <category>果冻的奇妙小工具</category>
+      </categories>
+      <tags>
+        <tag>tools</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>提示工程调研</title>
     <url>/gdBlog/2026/01/02/%E6%8F%90%E7%A4%BA%E5%B7%A5%E7%A8%8B%E8%B0%83%E7%A0%94/</url>
     <content><![CDATA[写在前面
@@ -1480,66 +2157,74 @@ import osimport dashscopemessages = [&#123;    &quot;role&quot;: &quot;user&quot
       </tags>
   </entry>
   <entry>
-    <title>搜索效率翻倍小技巧</title>
-    <url>/gdBlog/2025/10/02/%E6%90%9C%E7%B4%A2%E6%95%88%E7%8E%87%E7%BF%BB%E5%80%8D%E5%B0%8F%E6%8A%80%E5%B7%A7/</url>
-    <content><![CDATA[还在为搜不到精准信息发愁？别再一页页翻找搜索结果了。掌握几个简单的搜索引擎快捷指令，就能把海量信息精准筛选，让你的查找效率直接翻倍。
-一、基础指令1. site：限定网站搜内容想在特定网站里找信息，用它准没错。
-
-语法：关键词 site:网址 或 site:网址 关键词
-示例：在知乎搜 “职场沟通技巧”，输入 职场沟通技巧 site:zhihu.com
-注意：网址不加http://，也不用带末尾的/，比如直接写zhihu.com，别写https://zhihu.com/。
-
-2. filetype：精准找特定格式文件找 PPT、PDF、Word 文档时，用它能跳过无关网页。
-
-语法：关键词 filetype:文件格式
-示例：找 “市场营销方案” 的 PPT，输入 市场营销方案 filetype:ppt
-支持格式：常见的pdf、doc、xls、ppt都能用。
-
-3. 双引号：完整匹配不拆分想搜固定短语或句子，避免搜索引擎拆分关键词，就加双引号。
-
-语法：&quot;完整关键词&quot;
-示例：搜诗句 “腹有诗书气自华”，输入 &quot;腹有诗书气自华&quot;
-作用：不会出现 “腹有”“诗书气” 这种拆分后的零散结果。
-
-4. 减号：排除不想要的内容搜索结果里总有无关信息？用减号把它剔除。
-
-语法：关键词 -要排除的词（减号前必须加空格）
-示例：搜 “苹果” 但不想看手机相关内容，输入 苹果 -手机
-注意：减号后不能加空格，直接跟要排除的词。
-
-
-二、精准定位掌握基础后，用这些指令能进一步缩小搜索范围，找到更精准的内容。
-1. intitle：只看标题含关键词的页面想找标题里明确包含目标词的网页，用它能过滤掉 “标题无关、内容沾边” 的结果。
-
-语法：intitle:关键词 或 关键词 intitle:次要词
-示例：找标题含 “人工智能” 的新闻，输入 intitle:人工智能 新闻
-
-2. inurl：从网址里找线索有些网页的网址会包含分类信息（比如 “news”“blog”），用 inurl 能定位这类页面。
-
-语法：inurl:关键词 内容词
-示例：找知乎里 “职场” 相关的专栏（网址含 “column”），输入 inurl:column 职场 site:zhihu.com
-
-3. 组合指令：威力加倍把两个指令结合用，能实现 “双重筛选”，精准度直接拉满。
-
-常用组合 1：intitle:关键词 site:网址
-  示例：找豆瓣里标题含 “读书笔记” 的内容，输入 intitle:读书笔记 site:douban.com
-
-常用组合 2：关键词 filetype:格式 -排除词
-  示例：找 “心理学论文” 的 PDF，且排除 “本科” 相关，输入 心理学论文 filetype:pdf -本科
-
-
-
-三、注意
-符号用全角：一定要用英文半角符号，比如英文冒号:、英文双引号&quot;，用中文的：或“”会失效。
-网址带前缀：site:后面直接写域名，别加http://或www，比如site:baidu.com，不是site:https://www.baidu.com。
-减号没空格：减号前面必须加空格，否则会被当成关键词的一部分，比如苹果 -手机是对的，苹果-手机是错的。
-
+    <title>LeeCode盛最多水的容器</title>
+    <url>/gdBlog/2025/10/14/%E7%9B%9B%E6%9C%80%E5%A4%9A%E6%B0%B4%E7%9A%84%E5%AE%B9%E5%99%A8/</url>
+    <content><![CDATA[[[..&#x2F;..&#x2F;note&#x2F;Template&#x2F;LeetCode|LeetCode]]
+原题链接https://leetcode.cn/problems/container-with-most-water/solutions/207215/sheng-zui-duo-shui-de-rong-qi-by-leetcode-solution/?envType=study-plan-v2&amp;envId=top-100-liked
+题目给定一个长度为 n 的整数数组 height 。有 n 条垂线，第 i 条线的两个端点是 (i, 0) 和 (i, height[i]) 。
+找出其中的两条线，使得它们与 x 轴共同构成的容器可以容纳最多的水。
+返回容器可以储存的最大水量。
+**说明：**你不能倾斜容器。
+题解left++和right–都是为了尝试取到更多的水，如果短的板不动的话，取到的水永远不会比上次多。
+class Solution(object):def maxArea(self, height):&quot;&quot;&quot;:type height: List[int]:rtype: int&quot;&quot;&quot;# 双指针法left = 0right = len(height) - 1max_area = 0while left &lt; right:max_area = max(max_area, min(height[left], height[right]) * (right - left))if height[left] &lt; height[right]:left += 1else:right -= 1return max_area]]></content>
+      <categories>
+        <category>果冻的LeetCode刷题</category>
+      </categories>
+      <tags>
+        <tag>LeetCode</tag>
+        <tag>双指针</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>正则表达式</title>
+    <url>/gdBlog/2025/09/29/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/</url>
+    <content><![CDATA[正则表达式（Regular Expression，简称 regex 或 regexp）是一种用于匹配、查找和处理文本的强大模式描述语言。它通过一系列预定义的字符和规则，构建出能够精确匹配特定文本模式的表达式，广泛应用于文本搜索、验证、替换、提取等场景（如表单验证、日志分析、代码解析等）。
+正则表达式的入门门槛稍高，但掌握后能极大提升文本处理效率。实际使用时，可借助在线工具（如 Regex101）实时测试和调试表达式。
+高级版关键字搜索性能一般,但无所谓不差这点,功能强大,易于维护
+字符集合g[ a o]t&#x3D;get or got[ a-z]就是a到z ; [^b-c ]除了b到c
+* 出现0或更多 {0}+  1 and more. {1}?  0 or 1            {0,1}{3} 3{3,}. 3 and more{3.6}  3 to 6
+^代表开始  $代表结束
 ]]></content>
       <categories>
-        <category>果冻的奇妙小工具</category>
+        <category>果冻的航海日志</category>
       </categories>
       <tags>
         <tag>tools</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>LeeCode移动零</title>
+    <url>/gdBlog/2025/10/14/%E7%A7%BB%E5%8A%A8%E9%9B%B6/</url>
+    <content><![CDATA[[[..&#x2F;..&#x2F;note&#x2F;Template&#x2F;LeetCode|LeetCode]]
+原题链接https://leetcode.cn/problems/move-zeroes/solutions/489622/yi-dong-ling-by-leetcode-solution/?envType=study-plan-v2&amp;envId=top-100-liked
+题目给定一个数组 nums，编写一个函数将所有 0 移动到数组的末尾，同时保持非零元素的相对顺序。
+请注意 ，必须在不复制数组的情况下原地对数组进行操作。
+示例 1:
+输入: nums &#x3D; [0,1,0,3,12]输出: [1,3,12,0,0]
+示例 2:
+输入: nums &#x3D; [0]输出: [0]
+提示:
+
+1 &lt;= nums.length &lt;= 104
+-231 &lt;= nums[i] &lt;= 231 - 1
+
+**进阶：**你能尽量减少完成的操作次数吗？
+题解方法一：双指针思路及解法
+使用双指针，左指针指向当前已经处理好的序列的尾部，右指针指向待处理序列的头部。
+右指针不断向右移动，每次右指针指向非零数，则将左右指针对应的数交换，同时左指针右移。
+注意到以下性质：
+左指针左边均为非零数；
+右指针左边直到左指针处均为零。
+因此每次交换，都是将左指针的零与右指针的非零数交换，且非零数的相对顺序并未改变。
+class Solution &#123;public:    void moveZeroes(vector&lt;int&gt;&amp; nums) &#123;        int n = nums.size(), left = 0, right = 0;        while (right &lt; n) &#123;            if (nums[right]) &#123;                swap(nums[left], nums[right]);                left++;            &#125;            right++;        &#125;    &#125;&#125;;
+
+方法二：python的库class Solution(object):def moveZeroes(self, nums):&quot;&quot;&quot;:type nums: List[int]:rtype: None Do not return anything, modify nums in-place instead.&quot;&quot;&quot;# 统计0的个数zero_count = nums.count(0)# 移除所有0nums[:] = [num for num in nums if num != 0]# 在列表末尾添加0nums.extend([0] * zero_count)]]></content>
+      <categories>
+        <category>果冻的LeetCode刷题</category>
+      </categories>
+      <tags>
+        <tag>LeetCode</tag>
+        <tag>双指针</tag>
       </tags>
   </entry>
   <entry>
@@ -1579,114 +2264,6 @@ class Solution(object):def longestConsecutive(self, nums):&quot;&quot;&quot;:typ
       </categories>
       <tags>
         <tag>LeetCode</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>正则表达式</title>
-    <url>/gdBlog/2025/09/29/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/</url>
-    <content><![CDATA[正则表达式（Regular Expression，简称 regex 或 regexp）是一种用于匹配、查找和处理文本的强大模式描述语言。它通过一系列预定义的字符和规则，构建出能够精确匹配特定文本模式的表达式，广泛应用于文本搜索、验证、替换、提取等场景（如表单验证、日志分析、代码解析等）。
-正则表达式的入门门槛稍高，但掌握后能极大提升文本处理效率。实际使用时，可借助在线工具（如 Regex101）实时测试和调试表达式。
-高级版关键字搜索性能一般,但无所谓不差这点,功能强大,易于维护
-字符集合g[ a o]t&#x3D;get or got[ a-z]就是a到z ; [^b-c ]除了b到c
-* 出现0或更多 {0}+  1 and more. {1}?  0 or 1            {0,1}{3} 3{3,}. 3 and more{3.6}  3 to 6
-^代表开始  $代表结束
-]]></content>
-      <categories>
-        <category>果冻的航海日志</category>
-      </categories>
-      <tags>
-        <tag>tools</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>LeeCode接雨水</title>
-    <url>/gdBlog/2025/10/15/%E6%8E%A5%E9%9B%A8%E6%B0%B4/</url>
-    <content><![CDATA[[[Template&#x2F;LeetCode|LeetCode]]
-原题链接https://leetcode.cn/problems/trapping-rain-water/submissions/670872502/?envType=study-plan-v2&amp;envId=top-100-liked
-题目给定 n 个非负整数表示每个宽度为 1 的柱子的高度图，计算按此排列的柱子，下雨之后能接多少雨水。
-**输入：**height &#x3D; [0,1,0,2,1,0,1,3,2,1,2,1]**输出：**6**解释：**上面是由数组 [0,1,0,2,1,0,1,3,2,1,2,1] 表示的高度图，在这种情况下，可以接 6 个单位的雨水（蓝色部分表示雨水）。
-题解方法一：动态规划对于下标 i，下雨后水能到达的最大高度等于下标 i 两边的最大高度的最小值，下标 i 处能接的雨水量等于下标 i 处的水能到达的最大高度减去 height[i]。
-朴素的做法是对于数组 height 中的每个元素，分别向左和向右扫描并记录左边和右边的最大高度，然后计算每个下标位置能接的雨水量。
-class Solution(object):def trap(self, height):&quot;&quot;&quot;:type height: List[int]:rtype: int&quot;&quot;&quot;if not height:return 0n = len(height)left_max = [0] * nright_max = [0] * nleft_max[0] = height[0]right_max[n-1] = height[n-1]for i in range(1, n):left_max[i] = max(left_max[i-1], height[i])right_max[n-i-1] = max(right_max[n-i], height[n-i-1])res = 0for i in range(n):res += min(left_max[i], right_max[i]) - height[i]return res
-
-方法二：单调栈除了计算并存储每个位置两边的最大高度以外，也可以用单调栈计算能接的雨水总量。
-维护一个单调栈，单调栈存储的是下标，满足从栈底到栈顶的下标对应的数组 height 中的元素递减。
-从左到右遍历数组，遍历到下标 i 时，如果栈内至少有两个元素，记栈顶元素为 top，top 的下面一个元素是 left，则一定有 height[left]≥height[top]。如果 height[i]&gt;height[top]，则得到一个可以接雨水的区域，该区域的宽度是 i−left−1，高度是 min(height[left],height[i])−height[top]，根据宽度和高度即可计算得到该区域能接的雨水量。
-为了得到 left，需要将 top 出栈。在对 top 计算能接的雨水量之后，left 变成新的 top，重复上述操作，直到栈变为空，或者栈顶下标对应的 height 中的元素大于或等于 height[i]。
-在对下标 i 处计算能接的雨水量之后，将 i 入栈，继续遍历后面的下标，计算能接的雨水量。遍历结束之后即可得到能接的雨水总量。
-class Solution:def trap(self, height: List[int]) -&gt; int:ans = 0stack = list()n = len(height)for i, h in enumerate(height):while stack and h &gt; height[stack[-1]]:top = stack.pop()if not stack:breakleft = stack[-1]currWidth = i - left - 1currHeight = min(height[left], height[i]) - height[top]ans += currWidth * currHeightstack.append(i)return ans
-
-方法三：双指针动态规划的做法中，需要维护两个数组 leftMax 和 rightMax，因此空间复杂度是 O(n)。是否可以将空间复杂度降到 O(1)？
-注意到下标 i 处能接的雨水量由 leftMax[i] 和 rightMax[i] 中的最小值决定。由于数组 leftMax 是从左往右计算，数组 rightMax 是从右往左计算，因此可以使用双指针和两个变量代替两个数组。
-维护两个指针 left 和 right，以及两个变量 leftMax 和 rightMax，初始时 left&#x3D;0,right&#x3D;n−1,leftMax&#x3D;0,rightMax&#x3D;0。指针 left 只会向右移动，指针 right 只会向左移动，在移动指针的过程中维护两个变量 leftMax 和 rightMax 的值。
-当两个指针没有相遇时，进行如下操作：
-使用 height[left] 和 height[right] 的值更新 leftMax 和 rightMax 的值；
-如果 height[left]&lt;height[right]，则必有 leftMax&lt;rightMax，下标 left 处能接的雨水量等于 leftMax−height[left]，将下标 left 处能接的雨水量加到能接的雨水总量，然后将 left 加 1（即向右移动一位）；
-如果 height[left]≥height[right]，则必有 leftMax≥rightMax，下标 right 处能接的雨水量等于 rightMax−height[right]，将下标 right 处能接的雨水量加到能接的雨水总量，然后将 right 减 1（即向左移动一位）。
-当两个指针相遇时，即可得到能接的雨水总量。
-class Solution:def trap(self, height: List[int]) -&gt; int:ans = 0left, right = 0, len(height) - 1leftMax = rightMax = 0  while left &lt; right:leftMax = max(leftMax, height[left])rightMax = max(rightMax, height[right])if height[left] &lt; height[right]:ans += leftMax - height[left]left += 1else:ans += rightMax - height[right]right -= 1return ans]]></content>
-      <categories>
-        <category>果冻的LeetCode刷题</category>
-      </categories>
-      <tags>
-        <tag>LeetCode</tag>
-        <tag>动态规划</tag>
-        <tag>双指针</tag>
-        <tag>单调栈</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>LeeCode盛最多水的容器</title>
-    <url>/gdBlog/2025/10/14/%E7%9B%9B%E6%9C%80%E5%A4%9A%E6%B0%B4%E7%9A%84%E5%AE%B9%E5%99%A8/</url>
-    <content><![CDATA[[[..&#x2F;..&#x2F;note&#x2F;Template&#x2F;LeetCode|LeetCode]]
-原题链接https://leetcode.cn/problems/container-with-most-water/solutions/207215/sheng-zui-duo-shui-de-rong-qi-by-leetcode-solution/?envType=study-plan-v2&amp;envId=top-100-liked
-题目给定一个长度为 n 的整数数组 height 。有 n 条垂线，第 i 条线的两个端点是 (i, 0) 和 (i, height[i]) 。
-找出其中的两条线，使得它们与 x 轴共同构成的容器可以容纳最多的水。
-返回容器可以储存的最大水量。
-**说明：**你不能倾斜容器。
-题解left++和right–都是为了尝试取到更多的水，如果短的板不动的话，取到的水永远不会比上次多。
-class Solution(object):def maxArea(self, height):&quot;&quot;&quot;:type height: List[int]:rtype: int&quot;&quot;&quot;# 双指针法left = 0right = len(height) - 1max_area = 0while left &lt; right:max_area = max(max_area, min(height[left], height[right]) * (right - left))if height[left] &lt; height[right]:left += 1else:right -= 1return max_area]]></content>
-      <categories>
-        <category>果冻的LeetCode刷题</category>
-      </categories>
-      <tags>
-        <tag>LeetCode</tag>
-        <tag>双指针</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>LeeCode移动零</title>
-    <url>/gdBlog/2025/10/14/%E7%A7%BB%E5%8A%A8%E9%9B%B6/</url>
-    <content><![CDATA[[[..&#x2F;..&#x2F;note&#x2F;Template&#x2F;LeetCode|LeetCode]]
-原题链接https://leetcode.cn/problems/move-zeroes/solutions/489622/yi-dong-ling-by-leetcode-solution/?envType=study-plan-v2&amp;envId=top-100-liked
-题目给定一个数组 nums，编写一个函数将所有 0 移动到数组的末尾，同时保持非零元素的相对顺序。
-请注意 ，必须在不复制数组的情况下原地对数组进行操作。
-示例 1:
-输入: nums &#x3D; [0,1,0,3,12]输出: [1,3,12,0,0]
-示例 2:
-输入: nums &#x3D; [0]输出: [0]
-提示:
-
-1 &lt;= nums.length &lt;= 104
--231 &lt;= nums[i] &lt;= 231 - 1
-
-**进阶：**你能尽量减少完成的操作次数吗？
-题解方法一：双指针思路及解法
-使用双指针，左指针指向当前已经处理好的序列的尾部，右指针指向待处理序列的头部。
-右指针不断向右移动，每次右指针指向非零数，则将左右指针对应的数交换，同时左指针右移。
-注意到以下性质：
-左指针左边均为非零数；
-右指针左边直到左指针处均为零。
-因此每次交换，都是将左指针的零与右指针的非零数交换，且非零数的相对顺序并未改变。
-class Solution &#123;public:    void moveZeroes(vector&lt;int&gt;&amp; nums) &#123;        int n = nums.size(), left = 0, right = 0;        while (right &lt; n) &#123;            if (nums[right]) &#123;                swap(nums[left], nums[right]);                left++;            &#125;            right++;        &#125;    &#125;&#125;;
-
-方法二：python的库class Solution(object):def moveZeroes(self, nums):&quot;&quot;&quot;:type nums: List[int]:rtype: None Do not return anything, modify nums in-place instead.&quot;&quot;&quot;# 统计0的个数zero_count = nums.count(0)# 移除所有0nums[:] = [num for num in nums if num != 0]# 在列表末尾添加0nums.extend([0] * zero_count)]]></content>
-      <categories>
-        <category>果冻的LeetCode刷题</category>
-      </categories>
-      <tags>
-        <tag>LeetCode</tag>
-        <tag>双指针</tag>
       </tags>
   </entry>
   <entry>
@@ -2142,309 +2719,9 @@ Github - browser-use&#x2F;browser-use
       </categories>
       <tags>
         <tag>LLM</tag>
-        <tag>tools</tag>
         <tag>DeepSearch</tag>
-        <tag>RAG</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>为元芳接入提示词工程</title>
-    <url>/gdBlog/2025/10/09/%E5%9F%BA%E4%BA%8E%E6%8F%90%E7%A4%BA%E8%AF%8D%E5%B7%A5%E7%A8%8B%E7%9A%84%E9%80%9A%E7%94%A8%E5%A4%A7%E6%A8%A1%E5%9E%8B/</url>
-    <content><![CDATA[[[提示工程调研]]一个好的 prompt 能让 AI 更准确地理解需求，从而生成更符合预期的结果。在实际使用中，通过优化 prompt 的清晰度、详细度和结构，可以显著提升 AI 的响应质量，这也被称为 “提示词工程”（prompt engineering）
-GRPS 框架：构建完美提示词GRPS 框架是构建高效 Manus 提示词的强大工具，具体包括：
-Goal（目标）清晰定义你期望获得的最终成果：
-
-明确交付物类型：报告、代码、图表、演示文稿、网页等。
-指明用途：「用于内部决策参考」、「用于客户展示」、「用于公开发表」等。
-设定完成标准：什么样的结果才算成功完成任务？
-
-示例：「目标：创建一个交互式数据仪表板，展示过去 12 个月的销售趋势，用于月度管理层会议」
-Role（角色）为 Manus 赋予适合任务的专业身份：
-
-职业角色：分析师、工程师、作家、营销专家、教师等。
-经验水平：初级、资深、专家、权威等。
-特定专长：「精通 Python 数据分析的工程师」、「专注于 B2B 营销的策略专家」。
-
-示例：「角色：作为一名精通讲故事技巧的高级内容营销专家」
-Process（流程）
-可选，在特定情况下，你可能需要指定关键流程步骤：
-关键节点：只列出必须经过的重要环节，而非详细步骤。
-决策点：在哪些环节需要做出重要判断。
-质量检查：在流程中需要特别关注质量的部分。
-
-
-
-示例：「流程：1. 收集并分析竞争对手的社交媒体数据 2. 识别其内容策略模式 3. 评估其受众反响 4. 提出我们可借鉴的策略」
-Specification（规范）设定明确的质量和格式要求：
-
-格式要求：文件类型、结构、布局等。
-长度限制：字数、页数、时长等。
-风格规范：正式、轻松、技术性、通俗易懂等。
-必备内容：必须包含的关键部分或信息。
-排除内容：明确禁止出现的内容或风格。
-
-示例：「规范：-PDF 格式 - 不超过 20 页 - 包含执行摘要、方法论、发现和建议四个部分 - 使用简明专业的语言 - 避免过于技术性的术语 - 包含至少 5 个数据可视化图表」
-完整 GRPS 框架示例
-目标：开发一个个人财务健康评估工具，帮助初入职场的年轻人了解自己的财务状况和提升建议
-角色：作为拥有 10 年经验的个人理财顾问，专注于年轻专业人士的财务规划
-流程：
-设计评估用户收入、支出、债务和储蓄情况的问卷
-创建评分系统，对不同财务指标进行权重分配
-开发针对不同得分范围的个性化建议库
-设计直观的结果展示界面
-
-
-规范：
-终端产品为可交互的网页应用
-问卷不超过 15 个问题
-结果页面需包含总体健康评分、各维度得分及彩色仪表盘
-建议须具体可行，避免泛泛而谈
-语言风格亲切、鼓励，适合 25-35 岁年龄段
-包含资源链接和后续行动计划
-
-
-
-我的设计共分为八个：角色1个，目标2个，流程1个，规范4个
-角色描述：职业角色，如：作家、Python工程师等；经验水平，如：初级、资深、专家等 资深小说家
-输出目标：如一周的饮食计划，为考试准备的习题集等 写一篇励志文章
-用途：如用于内部决策参考、用于公开发表等 用于出版的书籍
-流程描述：关键节点，只列出必须经过的重要环节，而非详细步骤 1. 开篇 2. 过程 3. 转折 4. 结尾
-规范描述：格式要求，如文件类型、结构、布局等 纯文本格式
-长度限制：如字数、页数、时长等 200字以内
-风格规范：如正式、轻松、技术性、通俗易懂等 温暖治愈
-排除内容：明确禁止出现的内容或风格 禁止儿童不宜内容
-]]></content>
-      <categories>
-        <category>果冻的理论学习</category>
-      </categories>
-      <tags>
-        <tag>LLM</tag>
         <tag>tools</tag>
-        <tag>元芳</tag>
-        <tag>prompt</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>大型语言模型架构比较</title>
-    <url>/gdBlog/2026/01/02/%E5%A4%A7%E5%9E%8B%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84%E6%AF%94%E8%BE%83/</url>
-    <content><![CDATA[写在前面文章链接：从 DeepSeek V3 到 Mistral 3 Large：现代大型语言模型架构设计解析
-[[2025年大型语言模型现状：进展、问题与预测]]
-自最初的 GPT 架构开发以来，已经过去七年。乍一看，回顾 GPT-2（2019 年）以及 DeepSeek V3 和 Llama 4（2024-2025 年），你可能会惊讶于这些模型在结构上依然如此相似。当然，位置嵌入已经从绝对嵌入演变为旋转嵌入（RoPE），多头注意力基本被分组查询注意力取代，更高效的 SwiGLU 取代了像 GELU 这样的激活函数。但在这些细微的改进背后，我们真的见证了突破性的变革，还是仅仅在打磨相同的架构基础？
-比较大型语言模型以确定其表现良好（或不佳）的关键因素，向来具有挑战性：数据集、训练技术和超参数差异巨大，且通常缺乏充分的文档。不过，我认为审视架构本身的结构变化，对于了解 2025 年 LLM 开发者的动态，仍然有很大价值。（其中一部分见下图 1。）因此，在本文中，我将不讨论基准性能或训练算法，而是聚焦于定义当今旗舰开放模型的架构发展。
-![[ObsidianPicture&#x2F;Pasted image 20260107205054.png]]
-1. DeepSeek V3&#x2F;R1正如你可能已经听说过不止一次的，DeepSeek R1 在 2025 年 1 月发布时引起了巨大影响。DeepSeek R1 是一个基于 DeepSeek V3 架构构建的推理模型，该架构于 2024 年 12 月推出。在本节中，我将重点介绍 DeepSeek V3 引入的两项关键架构技术，这些技术提升了其计算效率，并将其区别于许多其他大型语言模型：
-
-Multi-Head Latent Attention (MLA)  多头潜在注意力（MLA）
-
-Mixture-of-Experts (MoE)  专家混合（MoE）
-
-
-1.1 Multi-Head Latent Attention (MLA)多头潜在注意力在讨论多头潜在注意力（MLA）之前，我们先简单回顾一下背景，以动机解释为什么会使用它。为此，我们先从分组查询注意力（Grouped-Query Attention，GQA）说起，近年来它已成为多头注意力（Multi-Head Attention，MHA）更高效计算和参数效率更高的替代方案的新标准替代品。
-所以，这里有一个简要的 GQA 总结。与 MHA 不同，MHA 每个头都有自己的键和值集合，为了减少内存使用，GQA 将多个头分组共享相同的键和值投影。例如，如下图2进一步说明的，如果有两个键值组和4个注意力头，那么头1和2可能共享一组键和值，而头3和4共享另一组。这减少了关键值和值计算的总数，从而降低内存使用并提高效率（根据消融研究，建模性能并未明显影响）。![[ObsidianPicture&#x2F;Pasted image 20260107205829.png]]图 2：MHA 与 GQA 的比较。这里，组大小为 2，其中键和值对共享于两个查询中。
-因此，GQA 的核心理念是通过在多个查询头之间共享关键和值头，减少它们的数量。这（1）降低了模型的参数数量，（2）减少了推断过程中键和值张量的内存带宽使用，因为需要从 KV 缓存中存储和检索的键和值减少。虽然 GQA 主要是 MHA 的计算效率变通，但消融研究（如原始 GQA 论文和 Llama 2 论文中的研究）显示，它在 LLM 建模性能方面与标准 MHA 相当。
-现在，多头潜在注意力（MLA）提供了一种不同的内存节省策略，且与 KV 缓存配合得尤为出色。MLA 不像 GQA 那样共享键和值头，而是将键和值张量压缩到一个低维空间，然后存储在 KV 缓存中。在推断时，这些压缩张量会被投影回其原始大小，然后再使用，如下图3所示。这增加了额外的矩阵乘法，但减少了内存使用。![[ObsidianPicture&#x2F;Pasted image 20260107210252.png]]图 3：MLA（用于 DeepSeek V3 和 R1）与普通 MHA 的比较。
-顺便说一句，MLA 在 DeepSeek V3 中并不新鲜，因为它的前身 DeepSeek-V2 也使用（甚至引入了）MLA。此外，V2 论文包含一些有趣的消融研究，或许能解释 DeepSeek 团队为何选择 MLA 而非 GQA。GQA 的表现似乎不如 MHA，而 MLA 的建模性能优于 MHA，这很可能是 DeepSeek 团队选择 MLA 而非 GQA 的原因。（如果能看到 MLA 和 GQA 之间“KV 缓存每令牌”节省的对比会很有趣！）
-在进入下一个架构组件之前，总结本节，MLA 是一个巧妙的技巧，可以减少 KV 缓存内存的使用，同时在建模性能上略优于 MHA。
-1.2 Mixture-of-Experts (MoE)  专家混合DeepSeek 另一个值得强调的主要架构组成部分是其对专家混合层（Mixture-of-Experts，简称 Mixture-of-Experts，MoE）的使用。虽然 DeepSeek 并非 MoE 的发明者，但今年它迎来了复兴，许多我们稍后将介绍的架构也采用了它。
-MoE 的核心理念是用多个专家层替换transformer模块中的每个 FeedForward 模块，每个专家层也是一个 FeedForward 模块。这意味着我们将一个 FeedForward 块替换为多个 FeedForward 块，如下图 5 所示。![[ObsidianPicture&#x2F;Pasted image 20260107210605.png]]图 5：DeepSeek V3&#x2F;R1（右）中专家混合（MoE）模块与带有标准 FeedForward 模块的 LLM 的对比（左）。
-transformer模块内的前馈模块FeedForward block（如上图中深灰色模块所示）通常包含模型总参数的大量数据。（注意，FeedForward block在大型语言模型中会被重复多次;DeepSeek V3 中重复了 61 次。）
-因此，用_多个_前进块替换单个前进块 （如 MoE 设置中所做的那样）大幅增加了模型的总参数数。然而，关键技巧是我们不会为每个令牌都使用（“激活”）所有专家。相反，路由器每个令牌只选择一小部分专家。
-由于同时只有少数专家活跃，MoE 模块常被称为_稀疏_模组（sparse），与始终使用完整参数集的_稠密_模形（dense）成对比 。然而，通过 MoE 提供的大量参数增加了 LLM 的容量，这意味着它在训练中可以吸收更多知识。稀疏性保持了推理效率，因为我们不会同时使用所有参数。
-例如，DeepSeek V3 每个 MoE 模块有 256 位专家，总计 6710 亿个参数。但在推理过程中，同时只有 9 位专家处于活跃状态（1 位共享专家加上 8 位路由选定的专家）。这意味着每步推理仅使用 370 亿个参数，而非全部 6710 亿个
-DeepSeek V3 MoE 设计的一个显著特点是使用了共享专家。这是一个专家，每个token都处于活跃状态。这一观点并不新鲜，早在 2024 年 DeepSeek MoE 和 2022 年 DeepSpeedMoE 论文中就已提出 。![[ObsidianPicture&#x2F;Pasted image 20260107211411.png]]图 6：来自《DeepSeekMoE：迈向专家混合语言模型的终极专家专精》中的注释图 https://arxiv.org/abs/2401.06066_
-共享专家的好处最早出现在 DeepSpeedMoE 的论文中，他们发现相比没有共享专家，共享专家能提升整体建模性能。这很可能是因为常见或重复的图案不需要由多个专家共同学习，这让他们有更多空间去学习更专业的图案。
-1.3 DeepSeek 摘要总之，DeepSeek V3 是一个参数达 6710 亿的庞大模型，发布时表现优于包括 405B Llama 3 在内的其他开放权重模型。尽管规模更大，但由于其专家混合架构（MoE），每token只激活一小部分（仅 37B）参数，推理时效率更高。
-另一个关键的区别在于 DeepSeek V3 采用多头潜在注意力（MLA）而非分组查询注意力（GQA）。MLA 和 GQA 都是标准多头注意力（MHA）的推理高效替代方案，尤其是在使用 KV 缓存时。虽然 MLA 实现更复杂，但 DeepSeek-V2 论文中的一项研究显示，MLA 在建模性能上优于 GQA。
-2. OLMo 2非营利组织艾伦人工智能研究所（Allen Institute）开发的 OLMo 系列模型因其训练数据和代码的透明度以及相对详尽的技术报告而备受关注。
-虽然你可能不会在任何基准测试或排行榜上看到 OLMo 模型，但它们相当干净，更重要的是，由于其透明度，是开发大型语言模型的绝佳蓝图。
-虽然 OLMo 模型因其透明度而受欢迎，但它们也没那么差。事实上，在 2025 年1 月发布时（早于 Llama 4、Gemma 3 和 Qwen 3），OLMo 2 模型正处于计算到性能的帕累托边界，如下图 7 所示。![[ObsidianPicture&#x2F;Pasted image 20260107211901.png]]图 7：不同 LLM 的基准测试性能建模（高越好）与预训练成本（FLOPs;低越好）。这是 OLMo 2 论文中的注释图，https://arxiv.org/abs/2501.00656
-OLMo2 中有哪些有趣的架构设计选择呢？这主要归结于归一化：RMSNorm 层的布置以及我将在下文讨论的 QK 范数的添加。还有一点值得一提的是，OLMo 2 依然使用传统的多头注意力（MHA）而不是 MLA 或 GQA。
-2.1 归一化层(## Normalization Layer)的布置总体而言，OLMo 2 在很大程度上遵循了原始 GPT 模型的架构，类似于其他当代大型语言模型。不过，也有一些值得注意的偏差。我们先从归一化层说起。与 Llama、Gemma 及大多数其他大型语言模型类似，OLMo 2 从 LayerNorm 切换到 RMSNorm。但由于 RMSNorm 已经是老生常谈了（它基本上是 LayerNorm 的简化版，但可训练参数更少），我就不讨论 RMSNorm 和 LayerNorm 的区别了。（好奇的读者可以在我的 GPT-2 转 Llama 转换指南 。）
-不过，值得讨论 RMSNorm 层的位置。原始transformer（摘自《Attention is all you need》论文）将两个规范化层分别置于transformer模块中，位于attention模块和 FeedForward 模块之后。这也被称为后 LN 或后规范(Post-LN or Post-Norm)。GPT 和大多数后续的大型语言模型将规范化层置于attention和 FeedForward 模块之前，这些模块被称为预-LN 或前规范( Pre-LN or Pre-Norm)。下图展示了后常态与前常态（Post- and Pre-Norm）的比较。![[ObsidianPicture&#x2F;Pasted image 20260107212550.png]]图 8：后规范、前规范和 OLMo 2 版本后规范的比较。
-2020 年，熊等人。 证明前 LN 在初始化时使梯度表现更为良好。此外，研究人员提到， Pre-LN即使在没有细致学习率热身的情况下也能很好地发挥作用，而热身是Post-LN中至关重要的工具。我之所以提到这个，是因为 OLMo 2 采用了一种Post-LN（但用 RMSNorm 代替 LayerNorm，所以我称之为_后规范_ ）。在 OLMo 2 中，他们没有将归一化层放在注意层和 FeedForward 层之前，而是将它们放在后面，如上图所示。然而，请注意，与原始transform架构不同，规范化层仍然位于残余层内（跳过连接）。那么，为什么他们会移动归一化层的位置呢？ 原因是它有助于提升训练稳定性。
-2.2 QK-Norm  QK-范数QK-Norm 本质上是 RMSNorm 的又一层。它被放置在多头注意力（MHA）模块中，并应用到查询（q）和键（k）上，然后再应用 RoPE。QK-Norm 与后规范一起稳定了训练。注意，QK-norm 并非由 OLMo 2 发明，而是可追溯到 2023 年的 Scaling Vision Transformers 论文 。
-2.3 OLMo 2 总结简而言之，OLMo 2 架构设计中值得注意的重大决策主要是 RMSNorm 的配置：RMSNorm 在注意力之后而非之前，以及 FeedForward 模块（类似后规范），以及为注意力机制（QK-Norm）中的查询和键添加 RMSNorm，这两者共同帮助稳定训练丢失。
-对比 OLMo 2 与 Llama 3：两者架构相对相似，唯一区别在于 OLMo 2 仍使用传统的 MHA 而非 GQA。（然而， OLMo 2 团队在三个月后发布了使用 GQA 的 32B 版本。）
-3. Gemma 3谷歌的 Gemma 模型一直都很不错，我觉得它们相比其他热门型号，比如 Llama 系列，有些被低估了。Gemma 的一个显著特点是词汇量较大（以更好地支持多种语言），并且更注重 27B 的规模（相较于 8B 或 70B）。但请注意，Gemma 2 也有更小的尺寸：1B、4B 和 12B。27B 的尺寸恰到好处：比 8B 型号功能更强，但资源消耗不像 70B 型号那么大。
-那么，《Gemma 3》还有什么有趣的地方？如前所述，其他模型如 Deepseek V3&#x2F;R1 采用专家混合架构（Mixture-of-Experts，MoE）以降低推理时的内存需求，前提是模型大小固定。（MoE 方法也被我们稍后讨论的其他几个模型采用。）Gemma 3 采用了另一种“技巧”来降低计算成本，即滑动窗口注意力。
-3.1 滑动窗户注意  Sliding Window Attention通过滑动窗口注意力（最初于 2020 年 LongFor 文中引入，Gemma 2 也已使用 ），Gemma 3 团队大幅减少了 KV 缓存中的内存需求。那么，什么是滑动窗户关注呢？如果我们将正规自注意视为一种_全局_注意力机制，因为每个序列元素都可以访问其他所有序列元素，那么滑动窗口注意力可以视为_局部_注意力，因为这里我们限制了当前查询位置周围的上下文大小。这在下面的图中有说明。![[ObsidianPicture&#x2F;Pasted image 20260107213512.png]]图12：常规注意力（左）与滑动窗口注意力（右）的比较。
-请注意，滑动窗口注意力可以同时用于多头注意力和分组查询注意力;Gemma 3 采用分组查询注意力。
-如上所述，滑动窗口注意力也称为_局部_注意，因为本地窗口环绕并随当前查询位置移动。相比之下，常规关注是_全局_的，因为每个令牌都可以访问所有其他令牌。
-如上所述，Gemma 2 的前身架构也曾使用滑动窗口注意功能。Gemma 3 的区别在于他们调整了全局（常规）注意力和局部（滑动）注意力的比例。例如，Gemma 2 采用了混合注意力机制，将滑动窗口（局部）和全局注意力以 1：1 的比例结合起来。每个token可以关注一个 4k 令牌的邻近上下文窗口。Gemma 2 在每隔一层使用滑动窗口注意力，而 Gemma 3 现在采用了 5：1 的比例，意味着每 5 个滑动窗口（局部）注意力层只有 1 个完整的注意力图层;此外，滑动窗口的大小从 4096（Gemma 2）缩减到仅 1024（Gemma 3）。这使得模型的重点转向更高效、更局部化的计算。
-根据他们的消融研究，滑动窗口注意力对建模表现的影响很小。来自 Gemma 3 论文（https://arxiv.org/abs/2503.19786）的注释图，显示滑动窗口注意力对 LLM 生成的输出困惑几乎没有影响。
-虽然滑动窗口关注是 Gemma 3 最显著的架构方面，但我也想简要介绍一下归一化图层的布置，作为之前 OLMo 2 部分的后续。
-3.2   Gemma 3 中的归一化层布置一个小但有趣的小细节是，Gemma 3 在其分组查询注意力模块中，在前规范和后规范两种环境中都使用了 RMSNorm。
-这与 Gemma 2 类似，但仍值得强调，因为它不同于（1）原始变换器中使用的后范数（“注意力就是你所需要的”），（2）由 GPT-2 推广并在许多其他架构中使用的预范数，以及（3）我们之前看到的 OLMo 2 中的后范数版本。![[ObsidianPicture&#x2F;Pasted image 20260107214104.png]]图 14：OLMo2 与 Gemma 3 的架构比较;注意 Gemma 3 中额外的归一化层。
-我认为这种归一化层的放置方式相对直观，因为它兼顾了前范数和后范数两种优势。在我看来，多一点正常化也无妨。最坏情况下，如果额外的归一化是冗余的，这会通过冗余增加一些效率。实际上，由于 RMSNorm 在整体上相对便宜，这不应该有明显影响。
-3.3 Gemma 3 简介Gemma 3 是一款性能良好的开权量大型语言模型，在我看来在开源圈子里有点被低估了。最有趣的是滑动窗口注意力的使用来提升效率（未来将它与 MoE 结合起来会很有趣）。此外，Gemma 3 具有独特的归一化层布局，将 RMSNorm 图层放置在注意力和 FeedForward 模块之前和之后。
-3.4 Bonus: Gemma 3nGemma 3 发布几个月后，谷歌发布了 Gemma 3n，这是一款针对小型设备效率优化的 Gemma 3 型号，目标是能在手机上运行。
-Gemma 3n 中为提高效率所做的改动之一是所谓的层嵌入（ Per-Layer Embedding，PLE）参数层。关键思想是只保留模型参数的子集在 GPU 内存中。针对特定令牌层的嵌入，如文本、音频和视觉模态的嵌入，按需从 CPU 或 SSD 进行流式传输。
-下图展示了 PLE 内存节省情况，列出标准 Gemma 3 模型的 54.4 亿参数。这很可能指的是 Gemma 3,40 亿的变种。![[ObsidianPicture&#x2F;Pasted image 20260107214330.png]]图 15：来自谷歌 Gemma 3n 博客（https://developers.googleblog.com/en/introducing-gemma-3n/）的注释图，展示了 PLE 内存节省情况。
-5.44亿和40亿参数的差异，是因为谷歌在大型语言模型中报告参数数量的方式很有趣。它们通常会排除嵌入参数以使模型看起来更小，除非在这种情况下，方便地包含这些参数以使模型看起来更大。这并非谷歌独有，这种做法已成为整个领域的普遍做法。
-另一个有趣的技巧是 MatForformer 概念（Matryoshka Transformer的缩写）。例如，Gemma 3n 采用单一共享 LLM（transformer）架构，可以切入更小、独立可用的模型。每个切片都被训练成独立工作，所以在推理时，我们可以只运行你需要的部分（而不是大模型）。
-4. Mistral Small 3.1Mistral Small 3.1 24B 于 Gemma 3 之后的三月发布，值得注意的是，它在多个基准测试（除数学测试外）上表现优于 Gemma 3 27B，同时速度更快。
-Mistral Small 3.1 相比 Gemma 3 的推理延迟更低，很可能是因为他们采用了自定义标记器，同时缩小了 KV 缓存和层数。它采用了如下图所示的标准架构。![[ObsidianPicture&#x2F;Pasted image 20260107214630.png]]图 16：Gemma 3 27B 与 Mistral 3.1 Small 24B 的架构比较
-有趣的是，早期的 Mistral 模型曾使用滑动窗口注意力，但如果考虑官方 Model Hub 配置文件中的默认设置（“sliding_window”： null），它们似乎在 Mistral Small 3.1 中放弃了该功能 。
-因此，由于 Mistral 使用常规的 Grouped-Query Attention，而不是像 Gemma 3 那样带有滑动窗口的 Grouped-Query Attention，也许由于可以使用更优化的代码（即 FlashAttention），从而节省了额外的推理计算。例如，我推测滑动窗口注意力虽然减少了内存使用，但不一定能降低推理延迟，而这正是 Mistral Small 3.1 的重点。
-5. Llama 4本文前面关于专家混合（MoE）的深入介绍再次带来了回报。 Llama 4 也采用了 MoE 方法，其他方面遵循与 DeepSeek V3 非常相似的相对标准架构，如下图所示。（Llama 4 支持原生多模态，类似于 Gemma 和 Mistral 等模型。然而，由于本文聚焦于语言建模，我们只关注文本模型。）![[ObsidianPicture&#x2F;Pasted image 20260108184620.png]]图 17：DeepSeek V3（6710 亿参数）与 Llama 4 Maverick（4000 亿参数）的架构比较。虽然 Llama 4 Maverick 架构整体上与 DeepSeek V3 非常相似，但也有一些值得强调的有趣差异。
-首先，Llama 4 使用类似于前代的分组查询注意力（Grouped-Query Attention），而 DeepSeek V3 则使用多头潜在注意力（Multi-head Latent Attention），这在本文开头讨论过。现在，DeepSeek V3 和 Llama 4 Maverick 都是非常大型的架构，其中 DeepSeek V3 的总参数数大约大了 68%。然而，DeepSeek V3 拥有 370 亿个活跃参数，其活跃参数数量是 Llama 4 Maverick（17B）的两倍多。
-Llama 4 Maverick 采用了更经典的 MoE 设定，专家人数较少但人数更大（2 名活跃专家，每个隐藏规模 8,192），而 DeepSeek V3 则有 9 名活跃专家，每个隐藏规模 2,048。此外，DeepSeek 在每个transform模块（前 3 个除外）中使用 MoE 层，而 Llama 4 则在每隔一个transform模块中交替使用 MoE 和稠密模块。
-鉴于架构间存在诸多细微差异，很难准确判断它们对最终模型性能的影响。然而，主要的结论是，MoE 架构在 2025 年人气显著上升。
-6. Qwen3Qwen3 又是一个热门模型系列，位居其体型类别排行榜前列。有 7 个密集模型：0.6B、1.7B、4B、8B、14B 和 32B。MoE 有两个型号：30B-A3B 和 235B-A22B。
-6.1 Qwen3 (Dense)我们先来讨论稠密模型架构。截至本文撰写时，0.6亿模型很可能是目前最小的一代开放权重模型。根据我个人的经验，考虑到体积小，它表现非常好。如果你打算本地运行，它有很好的令牌&#x2F;秒速传输率，内存占用也很低。更重要的是，由于规模较小，本地培训（用于教育目的）也非常容易。
-所以，Qwen3 0.6B 在大多数情况下已经取代了 Llama 3 1B。下面展示了这两种架构的比较。
-![[ObsidianPicture&#x2F;Pasted image 20260108185019.png]]图 18：Qwen3 0.6B 与 Llama 3 1B 的架构比较;注意 Qwen3 是一个层次更多的更深层架构，而 Llama 3 则是一个更宽的架构，拥有更多的注意力磁头。
-6.2 Qwen3 (MoE)如前所述，Qwen3 也有两种 MoE 版本：30B-A3B 和 235B-A22B。为什么有些架构，比如 Qwen3，会有常规（密集）和 MoE（稀疏）两种变体？如本文开头所述，MoE 变体有助于降低大型基模型的推理成本。同时提供密集版和 MoE 版本，让用户根据目标和限制灵活应对。
-密集模型通常更易于在各种硬件上进行微调、部署和优化。另一方面，MoE 模型针对尺度推断进行了优化。例如，在固定的推理预算下，它们可以实现更高的整体模型容量（即由于体积更大，训练时的知识吸收率更高），而无需相应增加推理成本。
-总结本节，我们来看 Qwen3 235B-A22B（注意 A22B 代表“22B 主动参数”）到 DeepSeek V3，后者活动参数几乎是 37B 的两倍。
-![[ObsidianPicture&#x2F;Pasted image 20260108185540.png]]图 19：DeepSeek V3 与 Qwen3 235B-A22B 的架构比较。
-如上图所示，DeepSeek V3 和 Qwen3 235B-A22B 架构极为相似。值得注意的是，Qwen3 模型逐渐不再使用共享专家（早期的 Qwen 模型，如 Qwen2.5-MoE 确实使用过共享专家）。遗憾的是，Qwen3 团队未透露为何放弃共享专家的原因。如果让我猜，当他们把专家从 2（Qwen2.5-MoE）提升到 8（Qwen3）时，这可能根本不需要训练稳定性。然后他们通过只用 8 个专家而不是 8+1 个专家，节省了额外的计算和内存成本。（不过，这并不能解释为什么 DeepSeek V3 还保留他们共同的专家。）
-**更新。**Qwen3 的开发者之一林俊阳回应如下：当时我们发现共享专家的改进不够显著，担心共享专家导致的推理优化。说实话，这个问题没有明确的答案。
-7. SmolLM3SmolLM3 可能没有本文中提到的其他大型语言模型那么受欢迎，但我认为它仍然是一个有趣的模型，因为它在相对较小且方便的 30 亿参数模型规模下，提供了非常出色的建模性能，介于 1.7B 和 4B Qwen3 模型之间
-7.1 无位置嵌入（NoPE）在大型语言模型（LLM）的语境下，NoPE 是一个较早的想法，可以追溯到 2023 年的一篇论文《 位置编码对变换器中长度泛化的影响 》，旨在去除显式的位置信息注入（比如早期 GPT 架构中的经典绝对位置嵌入层或现今的 RoPE）。
-在基于变换器的大型语言模型中，位置编码通常是必要的，因为自注意独立于顺序处理令牌。绝对位置嵌入通过增加一个额外的嵌入层，为令牌嵌入添加信息来解决这个问题。
-而 RoPE 则通过旋转查询和密钥向量相对于其令牌位置来解决这个问题。然而，在 NoPE 层中，完全不会添加这样的位置信号：既非固定信号，也非学习信号，也非相对信号。什么都没有。
-尽管没有位置嵌入，模型仍能通过因果注意力掩码知道哪些标记在前面。这个掩膜防止每个令牌处理后续的标记。因此，位置 t 的标记只能看到位置 t≤ 位置的标记 ，保持自回归排序。
-因此，虽然没有明确添加位置信息，但模型结构中仍隐含着方向感，LLM 在常规梯度下降训练中，如果觉得对优化目标有益，可以学习如何利用它。（更多信息请参见 NoPE 论文的定理。）
-总体来看，NoPE 论文不仅发现不需要位置信息注入，还发现 NoPE 具有更好的长度推广，这意味着 LLM 响应性能在序列长度增加时下降的幅度较小，如下图所示。![[ObsidianPicture&#x2F;Pasted image 20260108190507.png]]图 23：来自 NoPE 论文（https://arxiv.org/abs/2305.19466 年）的注释图，展示了 NoPE 更优的长度推广。
-请注意，上述实验是在一个相对较小、约有 1 亿参数和较小上下文大小的 GPT 风格模型上进行的。目前尚不清楚这些发现在更大规模、当代大型语言模型中的推广效果。
-因此，SmolLM3 团队很可能只在每第四层“应用”NoPE（或者说省略了 RoPE）。
-8. Kimi K2 和 Kimi K2 ThinkingKimi K2 最近在 AI 社区引起了巨大关注，因为它是一个开放权重模型，且性能极佳。根据基准测试，它与谷歌的 Gemini、Anthropic 的 Claude 和 OpenAI 的 ChatGPT 等顶级专有模型不相上下。
-一个显著特点是它在 AdamW 上使用了相对较新的 Muon 优化器的变体。据我所知，这是首次在 AdamW 上使用 Muon，应用于任何如此规模的量产模型（ 此前仅显示其可放大至 16B）。这带来了非常优异的训练损失曲线，这很可能帮助该模型跃居上述基准测试榜首。模型本身的参数大达1万亿，这确实令人印象深刻。截至目前为止，它可能是本世代最大的大型语言模型（鉴于 Llama 4 Behemoth 尚未发布、专有 LLM 不计入，以及谷歌 1.6 万亿台 Switch Transformer 是另一代编码-解码器架构的限制）。
-这也在形成一个完整的循环，Kimi K2 采用了本文开头提到的 DeepSeek V3 架构，只是他们做得更大，如下图所示。![[ObsidianPicture&#x2F;Pasted image 20260108190811.png]]图 25.1：DeepSeek V3 与 Kimi K2 的架构比较。
-如上图所示，Kimi K2 基本与 DeepSeek V3 相同，只是 MoE 模块中使用更多专家，而多头潜在注意力（MLA）模块中负责人更少。
-9. GPT-OSSOpenAI 发布了 gpt-oss-120b 和 gpt-oss-20b，这是自 2019 年 GPT-2 以来的首批开放权重模型。![[ObsidianPicture&#x2F;Pasted image 20260108191142.png]]图 26：两种 GPT-OSS 模型的架构概述。
-从图 26 来看，该架构包含了我们在之前讨论过的其他架构中见过的所有熟悉组件。例如，图 27 将较小的 gpt-oss 架构与 Qwen3 30B-A3B 并列，后者同样是一个 MoE 模型，活跃参数数量相近（gpt-oss 有 3.6B 活跃参数，Qwen3 30B-A3B 为 3.3B）。
-![[ObsidianPicture&#x2F;Pasted image 20260108191222.png]]图 27：gpt-oss 与 Qwen3 的架构比较
-图 27 中未显示的一个方面是 gpt-oss 使用滑动窗口注意力（类似于 Gemma 3，但每隔一层，而非 5：1 比例）。
-9.1 宽度与深度图 27 显示 gpt-oss 和 Qwen3 使用相似的组件。但如果仔细看这两个模型，会发现 Qwen3 的架构更为深厚，拥有 48 个transform模块，而非 24 个。
-还值得注意的是，GPT-OSS 使用了两倍的注意力磁头，但这并不会直接增加模型宽度。宽度由嵌入维数决定。
-在固定参数数量的情况下，哪种方法比另一种更有利？一般来说，深度模型灵活性更高，但由于不稳定性问题、爆炸和消失梯度（RMSNorm 和快捷连接旨在缓解这些问题）而训练起来更困难。更宽架构的优势在于推理速度更快（令牌数&#x2F;秒数更高），因为并行化更好，内存成本更高。
-9.2 少数大专家与众多小专家的比较如上图 27 所示，GPT-OSS 的专家数量出人意料地少（32 人而非 128 人），每个token只使用 4 名活跃专家，而非 8 名。不过，每位专家的规模远大于 Qwen3 中的专家。这很有趣，因为最近的趋势和发展表明，更多、更小的模型是有益的。
-9.3 注意力偏差与注意力下沉GPT-OSS 和 Qwen3 都使用分组查询关注。主要区别在于，如前所述，gpt-oss 通过每层的滑动窗口注意力限制上下文大小。不过，有一个有趣的细节吸引了我的注意。gpt-oss 似乎使用偏置单位来表示注意力权重。 自 GPT-2 时代以来，我没见过这些偏置单元被使用，它们通常被认为是多余的。事实上，我找到了一篇最近的论文，数学上至少证明了密钥变换（k_proj）至少成立这一点。此外，实证结果显示，带偏置单位和无偏差单位之间的差异很小。在 GPT-OSS 实现中， _注意力消耗_不是输入序列中的实际令牌。相反，它们是学习到的每头偏差 logit，附加在注意力分数上。目标与上述注意力消耗相同，但不修改分词输入。
-10. Grok 2.5我觉得这里值得提及，因为 Grok 2.5 是 xAI 去年的旗舰生产机型。到目前为止，我们讨论的所有模型从一开始就以开放重量型号发布。例如，gpt-oss 很可能不是 GPT-4 的开权克隆，而是专门为开源社区训练的定制模型。有了 Grok 2.5，我们难得一见真正的生产系统，哪怕是去年的。从建筑角度看，Grok 2.5 整体看起来相当标准（见图 32），但有一些值得注意的细节。![[ObsidianPicture&#x2F;Pasted image 20260108191857.png]]图 32：Grok 2.5 与同等大小的 Qwen3 模型并列
-例如，Grok 2.5 使用少量大型专家（八人），反映了较早的趋势。如前所述，像 DeepSeekMoE 论文中的较新设计更倾向于使用更多小型专家（Qwen3 中也有体现）。
-另一个有趣的选择是使用共享专家。图 32 左侧显示的额外 SwiGLU 模块作为一个始终在线的共享专家。它与经典的共享专家设计不同，因为中间维度加倍，但理念相同。（我仍然觉得 Qwen3 省略了共享专家这一点很有趣，Qwen4 及后续模型是否会改变这一点也很有趣。）
-11. GLM-4.5GLM-4.5 是今年的又一重大发布。它是一种类似于 Qwen3 的指令&#x2F;推理混合体，但更适合函数调用和代理风格上下文。
-![[ObsidianPicture&#x2F;Pasted image 20260108192149.png]]_图 33：来自官方 GitHub 仓库的 GLM-4.5 基准测试，链接 https://github.com/zai-org/GLM-4.5 _
-如图 34 所示，GLM-4.5 有两个变体。这款旗舰模型拥有 3550 亿参数，在 12 个基准测试中平均优于 Claude 4 Opus，仅略逊于 OpenAI 的 o3 和 xAI 的 Grok 4。还有 GLM-4.5-Air，这是一种更紧凑、参数达 1060 亿的版本，性能仅略低于 3550 亿型号。
-GLM-4.5 采用了 DeepSeek V3 首次引入的结构选择：在 Mixture-of-Experts（MoE）模块之前有 3 层致密层。为什么？从多个密集层开始，可以提升大型 MoE 系统的收敛稳定性和整体性能。如果立即引入 MoE 路由，稀疏专家选择的不稳定性可能会干扰早期句法和语义特征提取。因此，可以说保持初始层密集，确保模型在路由决策开始影响更高层处理之前形成稳定的低层表示。
-12. Qwen3-Next2025 年 9 月 11 日，Qwen3 团队发布了 Qwen3 Next 80B-A3B（图 35），提供 Ininstruction 和 Thinking 两种版本。虽然其设计基于之前提到的 Qwen3 架构，但我将其作为单独条目收录，以保持数字一致并引起对设计变化的关注。
-12.1 专家级尺寸与数量新的 Qwen3 Next 架构之所以突出，是因为尽管比之前的 235B-A22B 型号小了 3×，但它引入了四倍的专家，甚至增加了一名共享专家。![[ObsidianPicture&#x2F;Pasted image 20260108192432.png]]图 35：5 月发布的原 Qwen3 型号（左）与 9 月发布的 Qwen3 Next 型号（右）并列。
-12.2 门控 DeltaNet + 门控注意力混合另一个亮点是它们用门控 DeltaNet + 门控注意力混合方式取代了常规注意力机制 ，这有助于实现原生 262k 令牌上下文长度的内存使用（之前的 235B-A22B 模型原生支持 32k，YaRN 扩展支持 131k ）
-那么，这种新的注意力混合模式是如何运作的呢？与仍为标准的缩放点积注意力（如前所述，通过在查询头组共享 K&#x2F;V 以减少 KV 缓存大小和内存带宽，但译码成本和缓存仍随序列长度增长）相比，他们的混合机制以 3：1 比例混合了_门控 DeltaNet_ 块和_门控注意力_块，如图 36 所示。![[ObsidianPicture&#x2F;Pasted image 20260108192534.png]]图 36：门控 DeltaNet + 门控注意力混合机制。注意这些排列是 3：1 的比例，意味着 3 个带门控 DeltaNet 的变压器模块后面跟着 1 个带门控注意的变压器模块。右侧子图来自官方 Qwen3 博客：https://qwen.ai/blog?id=4074cca80393150c248e508aa62983f9cb7d27cd&amp;from=research.latest-advancements-list我们可以把门控注意力块看作 GQA 中使用的标准缩放点积注意力，但它在上面有一些调整。 _门禁式注意力_与普通 GQA 区块的主要区别有：
-
-输出门（S 形态控制，通常按通道计算），在注意力结果被加回残差之前进行调整;
-QKNorm 的零中心 RMSNorm，而非标准的 RMSNorm;
-部分 RoPE（在部分维度上）。注意这些本质上只是对 GQA 的稳定性调整。
-
-门控 DeltaNet 是一个更为重要的变革。在 DeltaNet 块中，q、k、v 和两个门（α、β）由带归一化的线性和轻量卷积层生成，该层用快速权重_的 Delta 规则_更新替代注意力。但代价是 DeltaNet 提供的内容检索不如全注意力精确，这也是为什么保留了一个门控关注层。
-鉴于注意力是平方增长的，加入了 DeltaNet 组件以提升内存效率。在“线性时间、无缓存”系列中，DeltaNet 块本质上是 Mamba 的替代方案。Mamba 通过学习的状态空间滤波器（本质上是随时间动态卷积）来保持状态。DeltaNet 保持一个小型快速权重内存，更新 α 和 β，并用 q 读取，只有小卷积只用于帮助形成 q、k、v、α、β。
-12.3 多代币预测Multi-Token Prediction (MTP)Qwen3-Next 引入了原生多标记预测（MTP）机制，不仅为投机性解码提供高接受率的 MTP 模块，还提升了整体性能。此外，Qwen3-Next 专门优化 MTP 的多步推理性能，通过多步训练进一步提升推测性解码在真实场景中的接受率，保持训练与推理之间的一致性。Souce：Qwen3-下一篇博客
-]]></content>
-      <categories>
-        <category>果冻的理论学习</category>
-      </categories>
-      <tags>
-        <tag>调研</tag>
-        <tag>LLM</tag>
-        <tag>架构</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>2025年大型语言模型现状：进展、问题与预测</title>
-    <url>/gdBlog/2026/01/02/2025%E5%B9%B4%E5%A4%A7%E5%9E%8B%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B%E7%8E%B0%E7%8A%B6%EF%BC%9A%E8%BF%9B%E5%B1%95%E3%80%81%E9%97%AE%E9%A2%98%E4%B8%8E%E9%A2%84%E6%B5%8B/</url>
-    <content><![CDATA[原文链接
-随着2025年即将结束，我想回顾今年大型语言模型中一些最重要的发展，反思那些仍然存在的局限性和未解决的问题，并分享一些对未来可能出现的展望。
-1. 推理之年、RLVR 和 GRPO缩放依然有效，但实际上并没有改变大型语言模型的行为或实际体验（唯一的例外是 OpenAI 新发布的 o1，它增加了推理痕迹）。因此，当 DeepSeek 在 2025 年 1 月发布他们的 R1 论文 ，证明通过强化学习可以发展类推理行为时，这成为了一件大事。（在大型语言模型（LLM）中，推理意味着模型解释其答案，而这种解释本身通常会提高答案的准确性。）
-1.1 The DeepSeek MomentDeepSeek R1 因多种原因备受关注：
-首先，DeepSeek R1 作为一个开权重模型发布，表现非常好，可与当时最好的专有模型（ChatGPT、Gemini 等）相媲美。
-其次，DeepSeek R1 论文促使许多人，尤其是投资者和记者，重新审视了 2024 年 12 月的 DeepSeek V3 早期论文 。这导致了一个修正的结论：虽然训练最先进的模型仍然昂贵，但可能比之前假设便宜一个数量级，估计成本接近 500 万美元，而非 500 万或 5 亿美元。DeepSeek R1 补充材料估计，在 DeepSeek V3 基础上训练 DeepSeek R1 模型又需要额外花费 294,000 美元，这远低于所有人的预期。
-第三，也是最有趣的是，论文提出了_带有可验证奖励的强化学习_ （RLVR）与 GRPO 算法，作为一种新的（或至少是修改的）算法方法，用于开发所谓的推理模型并在训练后改进 LLMs。[[RLHF（Reinforcement Learning from Human Feedback，基于人类反馈的强化学习）|RLHF（Reinforcement Learning from Human Feedback，基于人类反馈的强化学习）]]![[ObsidianPicture&#x2F;Pasted image 20260102103717.png]]
-到目前为止，像监督式指令微调（SFT）和人类反馈强化学习（RLHF）等培训后方法，仍然是培训流程的重要组成部分，但由于需要昂贵的书面回应或偏好标签，这些方法都受到瓶颈。（当然，也可以用其他大型语言模型合成生成，但这有点像先有蛋的问题。）
-DeepSeek R1 和 RLVR 的重要之处在于，它们允许我们对大量数据进行后训练，这使它们成为通过后训练时（在可用计算预算下）提升和解锁能力的优秀候选。
-RLVR 中的 V 代表“可验证”，这意味着我们可以使用确定性方法来分配正确性标签，这些标签足以让大型语言模型学习复杂问题解决。（典型类别是数学和代码，但也可以将这一思想扩展到其他领域。）
-话虽如此，结论是今年的 LLM 开发基本上被使用 RLVR 和 GRPO 的推理模型主导。
-基本上，每个主要的开放权重或专有 LLM 开发者都发布了基于 DeepSeek R1 的推理（通常称为“思考”）模型变体。
-1.2 LLM Focus Points如果我要简明扼要地总结每年 LLM 开发重点，除了仅仅扩展架构和预训练计算，我的清单会是这样：
-
-2022 RLHF + PPO  2022 年 RLHF+PPO
-
-2023 LoRA SFT  2023 年 LoRA 系列赛
-
-2024 Mid-Training  2024年中期训练
-
-2025 RLVR + GRPO  2025 年 RLVR+GRPO
-
-
-预培训仍然是一切的必要基础。除此之外，RLHF（通过 PPO 算法）当然也是 2022 年我们最初出现 ChatGPT 模型的关键。
-2023 年，人们非常关注 LoRA 及其类似 LoRA 的参数高效微调技术，用于训练小型定制 LLM。
-随后，在2024年，所有主要实验室开始通过专注于合成数据、优化数据组合、使用领域特定数据以及增加专门的长上下文训练阶段，使其（预）训练流程更加复杂。我在2024年的文章中总结了这些不同的方法（我把这些技术归为预训练，因为当时“中期训练”这个词还没被创造出来）：
-当时，我把这些看作预训练技术，因为它们使用相同的预训练算法和目标。如今，这些稍为专业化的预培训阶段，紧随常规预培训，基于一般数据，通常被称为“中期培训”（作为常规预培训与后培训之间的桥梁，后期培训包括 SFT、RLHF 以及现在的 RLVR）。
-我认为明年我们会看到（甚至）更多关注 RLVR。目前，RLVR 主要应用于数学和代码领域。下一步是不仅将最终答案的正确性作为奖励信号，还要在 RLVR 训练中评判 LLM 的解释。这在过去很多年里就已经有人在研究名称下进行过，称为“过程奖励模型”（PRMs）。不过，目前还没有特别成功。
-不过，看看上个月发布的 DeepSeekMath-V2 论文，我在之前的文章 《 从 DeepSeek V3 到 V3.2：架构、稀疏注意力与强化学习更新 》中讨论过，我认为未来我们会看到更多“解释评分”作为训练信号。
-目前解释的评分方式涉及第二个大型语言模型。这引出了我看到的 RLVR 的另一个方向：向数学和编程以外的其他领域扩展。
-所以，如果你今天问我2026年和2027年我对未来的看法，我会说：
-
-2026 RLVR extensions and more inference-time scaling  2026 年 RLVR 扩展及更多推理时间尺度
-
-2027 Continual learning  2027年持续学习
-
-
-推理扩展并不是新范式，大型语言模型平台已经在底层使用了一些技术。这是延迟、成本和响应准确性之间的权衡。然而，在某些应用中，准确性比延迟和成本更重要，极端的推理缩放完全值得。例如，正如最近的 DeepSeekV2-Math 论文所示，它将模型推向了挑战数学竞赛基准测试中的金牌表现。
-今年同事们也在讨论持续学习。简而言之，持续学习就是用新数据或知识训练模型，而不是从零开始重新训练。这并不是新想法，我很好奇为什么今年它被提得这么多，因为到目前为止，持续学习方面还没有任何新的或实质性的突破。持续学习的挑战是灾难性的遗忘（正如持续预训练实验所示，学习新知识意味着 LLM 在某种程度上会遗忘旧知识）。不过，既然这话题如此热门，我预计未来几年会在减少灾难性遗忘和使持续学习方法开发成为重要发展方面取得更多进展。
-2. GRPO，年度研究宠儿[[GRPO（Group Relative Policy Optimization，分组相对策略优化）|GRPO（Group Relative Policy Optimization，分组相对策略优化）]]在昂贵的大型语言模型时代，近年来学术研究变得有些挑战。当然，那些成为主流且成为 LLM 进展和突破的关键支柱的重要发现，即使（或正因）预算较少，学术界也能实现。
-近年来，流行的例子包括 LoRA（LoRA：大型语言模型的低阶适应 2021）及相关参数高效微调方法。
-另一个是 DPO（ 直接偏好优化：你的语言模型其实是奖励模型 ）及其相关的无奖励模型对齐方法，作为一种基于人类反馈的替代强化学习。
-今年的研究亮点是 GRPO。虽然它是在 DeepSeek R1 论文中提出的，而非学术界的发端，但它依然为研究人员带来了激动人心的一年：RLVR 和 GRPO 在概念上都很有趣，且根据规模不同，实验成本并不高昂。在 LLM 研究文献中看到了许多 GRPO 的数学改进（包括公司和学术研究者），这些改进后来被采用进了最先进的 LLM 的培训流程。
-3. LLM 架构：分岔路口在大型语言模型架构中，最先进的模型仍然使用传统的解码器式变换器。然而，今年开权重大型语言模型基本趋向于使用专家混合层（MoE），以及至少一种“效率调整”的注意力机制：分组查询注意力、滑动窗口注意力或多头潜在注意力。
-除了这些相当标准的大型语言模型架构外，我们还看到更为激进的效率调整，针对注意力机制以随序列长度线性扩展。例如 Qwen3-Next 和 Kimi Linear 中的门控 DeltaNet，以及 NVIDIA Nemotron 3 中的 Mamba-2 层
-总之，我不想在这里讲得太详细，因为如果你想了解更多，我有一篇 1.3 万字且最近更新的文章专门讲这些架构：《大型语言模型架构比较》，https://magazine.sebastianraschka.com/p/the-big-llm-architecture-comparison
-我的预测是，我们至少还会继续建设，并且在transformer架构上至少还会有几年，至少在最先进的建模性能方面是这样
-同时，我确实认为我们会看到越来越多的效率和工程调整，比如门控 DeltaNet 和 Mamba 层，因为在 LLM 的训练、部署和使用规模上，从财务角度来看，这对这些仍在为 LLM 服务花费大量资金的公司来说是合理的。
-这并不意味着没有其他选择。正如我在 《超越标准大语言模型 》中写过的， 文本扩散模型是一种有趣的方法。
-4. 这也是推理尺度与工具使用的年份通过扩展训练数据和架构来改进大型语言模型已成为一个既定的公式，并且（至今）仍在不断带来成果。不过，尤其是今年，它已经不再是“唯一”足够的食谱了
-我们在 GPT 4.5（2025 年 2 月）中看到了这一点，据传它比 GPT 4（以及后来发布的 GPT 5）大得多，单纯的缩放通常并不是最明智的做法。GPT 4.5 的能力可能优于 GPT 4，但增加的训练预算被认为是“性价比不高”。相反，更好的培训流程（更注重中期和后培训）和推理扩展推动了今年的大部分进展。
-另一个重大进步来自于训练 LLM 时考虑使用工具。正如你可能知道的，幻觉是大型语言模型最大的问题之一。可以说，幻觉率一直在改善，我认为这很大程度上归功于这些工具的使用。例如，当被问及 1998 年国际足联足球世界杯冠军时，大语言模型不依赖记忆，而是通过传统搜索引擎工具，从相关可信网站（例如，这里指官方国际足联网站）中选择并抓取这些信息。数学题、计算器 API 等也是如此。
-遗憾的是，开源生态系统尚未完全跟上这一趋势，许多甚至大多数工具仍然默认运行这些大型语言模型为非工具使用模式。其中一个原因是这是一个更新且不断演变的范式，工具需要相应调整。另一个原因是，这个问题更难解决，主要是因为安全性问题（允许大型语言模型无限制使用工具可能存在安全风险，或者对系统造成其他破坏）。我认为最合理的问题是：你会信任一个新实习生在你系统上有这么多访问权限的情况下做这件事吗？）
-我确实认为，在未来几年，本地使用 LLM 时，启用和允许使用工具将变得越来越普遍。
-5. 年度词汇：Benchmaxxing这里的 benchmaxxing 意味着高度关注排行榜数据，有时甚至将基准测试性能本身作为目标，而非整体能力的代理指标。
-一个显著的例子是 Llama 4，它在许多既定基准测试中得分极高。然而，用户和开发者一旦接触到它，就会发现这些分数并不能反映实际的实际能力和实用性。
-俗话说，如果测试集是公开的，那就不是真正的测试集。而现在的问题是，测试集数据不仅是训练语料库的一部分（无论是有意还是无意的），而且在 LLM 开发过程中经常被直接优化。
-在 LLM 开发中，基准数据已不再是衡量 LLM 性能的可靠指标。
-不过，我确实认为基准测试仍然是大型语言模型必须跨越的必要门槛。也就是说，如果我看到一个大型语言模型在基准测试 Y 中得分低于 X，我就已经知道它不是个好 LLM。然而，如果它在基准测试 Y 上得分高于 X，并不意味着它比另一个在同一基准测试中得分高于 X 的 LLM 好多少
-另一个需要考虑的方面是，图像分类器只有一个任务，即对图像进行分类。然而，LLM 被用于许多不同的任务：文本翻译、摘要、编写代码、头脑风暴、解决数学问题等等。在有明确指标如分类准确率的情况下，评估图像分类器比在确定性和自由形式任务上评估 LLM 要简单得多。
-顺便说一句，如果你想了解更多关于 LLM 评估的主要类别，你可能会喜欢我的文章《从零开始理解 LLM 评估的四大主要方法》[[从零开始理解 LLM 评估的四大主要方法]]
-6. 人工智能用于编码、写作和研究7. 边缘：私人数据LLM 的一般编码、知识解答和写作能力不断提升。这在很大程度上是正确的，因为扩展性依然能带来正向的投资回报，这得益于训练流程和范式（例如 RLVR）以及推理扩展和工具使用的改进。然而，除非我们继续发明新的训练方法和&#x2F;或架构（目前没人知道这些方法会是什么样子），否则这一趋势迟早会趋于平稳（类似于我们看到的 GPT 4 到 GPT 4.5 开发阶段）。LLM 目前能够解决很多通用任务和较容易完成的任务。但要让他们在某些行业扎根，就需要更多的领域专精。我认为 LLM 提供商会很想获得高质量、领域特定的数据。目前来看，这将是一个挑战。
-目前，大型语言模型的开发成本高昂且规模化挑战巨大，这也是为什么只有少数大型公司开发最先进的大型语言模型。不过，我认为 LLM 开发正变得越来越商品化，因为 LLM 开发者经常在不同雇主之间轮换，最终会被大型金融机构、生物技术公司以及其他有预算的公司聘用，开发具有竞争力的内部 LLMs，这些 LLM 能利用他们的私有数据
-8. 2025年的惊喜
-已有多个推理模型在主要数学竞赛中达到金牌级表现 （OpenAI 的未命名模型、Gemini Deep Think 和开权重的 DeepSeekMath-V2）。我并不惊讶这种情况发生在整体上，但我很惊讶这事已经发生在 2025 年，而不是 2026 年。
-Llama 4（或称 Llama）在开放权重社区中几乎完全失宠，而 Qwen 则在受欢迎程度上超过了 Llama（根据 Nathan Lambert 的 ATOM 项目报告的下载和衍生品数量 ）。
-Mistral AI 在 2025 年 12 月宣布的最新旗舰 Mistral 3 型号中采用了 DeepSeek V3 架构。
-除了 Qwen3 和 DeepSeek R1&#x2F;V3.2 外，许多其他竞争者也在争夺开放重量级最先进车型的竞争中涌现，包括 Kimi、GLM、MiniMax 和Yi
-更便宜、更高效的混合架构已经成为领先实验室（如 Qwen3-Next、Kimi Linear、Nemotron 3）中优先考虑的重点 ，而不是由独立实验室开发。
-OpenAI 发布了一个开放权重模型（gpt-oss），我今年早些时候写过一篇独立文章介绍它。
-MCP（ 加入 Linux 基金会 ）已经成为代理风格 LLM 系统中工具和数据访问的标准（目前如此）;我预计 2025 年生态系统会更加分散，至少直到 2026 年。
-
-9 2026年预测
-我们很可能会看到一个面向消费者的行业规模扩散模型，实现廉价、可靠、低延迟的推断，Gemini Diffusion 很可能率先出现。
-开放权重社区将缓慢但稳步地采用具有本地工具使用和日益代理能力的大型语言模型。
-RLVR 将更广泛地扩展到数学和编程以外的其他领域（例如化学、生物等）。
-经典的 RAG 将逐渐淡出文档查询的默认解决方案。开发者将不再对每个文档相关查询都使用检索，而是更多依赖更好的长上下文处理，尤其是随着更多“小”开权重模型的出现。
-大量大型语言模型基准和性能提升将来自改进的工具和推理时间扩展，而非训练或核心模型本身。看起来 LLM 变得越来越好，但这主要是因为周边应用在不断进步。与此同时，开发者将更多地关注降低延迟，使推理模型在不必要的推理标记上扩展更少。别误会，2026 年会推动最先进的技术，但今年的进步更多来自推断，而不仅仅是训练方面。
-
-总结来说，如果说2025年有一个元教训，那就是大型语言模型的进步不再依赖单一突破，而是通过多个独立杠杆在多个领域取得改进。这包括架构调整、数据质量改进、推理训练、推理扩展、工具调用等。
-与此同时，评估依然艰难，基准并不完美，关于何时以及如何使用这些系统的良好判断依然至关重要。
-我对2026年的期望是，我们能继续看到有趣的改进，同时也明白这些改进的来源。这需要更好且更一致的基准测试，当然也需要透明度。
-]]></content>
-      <categories>
-        <category>果冻的理论学习</category>
-      </categories>
-      <tags>
-        <tag>总结</tag>
-        <tag>调研</tag>
-        <tag>LLM</tag>
-        <tag>强化学习</tag>
+        <tag>RAG</tag>
       </tags>
   </entry>
 </search>
