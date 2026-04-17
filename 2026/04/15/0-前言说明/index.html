@@ -1,0 +1,271 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>0 前言说明 | 果冻小配方</title><meta name="author" content="GuoDong"><meta name="copyright" content="GuoDong"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="原文链接 Hello-Agents 是 Datawhale 社区的系统性智能体学习教程。如今 Agent 构建主要分为两派，一派是 Dify，Coze，n8n 这类软件工程类 Agent，其本质是流程驱动的软件开发，LLM 作为数据处理的后端；另一派则是 AI 原生的 Agent，即真正以 AI 驱动的 Agent。本教程旨在带领大家深入理解并构建后者——真正的 AI Native Agent。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="0 前言说明">
+<meta property="og:url" content="https://gaoguodong03.github.io/gdBlog/2026/04/15/0-%E5%89%8D%E8%A8%80%E8%AF%B4%E6%98%8E/index.html">
+<meta property="og:site_name" content="果冻小配方">
+<meta property="og:description" content="原文链接 Hello-Agents 是 Datawhale 社区的系统性智能体学习教程。如今 Agent 构建主要分为两派，一派是 Dify，Coze，n8n 这类软件工程类 Agent，其本质是流程驱动的软件开发，LLM 作为数据处理的后端；另一派则是 AI 原生的 Agent，即真正以 AI 驱动的 Agent。本教程旨在带领大家深入理解并构建后者——真正的 AI Native Agent。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://gaoguodong03.github.io/gdBlog/img/logoHelloAgents.png">
+<meta property="article:published_time" content="2026-04-15T07:14:01.001Z">
+<meta property="article:modified_time" content="2026-04-15T08:10:58.939Z">
+<meta property="article:author" content="GuoDong">
+<meta property="article:tag" content="Hello-Agents笔记">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://gaoguodong03.github.io/gdBlog/img/logoHelloAgents.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "0 前言说明",
+  "url": "https://gaoguodong03.github.io/gdBlog/2026/04/15/0-%E5%89%8D%E8%A8%80%E8%AF%B4%E6%98%8E/",
+  "image": "https://gaoguodong03.github.io/gdBlog/img/logoHelloAgents.png",
+  "datePublished": "2026-04-15T07:14:01.001Z",
+  "dateModified": "2026-04-15T08:10:58.939Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "GuoDong",
+      "url": "https://gaoguodong03.github.io/gdBlog"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/gdBlog/img/logo.jpg"><link rel="canonical" href="https://gaoguodong03.github.io/gdBlog/2026/04/15/0-%E5%89%8D%E8%A8%80%E8%AF%B4%E6%98%8E/index.html"><link rel="preconnect"/><link rel="stylesheet" href="/gdBlog/css/index.css"><link rel="stylesheet" href="/gdBlog/pluginsSrc/@fortawesome/fontawesome-free/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/gdBlog/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: '/gdBlog/pluginsSrc/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '0 前言说明',
+  isHighlightShrink: true,
+  isToc: false,
+  pageType: 'post'
+}</script><style>#article-container.post-content h1:before, h2:before, h3:before, h4:before, h5:before, h6:before { -webkit-animation: avatar_turn_around 1s linear infinite; -moz-animation: avatar_turn_around 1s linear infinite; -o-animation: avatar_turn_around 1s linear infinite; -ms-animation: avatar_turn_around 1s linear infinite; animation: avatar_turn_around 1s linear infinite; }</style><!-- hexo injector head_end start --><link rel="stylesheet" href="/gdBlog/./css/categorybar.css"><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-wowjs/lib/animate.min.css" media="print" onload="this.media='screen'"><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-swiper/lib/swiper.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-swiper/lib/swiperstyle.css" media="print" onload="this.media='all'"><!-- hexo injector head_end end --><meta name="generator" content="Hexo 8.0.0"></head><body><div id="web_bg" style="background-image: url(/gdBlog/img/bg1.jpg);"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/gdBlog/img/touxiang.jpg" onerror="this.onerror=null;this.src='/gdBlog/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/gdBlog/archives/"><div class="headline">文章</div><div class="length-num">51</div></a><a href="/gdBlog/tags/"><div class="headline">标签</div><div class="length-num">28</div></a><a href="/gdBlog/categories/"><div class="headline">分类</div><div class="length-num">8</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/gdBlog/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/link/"><i class="fa-fw fas fa-link"></i><span> 书签</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/inbox/"><i class="fa-fw fas fa-inbox"></i><span> 收件箱</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/gdBlog/./img/logoHelloAgents.png);"><nav id="nav"><!-- 左侧博客信息区域--><span id="blog-info"><a class="nav-site-title" href="/gdBlog/"><img class="site-icon" src="/gdBlog/img/logo.jpg" alt="Logo"><span class="site-name">果冻小配方</span></a><a class="nav-page-title" href="/gdBlog/"><span class="site-name">0 前言说明</span></a></span><!-- 新增的导航菜单容器（居中布局关键）--><div id="nav-menus-container"><!-- 菜单主体部分--><div id="menus"><!-- 搜索按钮--><!-- 菜单项--><div class="menus_items"><div class="menus_item"><a class="site-page" href="/gdBlog/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/link/"><i class="fa-fw fas fa-link"></i><span> 书签</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/inbox/"><i class="fa-fw fas fa-inbox"></i><span> 收件箱</span></a></div></div></div><!-- 移动端汉堡菜单按钮（保持原位置）--><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">0 前言说明</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-04-15T07:14:01.001Z" title="发表于 2026-04-15 15:14:01">2026-04-15</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-04-15T08:10:58.939Z" title="更新于 2026-04-15 16:10:58">2026-04-15</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/gdBlog/categories/Hello-Agents/">Hello-Agents</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">总字数:</span><span class="word-count">112</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>1分钟</span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><p><a target="_blank" rel="noopener" href="https://hello-agents.datawhale.cc/#/./README">原文链接</a></p>
+<p>Hello-Agents 是 Datawhale 社区的<strong>系统性智能体学习教程</strong>。如今 Agent 构建主要分为两派，一派是 Dify，Coze，n8n 这类软件工程类 Agent，其本质是流程驱动的软件开发，LLM 作为数据处理的后端；另一派则是 AI 原生的 Agent，即真正以 AI 驱动的 Agent。本教程旨在带领大家深入理解并构建后者——真正的 AI Native Agent。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://gaoguodong03.github.io/gdBlog">GuoDong</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://gaoguodong03.github.io/gdBlog/2026/04/15/0-%E5%89%8D%E8%A8%80%E8%AF%B4%E6%98%8E/">https://gaoguodong03.github.io/gdBlog/2026/04/15/0-%E5%89%8D%E8%A8%80%E8%AF%B4%E6%98%8E/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://gaoguodong03.github.io/gdBlog" target="_blank">果冻小配方</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/gdBlog/tags/Hello-Agents%E7%AC%94%E8%AE%B0/">Hello-Agents笔记</a></div><div class="post-share"><div class="social-share" data-image="/gdBlog/./img/logoHelloAgents.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="/gdBlog/pluginsSrc/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="/gdBlog/pluginsSrc/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/gdBlog/2026/04/15/01-%E4%BB%80%E4%B9%88%E6%98%AFAgent/" title="01 什么是Agent"><img class="cover" src="/gdBlog/./img/logoHelloAgents.png" onerror="onerror=null;src='/gdBlog/img/404.jpg'" alt="cover of previous post"><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">01 什么是Agent</div></div><div class="info-2"><div class="info-item-1">定义在人工智能领域，智能体被定义为任何能够通过传感器（Sensors） 感知其所处环境（Environment），并自主地通过执行器（Actuators） 采取  行动（Action）**以达成特定目标的实体。 智能体并非与环境隔离，它通过其传感器持续地感知环境状态。摄像头、麦克风、雷达或各类应用程序编程接口（Application Programming Interface, API） 返回的数据流，都是其感知能力的延伸。 在当前大语言模型（Large Language Model, LLM） 的热潮出现之前，人工智能的先驱们已经对“智能体”这一概念进行了数十年的探索与构建。这些如今我们称之为“传统智能体”的范式，并非单一的静态概念，而是经历了一条从简单到复杂、从被动反应到主动学习的清晰演进路线。 LLM 出现前的 四种演化 这个演进的起点，是那些结构最简单的反射智能体（Simple Reflex Agent）。它们的决策核心由工程师明确设计的“条件-动作”规则构成。经典的自动恒温器便是如此：若传感器感知的室温高于设定值，则启动制冷系统。  引入了“状态”的概念，发展出基于模型...</div></div></div></a><a class="pagination-related" href="/gdBlog/2026/03/19/%E7%BC%96%E7%A8%8B-Agent-%E5%A6%82%E4%BD%95%E9%87%8D%E5%A1%91%E5%B7%A5%E7%A8%8B%E3%80%81%E4%BA%A7%E5%93%81%E5%92%8C%E8%AE%BE%E8%AE%A1/" title="编程 Agent 如何重塑工程、产品和设计"><img class="cover" src="/gdBlog/./img/logoAgent.png" onerror="onerror=null;src='/gdBlog/img/404.jpg'" alt="cover of next post"><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">编程 Agent 如何重塑工程、产品和设计</div></div><div class="info-2"><div class="info-item-1">原文：How Coding Agents Are Reshaping EPD 作者：Harrison Chase  软件公司的 EPD（工程、产品、设计）存在的意义就是做出好软件。虽然分了不同角色，但最终目标一样：做出能解决业务问题、用户用得上的功能软件。说到底，产出就是代码。这一点必须认清——因为编程 Agent 突然让写代码变得异常简单。那么，EPD 的角色定位会怎么变？ 流程的变化：  PRD 已死 瓶颈从实现转向评审 PRD 万岁  对角色的影响：  通才比以往更有价值 使用编程 Agent 是必选项 好的 PM 更好，差的 PM 更差 每个人都需要产品意识 专业化的门槛更高了 你要么是建设者，要么是评审者 每个人都觉得自己的角色从编程 Agent 中受益最大——而且都没说错  PRD 已死PRD（产品需求文档）曾是 Claude 时代之前软件开发的核心枢纽。EPD 的流程大致是这样的：  有人（通常是产品经理）冒出一个想法 产品经理写一份 PRD 设计师拿着 PRD 做出设计稿 工程师把设计稿变成代码  这并不是铁律（在初创公司，这些步骤往往混在一起，最强的人能同时做好...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/gdBlog/2026/04/15/01-%E4%BB%80%E4%B9%88%E6%98%AFAgent/" title="01 什么是Agent"><img class="cover" src="/gdBlog/./img/logoHelloAgents.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-04-15</div><div class="info-item-2">01 什么是Agent</div></div><div class="info-2"><div class="info-item-1">定义在人工智能领域，智能体被定义为任何能够通过传感器（Sensors） 感知其所处环境（Environment），并自主地通过执行器（Actuators） 采取  行动（Action）**以达成特定目标的实体。 智能体并非与环境隔离，它通过其传感器持续地感知环境状态。摄像头、麦克风、雷达或各类应用程序编程接口（Application Programming Interface, API） 返回的数据流，都是其感知能力的延伸。 在当前大语言模型（Large Language Model, LLM） 的热潮出现之前，人工智能的先驱们已经对“智能体”这一概念进行了数十年的探索与构建。这些如今我们称之为“传统智能体”的范式，并非单一的静态概念，而是经历了一条从简单到复杂、从被动反应到主动学习的清晰演进路线。 LLM 出现前的 四种演化 这个演进的起点，是那些结构最简单的反射智能体（Simple Reflex Agent）。它们的决策核心由工程师明确设计的“条件-动作”规则构成。经典的自动恒温器便是如此：若传感器感知的室温高于设定值，则启动制冷系统。  引入了“状态”的概念，发展出基于模型...</div></div></div></a><a class="pagination-related" href="/gdBlog/2026/04/15/02-Agent%E5%8F%91%E5%B1%95%E5%8F%B2/" title="02 Agent发展史"><img class="cover" src="/gdBlog/./img/logoHelloAgents.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-04-15</div><div class="info-item-2">02 Agent发展史</div></div><div class="info-2"><div class="info-item-1"> 回溯历史：从人工智能领域的古典时代出发，探寻最早的“智能”如何在逻辑与符号的规则体系中被定义；继而见证从单一、集中的智能模型到分布式、协作式智能思想的重大转折；最终理解“学习”范式如何彻底改变了智能体获取能力的方式，并催生出我们今天所见的现代智能体。  如图2.1所示，每一个新范式的出现，都是为了解决上一代范式的核心“痛点”或根本局限。 而新的解决方案在带来能力飞跃的同时，也引入了新的、在当时难以克服的“局限”，而这又为下一代范式的诞生埋下了伏笔。理解这一“问题驱动”的迭代历程，能帮助我们更深刻地把握现代智能体技术选型背后的深层原因与历史必然性。 基于符号与逻辑的早期智能体 果冻： 只是一大堆 if-then 逻辑判断和执行，不需要LLM，关于如何跳转就是正则匹配。因此，问题也就是关于匹配的系统很脆弱，知识库的完备很难构建。  人工智能领域的早期探索，深受数理逻辑和计算机科学基本原理的影响。在那个时代，研究者们普遍持有一种信念：人类的智能，尤其是逻辑推理能力，可以被形式化的符号体系所捕捉和复现。这一核心思想催生了人工智能的第一个重要范式——符号主义（Symbolicism），也...</div></div></div></a><a class="pagination-related" href="/gdBlog/2026/04/15/03-%E5%A4%A7%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B%E5%9F%BA%E7%A1%80/" title="03 大语言模型基础"><img class="cover" src="/gdBlog/./img/logoHelloAgents.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-04-15</div><div class="info-item-2">03 大语言模型基础</div></div><div class="info-2"><div class="info-item-1">语言模型与Transformer架构语言模型 (Language Model, LM) 是自然语言处理的核心，其根本任务是计算一个词序列（即一个句子）出现的概率。 统计语言模型与 N-gram在深度学习兴起之前，统计方法是语言模型的主流。其核心思想是，一个句子出现的概率，等于该句子中每个词出现的条件概率的连乘。直接计算公式几乎是不可能的。 为了解决这个问题，研究者引入了马尔可夫假设 (Markov Assumption) 。其核心思想是：我们不必回溯一个词的全部历史，可以近似地认为，一个词的出现概率只与它前面有限的 n−1个词有关。基于这个假设建立的语言模型，我们称之为 N-gram模型。这里的 “N” 代表我们考虑的上下文窗口大小。让我们来看几个最常见的例子来理解这个概念。 N-gram 模型虽然简单有效，但有两个致命缺陷：  数据稀疏性 (Sparsity) ：如果一个词序列从未在语料库中出现，其概率估计就为 0，这显然是不合理的。虽然可以通过平滑 (Smoothing) 技术缓解，但无法根除。 泛化能力差： 模型无法理解词与词之间的语义相似性。例如，即使模型在语料库中见过很...</div></div></div></a><a class="pagination-related" href="/gdBlog/2026/04/15/05-%E4%B8%BB%E6%B5%81-Agent-%E6%A1%86%E6%9E%B6/" title="05 主流 Agent 框架"><img class="cover" src="/gdBlog/./img/logoHelloAgents.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-04-15</div><div class="info-item-2">05 主流 Agent 框架</div></div><div class="info-2"><div class="info-item-1">  AutoGen：AutoGen 的核心思想是通过对话实现协作。它将多智能体系统抽象为一个由多个“可对话”智能体组成的群聊。开发者可以定义不同角色（如 Coder, ProductManager, Tester），并设定它们之间的交互规则（例如，Coder 写完代码后由 Tester 自动接管）。任务的解决过程，就是这些智能体在群聊中通过自动化消息传递，不断对话、协作、迭代直至最终目标达成的过程。 AgentScope：AgentScope 是一个专为多智能体应用设计的、功能全面的开发平台[2]。它的核心特点是易用性和工程化。它提供了一套非常友好的编程接口，让开发者可以轻松定义智能体、构建通信网络，并管理整个应用的生命周期。其内置的消息传递机制和对分布式部署的支持，使其非常适合构建和运维复杂、大规模的多智能体系统。 CAMEL：CAMEL 提供了一种新颖的、名为角色扮演 (Role-Playing) 的协作方法[3]。其核心理念是，我们只需要为两个智能体（例如，AI研究员 和 Python程序员）设定好各自的角色和共同的任务目标，它们就能在“初始提示 (Inception Pr...</div></div></div></a><a class="pagination-related" href="/gdBlog/2026/04/15/04-Agent-%E7%BB%8F%E5%85%B8%E8%8C%83%E5%BC%8F%E6%9E%84%E5%BB%BA/" title="04 Agent 经典范式构建"><img class="cover" src="/gdBlog/./img/logoHelloAgents.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-04-15</div><div class="info-item-2">04 Agent 经典范式构建</div></div><div class="info-2"><div class="info-item-1">为了更好地组织智能体的“思考”与“行动”过程，业界涌现出了多种经典的架构范式。在本章中，我们将聚焦于其中最具代表性的三种：  ReAct (Reasoning and Acting)： 一种将“思考”和“行动”紧密结合的范式，让智能体边想边做，动态调整。 Plan-and-Solve： 一种“三思而后行”的范式，智能体首先生成一个完整的行动计划，然后严格执行。 Reflection： 一种赋予智能体“反思”能力的范式，通过自我批判和修正来优化结果。  ReActReAct由Shunyu Yao于2022年提出，其核心思想是模仿人类解决问题的方式，将推理 (Reasoning) 与行动 (Acting) 显式地结合起来，形成一个“思考-行动-观察”的循环。 思考指导行动，而行动的结果又反过来修正思考。为此，ReAct范式通过一种特殊的提示工程来引导模型，使其每一步的输出都遵循一个固定的轨迹：  Thought (思考)： 这是智能体的“内心独白”。它会分析当前情况、分解任务、制定下一步计划，或者反思上一步的结果。 Action (行动)： 这是智能体决定采取的具体动作，通常是调用一...</div></div></div></a><a class="pagination-related" href="/gdBlog/2026/04/16/06-%E8%AE%B0%E5%BF%86%E4%B8%8E%E6%A3%80%E7%B4%A2/" title="06 记忆与检索"><img class="cover" src="/gdBlog/./img/logoHelloAgents.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-04-16</div><div class="info-item-2">06 记忆与检索</div></div><div class="info-2"><div class="info-item-1">记忆系统（Memory System） 和检索增强生成（Retrieval-Augmented Generation, RAG） 记忆从人类记忆获得启发，人类记忆可以分为以下几个层次：  感觉记忆（Sensory Memory）：持续时间极短（0.5-3秒），容量巨大，负责暂时保存感官接收到的所有信息 工作记忆（Working Memory）：持续时间短（15-30秒），容量有限（7±2个项目），负责当前任务的信息处理 长期记忆（Long-term Memory）：持续时间长（可达终生），容量几乎无限，进一步分为： 程序性记忆：技能和习惯（如骑自行车） 陈述性记忆：可以用语言表达的知识，又分为： 语义记忆：一般知识和概念（如”巴黎是法国首都”） 情景记忆：个人经历和事件（如”昨天的会议内容”）       记忆作用帮助模型记住上下文：模型本身不会自动“记住”上一次对话的内容。帮助模型获取最新的知识：LLM 的另一个核心局限在于其知识是静态的、有限的。这些知识完全来自于它的训练数据 记忆系统工作流程 根据认知科学的研究，人类记忆的形成经历以下几个阶段：  编码（Encoding）：...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/gdBlog/img/touxiang.jpg" onerror="this.onerror=null;this.src='/gdBlog/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">GuoDong</div><div class="author-info-description">碎碎念念 岁岁年年</div><div class="site-data"><a href="/gdBlog/archives/"><div class="headline">文章</div><div class="length-num">51</div></a><a href="/gdBlog/tags/"><div class="headline">标签</div><div class="length-num">28</div></a><a href="/gdBlog/categories/"><div class="headline">分类</div><div class="length-num">8</div></a></div><div class="card-info-social-icons"><a class="social-icon" href="https://www.douyin.com/" target="_blank" title="douyin"><i class="fab fa-tiktok" style="color: #24292e;"></i></a><a class="social-icon" href="https://www.bilibili.com/" target="_blank" title="bilibili"><i class="fab fa-bilibili" style="color: #24292e;"></i></a><a class="social-icon" href="https://github.com/gaoguodong03" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="https://leetcode.cn/studyplan/top-100-liked/" target="_blank" title="LeetCode"><i class="fab fa-comments" style="color: #24292e;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">好事马上发生</div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/gdBlog/2026/04/16/07-%E4%B8%8A%E4%B8%8B%E6%96%87%E5%B7%A5%E7%A8%8B/" title="07 上下文工程">07 上下文工程</a><time datetime="2026-04-16T10:54:58.522Z" title="更新于 2026-04-16 18:54:58">2026-04-16</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/gdBlog/2026/04/16/06-%E8%AE%B0%E5%BF%86%E4%B8%8E%E6%A3%80%E7%B4%A2/" title="06 记忆与检索">06 记忆与检索</a><time datetime="2026-04-16T09:04:40.049Z" title="更新于 2026-04-16 17:04:40">2026-04-16</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/gdBlog/2026/04/15/05-%E4%B8%BB%E6%B5%81-Agent-%E6%A1%86%E6%9E%B6/" title="05 主流 Agent 框架">05 主流 Agent 框架</a><time datetime="2026-04-15T14:48:11.621Z" title="更新于 2026-04-15 22:48:11">2026-04-15</time></div></div></div></div></div></div></main><footer id="footer" style="background: transparent;"><div class="footer-other"><div class="footer-copyright"></div><div class="footer_custom_text"><style>
+  .footer {
+    text-align: center;
+    position: relative;
+  }
+  .footer p {
+    margin: 0.5rem 0;
+    line-height: 1;
+  }
+  .copyright {
+    font-size: 1.1rem; 
+    color: #000000;
+    font-weight: 400;
+  }
+  .tagline {
+    font-size: 0.8rem;
+    color: #333333;
+    font-style: italic;
+    font-weight: 500;
+  }
+  .visitor-count {
+    font-size: 0.75rem;
+    color: rgba(0, 0, 0, 0.7);
+    font-weight: 300;
+  }
+  #visitorCount {
+    font-weight: bold;
+  }
+</style>
+<div class="footer">
+  <p class="copyright">© 2025 果冻小配方 - 所有权利保留</p>
+  <p class="tagline">> 碎碎念念 岁岁年年 <</p>
+  <p class="visitor-count">访问量: <span id="visitorCount">1024</span> | 你是第 <span id="dailyVisitor">1</span> 位今日访客</p>
+</div>
+<script>
+  // 确保DOM加载完成后执行
+  document.addEventListener('DOMContentLoaded', function() {
+    // 模拟访问量增长
+    function updateVisitorCount() {
+      const countElement = document.getElementById('visitorCount');
+      let count = parseInt(localStorage.getItem('totalVisitors'), 10) || 1024;
+      count += 1;
+      countElement.textContent = count;
+      localStorage.setItem('totalVisitors', String(count));
+      const today = new Date().toDateString();
+      const dailyData = JSON.parse(localStorage.getItem('dailyVisitors') || '{"date":"", "count":0}');
+      if (dailyData.date !== today) {
+        dailyData.date = today;
+        dailyData.count = 0;
+      }
+      dailyData.count += 1;
+      document.getElementById('dailyVisitor').textContent = dailyData.count;
+      localStorage.setItem('dailyVisitors', JSON.stringify(dailyData));
+    }
+    updateVisitorCount();
+  });
+</script>
+</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/gdBlog/js/utils.js"></script><script src="/gdBlog/js/main.js"></script><div class="js-pjax"></div><script src="/config/js/happy-title.js" async></script><script src="/config/js/foot.js" async></script></div><!-- hexo injector body_end start --><script data-pjax>
+    function butterfly_categories_card_injector_config(){
+      var parent_div_git = document.getElementById('recent-posts');
+      var item_html = '<style>li.categoryBar-list-item{width:32.3%;}.categoryBar-list{max-height: 950px;overflow:auto;}.categoryBar-list::-webkit-scrollbar{width:0!important}@media screen and (max-width: 650px){.categoryBar-list{max-height: 800px;}}</style><div class="recent-post-item" style="height:auto;width:100%;padding:0px;"><div id="categoryBar"><ul class="categoryBar-list"><li class="categoryBar-list-item" style="background:url(/img/logo.jpg);"> <a class="categoryBar-list-link" href="categories/Hello-Agents/">Hello-Agents</a><span class="categoryBar-list-count">8</span><span class="categoryBar-list-descr">果冻的航海日记</span></li><li class="categoryBar-list-item" style="background:url(/img/logo.jpg);"> <a class="categoryBar-list-link" href="categories/果冻的科普专区/">果冻的科普专区</a><span class="categoryBar-list-count">9</span><span class="categoryBar-list-descr">Hexo</span></li><li class="categoryBar-list-item" style="background:url(/img/logo.jpg);"> <a class="categoryBar-list-link" href="categories/果冻的理论学习/">果冻的理论学习</a><span class="categoryBar-list-count">14</span><span class="categoryBar-list-descr">果冻的奇妙小工具</span></li><li class="categoryBar-list-item" style="background:url(/img/logo.jpg);"> <a class="categoryBar-list-link" href="categories/果冻的奇妙小工具/">果冻的奇妙小工具</a><span class="categoryBar-list-count">6</span><span class="categoryBar-list-descr">果冻的日记本</span></li><li class="categoryBar-list-item" style="background:url(undefined);"> <a class="categoryBar-list-link" href="categories/果冻的航海日志/">果冻的航海日志</a><span class="categoryBar-list-count">6</span><span class="categoryBar-list-descr"></span></li><li class="categoryBar-list-item" style="background:url(undefined);"> <a class="categoryBar-list-link" href="categories/道不可言言而非也/">道不可言言而非也</a><span class="categoryBar-list-count">1</span><span class="categoryBar-list-descr"></span></li><li class="categoryBar-list-item" style="background:url(undefined);"> <a class="categoryBar-list-link" href="categories/Hexo/">Hexo</a><span class="categoryBar-list-count">1</span><span class="categoryBar-list-descr"></span></li><li class="categoryBar-list-item" style="background:url(undefined);"> <a class="categoryBar-list-link" href="categories/果冻的LeetCode刷题/">果冻的LeetCode刷题</a><span class="categoryBar-list-count">5</span><span class="categoryBar-list-descr"></span></li></ul></div></div>';
+      console.log('已挂载butterfly_categories_card')
+      parent_div_git.insertAdjacentHTML("afterbegin",item_html)
+      }
+    if( document.getElementById('recent-posts') && (location.pathname ==='/categories/'|| '/categories/' ==='all')){
+    butterfly_categories_card_injector_config()
+    }
+  </script><div class="js-pjax"><script async="async">var arr = document.getElementsByClassName('recent-post-item');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__zoomIn');
+    arr[i].setAttribute('data-wow-duration', '300ms');
+    arr[i].setAttribute('data-wow-delay', '0ms');
+    arr[i].setAttribute('data-wow-offset', '0');
+    arr[i].setAttribute('data-wow-iteration', '1');
+  }</script><script async="async">var arr = document.getElementsByClassName('card-widget');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__zoomIn');
+    arr[i].setAttribute('data-wow-duration', '');
+    arr[i].setAttribute('data-wow-delay', '');
+    arr[i].setAttribute('data-wow-offset', '');
+    arr[i].setAttribute('data-wow-iteration', '');
+  }</script></div><script defer src="https://npm.elemecdn.com/hexo-butterfly-wowjs/lib/wow.min.js"></script><script defer src="https://npm.elemecdn.com/hexo-butterfly-wowjs/lib/wow_init.js"></script><script data-pjax>
+  function butterfly_swiper_injector_config(){
+    var parent_div_git = document.getElementById('recent-posts');
+    var item_html = '<div class="recent-post-item" style="height: auto;width: 100%"><div class="blog-slider swiper-container-fade swiper-container-horizontal" id="swiper_container"><div class="blog-slider__wrp swiper-wrapper" style="transition-duration: 0ms;"></div><div class="blog-slider__pagination swiper-pagination-clickable swiper-pagination-bullets"></div></div></div>';
+    console.log('已挂载butterfly_swiper')
+    parent_div_git.insertAdjacentHTML("afterbegin",item_html)
+    }
+  var elist = 'undefined'.split(',');
+  var cpage = location.pathname;
+  var epage = '/';
+  var flag = 0;
+
+  for (var i=0;i<elist.length;i++){
+    if (cpage.includes(elist[i])){
+      flag++;
+    }
+  }
+
+  if ((epage ==='all')&&(flag == 0)){
+    butterfly_swiper_injector_config();
+  }
+  else if (epage === cpage){
+    butterfly_swiper_injector_config();
+  }
+  </script><script defer src="https://npm.elemecdn.com/hexo-butterfly-swiper/lib/swiper.min.js"></script><script defer data-pjax src="https://npm.elemecdn.com/hexo-butterfly-swiper/lib/swiper_init.js"></script><!-- hexo injector body_end end --></body></html>
