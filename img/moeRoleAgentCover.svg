@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">MoE Role Prompting Multi-Agent cover</title>
+  <desc id="desc">Blog cover for distinguishing MoE, role prompting, and multi-agent.</desc>
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f8fafc"/>
+      <stop offset="1" stop-color="#dbeafe"/>
+    </linearGradient>
+    <style>
+      .title{font:900 84px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#0f172a}.sub{font:700 40px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#334155}.pill{font:800 34px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#fff}.small{font:600 28px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#475569}
+    </style>
+  </defs>
+  <rect width="1600" height="900" fill="url(#g)"/>
+  <text class="title" x="110" y="210">别再混淆这 3 个概念</text>
+  <text class="sub" x="112" y="285">MoE / Role Prompting / 多 Agent</text>
+  <rect x="120" y="410" width="350" height="110" rx="34" fill="#2563eb"/>
+  <text class="pill" x="220" y="480">模型内部</text>
+  <text class="small" x="230" y="560">MoE</text>
+  <rect x="625" y="410" width="350" height="110" rx="34" fill="#ea580c"/>
+  <text class="pill" x="705" y="480">提示词内部</text>
+  <text class="small" x="690" y="560">Role Prompting</text>
+  <rect x="1130" y="410" width="350" height="110" rx="34" fill="#4f46e5"/>
+  <text class="pill" x="1195" y="480">应用系统内部</text>
+  <text class="small" x="1210" y="560">Multi-Agent</text>
+  <path d="M470 465 H625" stroke="#64748b" stroke-width="8" stroke-linecap="round" stroke-dasharray="18 18"/>
+  <path d="M975 465 H1130" stroke="#64748b" stroke-width="8" stroke-linecap="round" stroke-dasharray="18 18"/>
+  <text class="small" x="112" y="755">核心判断：不是看名字里有没有“专家”，而是看分工发生在哪一层。</text>
+</svg>
