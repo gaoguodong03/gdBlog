@@ -1,0 +1,542 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>MoE：大模型为什么开始学会分工 | 果冻小配方</title><meta name="author" content="GuoDong"><meta name="copyright" content="GuoDong"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="写在前面最近学习大模型架构时，反复看到一个词：MoE，也就是 Mixture of Experts，专家混合。 它经常和 DeepSeek、Mixtral、Switch Transformer 这些模型一起出现。最吸引人的地方是：一个模型可以拥有非常大的总参数量，但每次推理时只激活其中一小部分参数。 比如 Mixtral 8x7B 的每个 MoE 层有 8 个专家，但每个 token 只选 2 个">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MoE：大模型为什么开始学会分工">
+<meta property="og:url" content="https://gaoguodong03.github.io/gdBlog/2026/05/31/MoE%EF%BC%9A%E5%A4%A7%E6%A8%A1%E5%9E%8B%E4%B8%BA%E4%BB%80%E4%B9%88%E5%BC%80%E5%A7%8B%E5%AD%A6%E4%BC%9A%E5%88%86%E5%B7%A5/index.html">
+<meta property="og:site_name" content="果冻小配方">
+<meta property="og:description" content="写在前面最近学习大模型架构时，反复看到一个词：MoE，也就是 Mixture of Experts，专家混合。 它经常和 DeepSeek、Mixtral、Switch Transformer 这些模型一起出现。最吸引人的地方是：一个模型可以拥有非常大的总参数量，但每次推理时只激活其中一小部分参数。 比如 Mixtral 8x7B 的每个 MoE 层有 8 个专家，但每个 token 只选 2 个">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://gaoguodong03.github.io/gdBlog/img/logoLLM.png">
+<meta property="article:published_time" content="2026-05-31T00:00:00.000Z">
+<meta property="article:modified_time" content="2026-05-31T08:04:46.657Z">
+<meta property="article:author" content="GuoDong">
+<meta property="article:tag" content="LLM">
+<meta property="article:tag" content="MoE">
+<meta property="article:tag" content="架构">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://gaoguodong03.github.io/gdBlog/img/logoLLM.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "MoE：大模型为什么开始学会分工",
+  "url": "https://gaoguodong03.github.io/gdBlog/2026/05/31/MoE%EF%BC%9A%E5%A4%A7%E6%A8%A1%E5%9E%8B%E4%B8%BA%E4%BB%80%E4%B9%88%E5%BC%80%E5%A7%8B%E5%AD%A6%E4%BC%9A%E5%88%86%E5%B7%A5/",
+  "image": "https://gaoguodong03.github.io/gdBlog/img/logoLLM.png",
+  "datePublished": "2026-05-31T00:00:00.000Z",
+  "dateModified": "2026-05-31T08:04:46.657Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "GuoDong",
+      "url": "https://gaoguodong03.github.io/gdBlog"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/gdBlog/img/logo.jpg"><link rel="canonical" href="https://gaoguodong03.github.io/gdBlog/2026/05/31/MoE%EF%BC%9A%E5%A4%A7%E6%A8%A1%E5%9E%8B%E4%B8%BA%E4%BB%80%E4%B9%88%E5%BC%80%E5%A7%8B%E5%AD%A6%E4%BC%9A%E5%88%86%E5%B7%A5/index.html"><link rel="preconnect"/><link rel="stylesheet" href="/gdBlog/css/index.css"><link rel="stylesheet" href="/gdBlog/pluginsSrc/@fortawesome/fontawesome-free/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/gdBlog/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: '/gdBlog/pluginsSrc/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'MoE：大模型为什么开始学会分工',
+  isHighlightShrink: true,
+  isToc: true,
+  pageType: 'post'
+}</script><style>#article-container.post-content h1:before, h2:before, h3:before, h4:before, h5:before, h6:before { -webkit-animation: avatar_turn_around 1s linear infinite; -moz-animation: avatar_turn_around 1s linear infinite; -o-animation: avatar_turn_around 1s linear infinite; -ms-animation: avatar_turn_around 1s linear infinite; animation: avatar_turn_around 1s linear infinite; }</style><!-- hexo injector head_end start --><link rel="stylesheet" href="/gdBlog/./css/categorybar.css"><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-wowjs/lib/animate.min.css" media="print" onload="this.media='screen'"><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-swiper/lib/swiper.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-swiper/lib/swiperstyle.css" media="print" onload="this.media='all'"><!-- hexo injector head_end end --><meta name="generator" content="Hexo 8.0.0"></head><body><div id="web_bg" style="background-image: url(/gdBlog/img/bg1.jpg);"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/gdBlog/img/touxiang.jpg" onerror="this.onerror=null;this.src='/gdBlog/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/gdBlog/archives/"><div class="headline">文章</div><div class="length-num">59</div></a><a href="/gdBlog/tags/"><div class="headline">标签</div><div class="length-num">34</div></a><a href="/gdBlog/categories/"><div class="headline">分类</div><div class="length-num">8</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/gdBlog/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/link/"><i class="fa-fw fas fa-link"></i><span> 书签</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/inbox/"><i class="fa-fw fas fa-inbox"></i><span> 收件箱</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/gdBlog/./img/logoLLM.png);"><nav id="nav"><!-- 左侧博客信息区域--><span id="blog-info"><a class="nav-site-title" href="/gdBlog/"><img class="site-icon" src="/gdBlog/img/logo.jpg" alt="Logo"><span class="site-name">果冻小配方</span></a><a class="nav-page-title" href="/gdBlog/"><span class="site-name">MoE：大模型为什么开始学会分工</span></a></span><!-- 新增的导航菜单容器（居中布局关键）--><div id="nav-menus-container"><!-- 菜单主体部分--><div id="menus"><!-- 搜索按钮--><!-- 菜单项--><div class="menus_items"><div class="menus_item"><a class="site-page" href="/gdBlog/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/link/"><i class="fa-fw fas fa-link"></i><span> 书签</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/inbox/"><i class="fa-fw fas fa-inbox"></i><span> 收件箱</span></a></div></div></div><!-- 移动端汉堡菜单按钮（保持原位置）--><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">MoE：大模型为什么开始学会分工</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-05-31T00:00:00.000Z" title="发表于 2026-05-31 08:00:00">2026-05-31</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-05-31T08:04:46.657Z" title="更新于 2026-05-31 16:04:46">2026-05-31</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/gdBlog/categories/%E6%9E%9C%E5%86%BB%E7%9A%84%E7%90%86%E8%AE%BA%E5%AD%A6%E4%B9%A0/">果冻的理论学习</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">总字数:</span><span class="word-count">3.9k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>13分钟</span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h1 id="写在前面"><a href="#写在前面" class="headerlink" title="写在前面"></a>写在前面</h1><p>最近学习大模型架构时，反复看到一个词：<strong>MoE</strong>，也就是 <strong>Mixture of Experts，专家混合</strong>。</p>
+<p>它经常和 DeepSeek、Mixtral、Switch Transformer 这些模型一起出现。最吸引人的地方是：一个模型可以拥有非常大的总参数量，但每次推理时只激活其中一小部分参数。</p>
+<p>比如 Mixtral 8x7B 的每个 MoE 层有 8 个专家，但每个 token 只选 2 个专家；DeepSeek-V2 的总参数是 236B，但每个 token 激活约 21B 参数；DeepSeek-V3 的总参数是 671B，每个 token 激活约 37B 参数。</p>
+<p>所以 MoE 最有意思的问题不是“它是不是更大”，而是：</p>
+<blockquote>
+<p>能不能让模型拥有更大的知识容量，同时不让每次推理的计算成本同比例暴涨？</p>
+</blockquote>
+<p>这篇文章是我对 MoE 的一次系统学习整理。相比只把它理解成“多个专家一起工作”，我更愿意把 MoE 看成一种大模型内部的组织方式：<strong>用 Router 把 token 分配给不同专家，用稀疏激活把模型容量和计算成本部分解耦</strong>。</p>
+<h1 id="1-从-dense-FFN-到-MoE-FFN"><a href="#1-从-dense-FFN-到-MoE-FFN" class="headerlink" title="1. 从 dense FFN 到 MoE FFN"></a>1. 从 dense FFN 到 MoE FFN</h1><p>Transformer 里有两个很重要的子模块：Attention 和 FFN。</p>
+<p>Attention 负责让 token 之间交换信息，FFN 则负责对每个 token 的隐藏状态做非线性变换。很多大语言模型里，FFN 占了相当大比例的参数。</p>
+<p>Dense Transformer 的一层可以粗略写成：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hidden -&gt; attention -&gt; FFN -&gt; hidden</span><br></pre></td></tr></table></figure>
+
+<p>MoE Transformer 的关键变化，是把某些层里的单个 FFN 换成多个专家 FFN：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hidden -&gt; attention -&gt; router -&gt; selected experts -&gt; combine -&gt; hidden</span><br></pre></td></tr></table></figure>
+
+<p>也就是说，MoE 通常不是把整个模型复制很多份，而是把 Transformer block 里的 FFN 子层替换成一个“专家池”。</p>
+<p><img src="https://raw.githubusercontent.com/gaoguodong03/gdBlogPic/img/img/20260531160419630.svg" alt="MoE 层把单个 FFN 替换成多个专家 FFN"></p>
+<p>从这个角度看，MoE 的比喻可以是一个医院分诊系统：</p>
+<ul>
+<li>token 先来到 Router；</li>
+<li>Router 判断它更适合交给哪些专家；</li>
+<li>只调用少数几个 expert；</li>
+<li>最后把专家输出合并回主干网络。</li>
+</ul>
+<p>这里有一个容易误解的点：<strong>Expert 通常不是一个完整大模型，而是一个 FFN&#x2F;MLP 子网络</strong>。所以 MoE 不是“多个模型投票”，而是在模型内部引入了条件计算。</p>
+<h1 id="2-MoE-的核心：总参数和激活参数分离"><a href="#2-MoE-的核心：总参数和激活参数分离" class="headerlink" title="2. MoE 的核心：总参数和激活参数分离"></a>2. MoE 的核心：总参数和激活参数分离</h1><p>理解 MoE，一定要分清两个数字：</p>
+<table>
+<thead>
+<tr>
+<th>指标</th>
+<th>含义</th>
+<th>为什么重要</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>总参数量</td>
+<td>模型里一共有多少参数</td>
+<td>代表模型容量，能容纳更多知识和模式</td>
+</tr>
+<tr>
+<td>激活参数量</td>
+<td>每个 token 实际参与计算的参数</td>
+<td>更接近推理成本、吞吐和延迟</td>
+</tr>
+</tbody></table>
+<p>Dense model 的特点是：总参数量大致等于每次会用到的参数量。一个 70B dense 模型，每个 token 基本都要经过这 70B 参数对应的计算路径。</p>
+<p>MoE 的特点是：总参数量可以很大，但每个 token 只激活少数专家。这样模型容量上去了，单 token 的计算量没有按总参数量线性增长。</p>
+<p>这就是 MoE 的关键卖点：<strong>用稀疏激活换更大的模型容量</strong>。</p>
+<p>Shazeer 等人在 2017 年的 Sparsely-Gated MoE 论文里，已经把这个方向说得很清楚：神经网络吸收知识的能力受参数数量限制，而条件计算可以让每个样本只激活网络的一部分，从而扩大容量又控制计算量。</p>
+<p>可以把它总结成一个简单关系：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">dense model: 计算成本大致随总参数量增长</span><br><span class="line">MoE model:   计算成本更接近激活参数量，但存储和通信仍受总参数量影响</span><br></pre></td></tr></table></figure>
+
+<p>这句话后半句也很重要。MoE 不是把成本变没了，而是把成本拆成了几类：</p>
+<ul>
+<li>计算成本：只跑少数专家，下降明显；</li>
+<li>存储成本：专家参数仍然要放在设备上；</li>
+<li>通信成本：token 要被送到对应专家，分布式场景会更复杂；</li>
+<li>调度成本：专家负载不均会影响吞吐。</li>
+</ul>
+<h1 id="3-Router-到底在算什么"><a href="#3-Router-到底在算什么" class="headerlink" title="3. Router 到底在算什么"></a>3. Router 到底在算什么</h1><p>给定一个 token 的隐藏状态 <code>h</code>，Router 会先算出它对每个专家的偏好分数：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">router_logits = hW_r</span><br><span class="line">router_probs  = softmax(router_logits)</span><br></pre></td></tr></table></figure>
+
+<p>然后从 <code>router_probs</code> 里选择 top-k 个专家。假设选出来的是专家集合 <code>S</code>，那么 MoE 层输出可以粗略写成：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">MoE(h) = sum(g_i * Expert_i(h)), i in S</span><br></pre></td></tr></table></figure>
+
+<p>其中 <code>g_i</code> 是 Router 给专家 <code>i</code> 的权重，<code>Expert_i(h)</code> 是这个专家对当前 token 的变换结果。</p>
+<p>如果是 top-1 routing，每个 token 只走一个专家：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">MoE(h) = Expert_j(h)</span><br></pre></td></tr></table></figure>
+
+<p>如果是 top-2 routing，每个 token 走两个专家，并按 Router 权重加权合并：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">MoE(h) = g_a * Expert_a(h) + g_b * Expert_b(h)</span><br></pre></td></tr></table></figure>
+
+<p>这就是为什么 Router 是 MoE 里最关键也最麻烦的角色。它不是一个普通分类器，而是在决定每个 token 的计算路径。</p>
+<h1 id="4-Dispatch-和-Combine：MoE-不是简单调用函数"><a href="#4-Dispatch-和-Combine：MoE-不是简单调用函数" class="headerlink" title="4. Dispatch 和 Combine：MoE 不是简单调用函数"></a>4. Dispatch 和 Combine：MoE 不是简单调用函数</h1><p>从概念上看，Router 选择专家很简单。但在真实训练和推理里，MoE 层会经历两个额外步骤：</p>
+<ul>
+<li><strong>Dispatch</strong>：把 token 按照 Router 结果分发到对应专家；</li>
+<li><strong>Combine</strong>：把专家输出按 Router 权重合并回来，并恢复原来的 token 顺序。</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/gaoguodong03/gdBlogPic/img/img/20260531160419631.svg" alt="MoE 中 token dispatch 与 expert output combine"></p>
+<p>这一步会引出很多工程问题。</p>
+<p>假设一个 batch 里有 4096 个 token，8 个专家，每个 token 选 2 个专家。理论上会产生 8192 次 token-expert 分配。但这些分配不一定均匀，有些专家可能收到 1500 个 token，有些专家可能只收到 300 个 token。</p>
+<p>这会导致两个后果：</p>
+<ol>
+<li>热门专家成为瓶颈，整个 MoE 层要等它算完；</li>
+<li>冷门专家训练不足，模型容量没有被充分使用。</li>
+</ol>
+<p>所以 MoE 不只是“选择专家”，还要解决“如何把 token 高效地搬过去，再高效地搬回来”。</p>
+<h1 id="5-Capacity-Factor：专家不是无限接诊"><a href="#5-Capacity-Factor：专家不是无限接诊" class="headerlink" title="5. Capacity Factor：专家不是无限接诊"></a>5. Capacity Factor：专家不是无限接诊</h1><p>MoE 论文里经常出现一个概念：<strong>expert capacity</strong>。</p>
+<p>直觉上，每个专家在一个 batch 里最多能处理多少 token，是需要提前规划的。因为 GPU 上通常希望张量形状稳定，不能每个 step 都让某个专家突然接收任意数量的 token。</p>
+<p>一个常见写法是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">expert_capacity = ceil(tokens_per_batch * top_k / num_experts * capacity_factor)</span><br></pre></td></tr></table></figure>
+
+<p>如果 <code>capacity_factor = 1.25</code>，说明每个专家预留比平均负载多 25% 的容量。</p>
+<p>这会带来一个 tradeoff：</p>
+<table>
+<thead>
+<tr>
+<th>capacity factor</th>
+<th>好处</th>
+<th>代价</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>太小</td>
+<td>计算更紧凑，浪费少</td>
+<td>容易 token overflow，被丢弃或走备用路径</td>
+</tr>
+<tr>
+<td>太大</td>
+<td>更少 overflow，训练更稳定</td>
+<td>padding 更多，计算和显存浪费更大</td>
+</tr>
+</tbody></table>
+<p>早期 MoE 和 Switch Transformer 都很重视这个问题。因为一旦专家容量不够，某些 token 的专家路径就会被截断，这会影响训练信号，也会让模型行为更难分析。</p>
+<h1 id="6-负载均衡：让专家真的学会分工"><a href="#6-负载均衡：让专家真的学会分工" class="headerlink" title="6. 负载均衡：让专家真的学会分工"></a>6. 负载均衡：让专家真的学会分工</h1><p>MoE 最理想的状态，是不同专家形成有意义的 specialization。</p>
+<p>但这个目标不是自然发生的。Router 可能会偷懒，总把 token 分给少数几个专家。于是很多 MoE 模型会引入负载均衡辅助损失，让每个专家收到的 token 数量更接近，同时也让 Router 的概率分布不要过度偏向少数专家。</p>
+<p>可以把训练目标粗略理解成：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">loss = language_modeling_loss + alpha * load_balancing_loss</span><br></pre></td></tr></table></figure>
+
+<p>其中 <code>language_modeling_loss</code> 是正常的下一个 token 预测损失，<code>load_balancing_loss</code> 则是对专家使用率的约束。</p>
+<p>但这里也有一个很微妙的问题：负载均衡损失是辅助目标，不能压过主任务目标。</p>
+<p>如果辅助损失太弱，专家会失衡；如果辅助损失太强，Router 可能为了均匀而牺牲语义上更合理的专家选择。</p>
+<p>DeepSeek-V3 里提出了 auxiliary-loss-free load balancing。我的理解是，它想绕开“辅助损失干扰主目标”的问题，通过动态 bias 等方式调节专家负载，而不是简单把一个很强的均衡损失加到训练目标里。</p>
+<p>这说明 MoE 的研究重点已经从“多放几个专家”进入到更细的阶段：<strong>如何让专家高效、稳定、有分工地被使用</strong>。</p>
+<h1 id="7-top-1、top-2、共享专家：几种典型路由形态"><a href="#7-top-1、top-2、共享专家：几种典型路由形态" class="headerlink" title="7. top-1、top-2、共享专家：几种典型路由形态"></a>7. top-1、top-2、共享专家：几种典型路由形态</h1><p>不同 MoE 模型的 Router 设计差异很大。下面这张表可以帮助建立一个直觉。</p>
+<table>
+<thead>
+<tr>
+<th>路由形态</th>
+<th>代表模型</th>
+<th>特点</th>
+<th>主要权衡</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>top-1 routing</td>
+<td>Switch Transformer</td>
+<td>每个 token 只选 1 个专家</td>
+<td>通信和计算简单，但单 token 的表达路径更窄</td>
+</tr>
+<tr>
+<td>top-2 routing</td>
+<td>GShard、Mixtral</td>
+<td>每个 token 选 2 个专家并加权合并</td>
+<td>表达更丰富，但通信和计算更重</td>
+</tr>
+<tr>
+<td>shared expert + routed experts</td>
+<td>DeepSeekMoE、DeepSeek-V2&#x2F;V3</td>
+<td>通用能力走共享专家，专门能力走路由专家</td>
+<td>结构更复杂，但能减少专家间冗余</td>
+</tr>
+<tr>
+<td>fine-grained experts</td>
+<td>DeepSeekMoE</td>
+<td>把专家切得更细，给 Router 更多组合空间</td>
+<td>对路由和负载均衡要求更高</td>
+</tr>
+</tbody></table>
+<p>Switch Transformer 的思路是把 MoE 简化到极致。top-1 routing 减少了通信和计算复杂度，也更容易扩展到超大参数规模。</p>
+<p>Mixtral 采用 top-2 routing，每个 token 在每层选两个专家。它的优势是每个 token 有更丰富的专家组合，但服务系统要处理更多 token-expert 分发。</p>
+<p>DeepSeekMoE 则进一步强调专家专精。它把专家切得更细，并引入共享专家。共享专家负责常见模式，路由专家负责更细分的知识或能力。</p>
+<h1 id="8-分布式-MoE：瓶颈经常不在矩阵乘法"><a href="#8-分布式-MoE：瓶颈经常不在矩阵乘法" class="headerlink" title="8. 分布式 MoE：瓶颈经常不在矩阵乘法"></a>8. 分布式 MoE：瓶颈经常不在矩阵乘法</h1><p>在单机上理解 MoE，容易以为它只是多了几个 FFN。真正的大规模 MoE 通常是多机多卡训练和推理，这时问题会变成系统工程。</p>
+<p>如果专家分布在不同 GPU 上，Router 选完专家后，token 需要跨设备发送到对应专家。专家算完后，结果还要发回原来的位置。这类通信通常被称为 all-to-all。</p>
+<p><img src="https://raw.githubusercontent.com/gaoguodong03/gdBlogPic/img/img/20260531160419632.svg" alt="分布式 MoE 中 token 跨设备路由带来的 all-to-all 通信"></p>
+<p>这就解释了为什么 MoE 的“计算省了”不等于“整体一定更便宜”。</p>
+<p>在大规模部署里，MoE 的性能取决于很多因素：</p>
+<ul>
+<li>专家如何放置在不同 GPU 上；</li>
+<li>token dispatch 是否均匀；</li>
+<li>all-to-all 通信带宽是否足够；</li>
+<li>batch size 是否能填满专家容量；</li>
+<li>Router 是否造成热点专家；</li>
+<li>推理框架能否高效做 expert parallelism。</li>
+</ul>
+<p>所以比较 MoE 和 dense model 时，只看总参数量很容易误判。更合理的比较维度至少包括：</p>
+<ul>
+<li>active parameters；</li>
+<li>tokens&#x2F;s；</li>
+<li>首 token 延迟和解码延迟；</li>
+<li>显存占用；</li>
+<li>网络通信；</li>
+<li>batch size；</li>
+<li>训练稳定性；</li>
+<li>下游任务质量；</li>
+<li>单位 token 服务成本。</li>
+</ul>
+<h1 id="9-DeepSeekMoE：为什么说它在追求“专家更像专家”"><a href="#9-DeepSeekMoE：为什么说它在追求“专家更像专家”" class="headerlink" title="9. DeepSeekMoE：为什么说它在追求“专家更像专家”"></a>9. DeepSeekMoE：为什么说它在追求“专家更像专家”</h1><p>DeepSeekMoE 的标题是 <em>Towards Ultimate Expert Specialization in Mixture-of-Experts Language Models</em>，关键词就是 specialization。</p>
+<p>它关注的不是“有没有专家”，而是“专家是否真的专门化”。</p>
+<p>传统 MoE 可能遇到一个问题：专家数量变多了，但专家之间学到的东西高度重叠。这样总参数虽然增加了，有效容量却没有充分释放。</p>
+<p>DeepSeekMoE 的思路可以拆成两点：</p>
+<h2 id="9-1-更细粒度的-routed-experts"><a href="#9-1-更细粒度的-routed-experts" class="headerlink" title="9.1 更细粒度的 routed experts"></a>9.1 更细粒度的 routed experts</h2><p>如果每个专家很大，Router 的组合空间有限，专家之间也更容易学到重叠内容。</p>
+<p>DeepSeekMoE 把专家切得更细。这样每个 token 可以从更多细粒度专家中组合出一条路径。直觉上，这更像从“几个大部门”变成“许多小团队”，Router 可以做更灵活的任务分配。</p>
+<h2 id="9-2-shared-experts-承担通用能力"><a href="#9-2-shared-experts-承担通用能力" class="headerlink" title="9.2 shared experts 承担通用能力"></a>9.2 shared experts 承担通用能力</h2><p>很多 token 都需要通用能力，比如语法、常识、基本表达、常见实体知识。如果这些通用模式让所有 routed experts 重复学习，就会浪费专家容量。</p>
+<p>共享专家的作用，是把这部分通用能力单独承接下来。这样 routed experts 可以更专注于差异化知识。</p>
+<p>这也是我觉得 DeepSeekMoE 比普通 MoE 更值得关注的地方：它不是只追求“参数更多”，而是在思考专家系统内部如何减少冗余、增强分工。</p>
+<h1 id="10-MoE-和-dense-model-的真实取舍"><a href="#10-MoE-和-dense-model-的真实取舍" class="headerlink" title="10. MoE 和 dense model 的真实取舍"></a>10. MoE 和 dense model 的真实取舍</h1><p>MoE 听起来很诱人，但它不是 dense model 的简单替代品。</p>
+<p>Dense model 的优势是：</p>
+<ul>
+<li>结构简单；</li>
+<li>训练更稳定；</li>
+<li>推理路径固定；</li>
+<li>部署和量化更成熟；</li>
+<li>小 batch 或低并发场景更容易做到低延迟。</li>
+</ul>
+<p>MoE model 的优势是：</p>
+<ul>
+<li>总容量更大；</li>
+<li>每个 token 激活参数更少；</li>
+<li>高吞吐服务场景可能更划算；</li>
+<li>多领域、多任务、多语言场景可能更容易形成专家分工。</li>
+</ul>
+<p>我的理解是，MoE 更适合“大规模训练 + 高并发服务 + 强工程能力”的场景。对于小模型、本地模型、低并发服务，MoE 未必比 dense 更合适。</p>
+<p>一个很实用的判断方式是：不要问“这个模型有多少总参数”，而要问：</p>
+<blockquote>
+<p>在我的推理框架、硬件、batch size、延迟要求下，它的 active parameters 和通信开销是否真的划算？</p>
+</blockquote>
+<h1 id="11-一个从输入到输出的完整-MoE-心智模型"><a href="#11-一个从输入到输出的完整-MoE-心智模型" class="headerlink" title="11. 一个从输入到输出的完整 MoE 心智模型"></a>11. 一个从输入到输出的完整 MoE 心智模型</h1><p>把前面的内容串起来，一个 MoE 层大概可以这样理解：</p>
+<ol>
+<li>每个 token 进入 Transformer block；</li>
+<li>Attention 更新 token 的上下文表示；</li>
+<li>Router 根据 token hidden state 计算 expert score；</li>
+<li>选择 top-k experts；</li>
+<li>Dispatch 把 token 发给对应专家；</li>
+<li>每个 expert 对收到的 token 做 FFN 计算；</li>
+<li>Combine 按 Router 权重合并专家输出；</li>
+<li>输出回到 Transformer 主干；</li>
+<li>训练时额外处理负载均衡、容量限制和通信效率问题。</li>
+</ol>
+<p>这比“专家混合”四个字复杂得多。MoE 的本质不是“混合”，而是“路由 + 稀疏计算 + 分布式调度 + 专家专精”。</p>
+<h1 id="12-读-MoE-论文时可以抓住这几个问题"><a href="#12-读-MoE-论文时可以抓住这几个问题" class="headerlink" title="12. 读 MoE 论文时可以抓住这几个问题"></a>12. 读 MoE 论文时可以抓住这几个问题</h1><p>以后再看到一个 MoE 模型，我会优先看这些信息：</p>
+<ol>
+<li>它有多少总参数？每个 token 激活多少参数？</li>
+<li>MoE 层替换的是哪些 FFN？是每层都有 MoE，还是部分层有？</li>
+<li>每层有多少专家？每个 token 选几个专家？</li>
+<li>Router 是 top-1、top-2，还是更复杂的路由？</li>
+<li>有没有 shared experts？</li>
+<li>是否使用 fine-grained experts？</li>
+<li>如何做 load balancing？</li>
+<li>capacity factor 是多少？overflow token 怎么处理？</li>
+<li>专家并行和 all-to-all 通信怎么处理？</li>
+<li>和同等推理成本的 dense model 相比，收益是否真实？</li>
+</ol>
+<p>只要把这些问题问清楚，就不会被“几百 B 参数”这种数字牵着走。</p>
+<h1 id="13-我现在如何理解-MoE"><a href="#13-我现在如何理解-MoE" class="headerlink" title="13. 我现在如何理解 MoE"></a>13. 我现在如何理解 MoE</h1><p>学完之后，我觉得 MoE 最好不要被理解成“模型变大的一种偷懒方法”。</p>
+<p>它更像是大模型架构里的一次组织方式变化：</p>
+<ul>
+<li>dense model 是所有 token 共享同一套参数路径；</li>
+<li>MoE 是给模型内部引入分工机制；</li>
+<li>Router 负责决定任务交给谁；</li>
+<li>Expert 负责在自己的子空间里提升能力；</li>
+<li>稀疏激活负责控制计算成本；</li>
+<li>分布式系统负责把这套机制真正跑快。</li>
+</ul>
+<p>但它不是万能答案。MoE 的代价来自通信、调度、容量管理、训练稳定性和部署复杂度。</p>
+<p>所以我会用一句话总结 MoE：</p>
+<blockquote>
+<p>MoE 的本质，是用“按 token 分工”的方式，把模型容量和计算成本部分解耦；它用架构复杂度和系统复杂度，换取更大的参数容量和潜在更高的服务效率。</p>
+</blockquote>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ul>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/680190127">Mixture of Experts 详解</a></li>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/abs/1701.06538">Outrageously Large Neural Networks: The Sparsely-Gated Mixture-of-Experts Layer</a></li>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2006.16668">GShard: Scaling Giant Models with Conditional Computation and Automatic Sharding</a></li>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2101.03961">Switch Transformers: Scaling to Trillion Parameter Models with Simple and Efficient Sparsity</a></li>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2202.08906">ST-MoE: Designing Stable and Transferable Sparse Expert Models</a></li>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2401.04088">Mixtral of Experts</a></li>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2401.06066">DeepSeekMoE: Towards Ultimate Expert Specialization in Mixture-of-Experts Language Models</a></li>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2405.04434">DeepSeek-V2: A Strong, Economical, and Efficient Mixture-of-Experts Language Model</a></li>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2412.19437">DeepSeek-V3 Technical Report</a></li>
+</ul>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://gaoguodong03.github.io/gdBlog">GuoDong</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://gaoguodong03.github.io/gdBlog/2026/05/31/MoE%EF%BC%9A%E5%A4%A7%E6%A8%A1%E5%9E%8B%E4%B8%BA%E4%BB%80%E4%B9%88%E5%BC%80%E5%A7%8B%E5%AD%A6%E4%BC%9A%E5%88%86%E5%B7%A5/">https://gaoguodong03.github.io/gdBlog/2026/05/31/MoE%EF%BC%9A%E5%A4%A7%E6%A8%A1%E5%9E%8B%E4%B8%BA%E4%BB%80%E4%B9%88%E5%BC%80%E5%A7%8B%E5%AD%A6%E4%BC%9A%E5%88%86%E5%B7%A5/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://gaoguodong03.github.io/gdBlog" target="_blank">果冻小配方</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/gdBlog/tags/LLM/">LLM</a><a class="post-meta__tags" href="/gdBlog/tags/MoE/">MoE</a><a class="post-meta__tags" href="/gdBlog/tags/%E6%9E%B6%E6%9E%84/">架构</a></div><div class="post-share"><div class="social-share" data-image="/gdBlog/./img/logoLLM.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="/gdBlog/pluginsSrc/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="/gdBlog/pluginsSrc/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related full-width" href="/gdBlog/2026/05/30/Codex-%E5%8D%9A%E5%AE%A2%E5%8F%91%E5%B8%83%E6%B5%81%E7%A8%8B%E8%B7%91%E9%80%9A%E6%B5%8B%E8%AF%95/" title="Codex 博客发布流程跑通测试"><img class="cover" src="/gdBlog/./img/logoGithubPages.svg" onerror="onerror=null;src='/gdBlog/img/404.jpg'" alt="cover of next post"><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">Codex 博客发布流程跑通测试</div></div><div class="info-2"><div class="info-item-1">这是一篇由 Codex 在本地博客仓库中创建、生成并部署的流程测试文章。 这次测试的目的很简单：确认以后我在 Codex 里产生一个选题之后，可以直接完成从写作到上线的完整链路，而不是只停留在本地草稿。 这次要跑通什么这条链路包含四个动作：  在 source/_posts 下创建 Markdown 文章。 补齐 Hexo 需要的 Front Matter。 运行本地生成命令，确认站点可以正常构建。 执行部署脚本，把生成结果推到线上博客。  如果你正在网页上看到这篇文章，说明这条 Codex 写作发布链路已经至少跑通了一次。 图片链路测试封面图这次不再复用已有 logoHexo.jpg，而是把网上找到的 GitHub Pages SVG 图标保存到 source/img/logoGithubPages.svg，再通过 cover: ./img/logoGithubPages.svg 引用。这验证了“从网上找封面图、放入 source/img、Front Matter 使用相对路径”的流程。 正文图片则按我平时 PicGo 上传后的图床格式引用：  这里验证的是 Hexo 对 Pi...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/gdBlog/2026/01/02/%E5%A4%A7%E5%9E%8B%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84%E6%AF%94%E8%BE%83/" title="大型语言模型架构比较"><img class="cover" src="/gdBlog/./img/logoLLM.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-01-02</div><div class="info-item-2">大型语言模型架构比较</div></div><div class="info-2"><div class="info-item-1">写在前面文章链接：从 DeepSeek V3 到 Mistral 3 Large：现代大型语言模型架构设计解析 [[2025年大型语言模型现状：进展、问题与预测]] 自最初的 GPT 架构开发以来，已经过去七年。乍一看，回顾 GPT-2（2019 年）以及 DeepSeek V3 和 Llama 4（2024-2025 年），你可能会惊讶于这些模型在结构上依然如此相似。当然，位置嵌入已经从绝对嵌入演变为旋转嵌入（RoPE），多头注意力基本被分组查询注意力取代，更高效的 SwiGLU 取代了像 GELU 这样的激活函数。但在这些细微的改进背后，我们真的见证了突破性的变革，还是仅仅在打磨相同的架构基础？ 比较大型语言模型以确定其表现良好（或不佳）的关键因素，向来具有挑战性：数据集、训练技术和超参数差异巨大，且通常缺乏充分的文档。不过，我认为审视架构本身的结构变化，对于了解 2025 年 LLM 开发者的动态，仍然有很大价值。（其中一部分见下图 1。）因此，在本文中，我将不讨论基准性能或训练算法，而是聚焦于定义当今旗舰开放模型的架构发展。 ![[ObsidianPicture&#x2F...</div></div></div></a><a class="pagination-related" href="/gdBlog/2026/01/13/%E5%B7%A5%E5%85%B7%E9%80%89%E5%8F%96/" title="工具选取"><img class="cover" src="/gdBlog/./img/logoLLM.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-01-13</div><div class="info-item-2">工具选取</div></div><div class="info-2"><div class="info-item-1">• 工具检索：这里的重点是根据子任务和工具之间的相似性，将这些子任务与工具清单中合适的工具进行匹配。目的是选择与每个子任务相似度最高的前 K 个工具 {a1, a2, …, aK}，为每个子任务形成一组候选工具。  • 工具选择和填充参数：在此阶段，根据描述从集合{a1，a2，…，aK} 中为每个子任务选择最合适的工具。此阶段还包括准备工具执行的参数，如其文档中所指定。   • 工具执行与重试：选择工具并设置参数后，执行工具。如果工具在执行过程中失败，流程将返回到工具选择阶段以进行替代选择。这种重试机制会一直持续到成功执行或达到最大尝试 R 为止。 1. AutoTool: 高效工具选择框架（2025年11月）论文信息：《AutoTool: Efficient Tool Selection for Large Language Model Agents》（已被 AAAI 2026 录用）arxiv​ 核心创新：该论文指出，当前 ReAct 等框架存在的主要瓶颈是工具选择的高推理成本。作者提出了基于图的 AutoTool 框架，核心观察是工具使用惯性（tool usage iner...</div></div></div></a><a class="pagination-related" href="/gdBlog/2026/01/12/A2UI/" title="A2UI(Agent to User Interface)"><img class="cover" src="/gdBlog/./img/logoLLM.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-01-12</div><div class="info-item-2">A2UI(Agent to User Interface)</div></div><div class="info-2"><div class="info-item-1">背景现有AI交互模式的局限性  低效对话交互：用户需通过多轮文本对话完成简单任务（如订餐厅需反复确认时间、人数等细节），效率”低的像蜗牛爬”。  生成式UI技术缺陷：以Copilot Kit为代表的方案存在前端依赖过重问题，AI仅作为”提线木偶”，无法自主定义界面结构。  行业标准碎片化：动态性、安全性、跨平台适配等关键问题缺乏统一解决方案，导致”各搞各的，标准不统一，像一盘散沙”。   A2UI协议核心架构定义与核心理念A2UI（Agent to User Interface）是Google提出的AI界面描述协议，指的是 智能体到用户界面 的无缝集成框架。它代表了一种新的AI交互范式，将大型语言模型&#x2F;智能体与实际用户界面直接连接，实现AI驱动的自动化交互。 12345678┌────────────────────┐    ┌────────────────────┐    ┌────────────────────┐│   AI智能体/LLM     │ →  │    A2UI框架层       │ →  │  应用UI/操作系统   ││  (如GPT、Clau...</div></div></div></a><a class="pagination-related" href="/gdBlog/2026/01/02/2025%E5%B9%B4%E5%A4%A7%E5%9E%8B%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B%E7%8E%B0%E7%8A%B6%EF%BC%9A%E8%BF%9B%E5%B1%95%E3%80%81%E9%97%AE%E9%A2%98%E4%B8%8E%E9%A2%84%E6%B5%8B/" title="2025年大型语言模型现状：进展、问题与预测"><img class="cover" src="/gdBlog/./img/logoLLM.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-01-02</div><div class="info-item-2">2025年大型语言模型现状：进展、问题与预测</div></div><div class="info-2"><div class="info-item-1">原文链接 随着2025年即将结束，我想回顾今年大型语言模型中一些最重要的发展，反思那些仍然存在的局限性和未解决的问题，并分享一些对未来可能出现的展望。 1. 推理之年、RLVR 和 GRPO缩放依然有效，但实际上并没有改变大型语言模型的行为或实际体验（唯一的例外是 OpenAI 新发布的 o1，它增加了推理痕迹）。因此，当 DeepSeek 在 2025 年 1 月发布他们的 R1 论文 ，证明通过强化学习可以发展类推理行为时，这成为了一件大事。（在大型语言模型（LLM）中，推理意味着模型解释其答案，而这种解释本身通常会提高答案的准确性。） 1.1 The DeepSeek MomentDeepSeek R1 因多种原因备受关注： 首先，DeepSeek R1 作为一个开权重模型发布，表现非常好，可与当时最好的专有模型（ChatGPT、Gemini 等）相媲美。 其次，DeepSeek R1 论文促使许多人，尤其是投资者和记者，重新审视了 2024 年 12 月的 DeepSeek V3 早期论文 。这导致了一个修正的结论：虽然训练最先进的模型仍然昂贵，但可能比之前假设便宜一个数...</div></div></div></a><a class="pagination-related" href="/gdBlog/2026/01/13/AGI-NEXT-%E5%B3%B0%E4%BC%9A/" title="AGI-NEXT 峰会"><img class="cover" src="/gdBlog/./img/logoLLM.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-01-13</div><div class="info-item-2">AGI-NEXT 峰会</div></div><div class="info-2"><div class="info-item-1">Q1: 为什么说Chat时代已经结束？ 经过一年的观察，唐杰认为单纯做Chat已经不是在真正解决问题。他原本预判大模型会替代搜索，但现实是谷歌反而用AI把自己的搜索革命了。而2025年初DeepSeek的出现，在他看来彻底终结了Chat范式的竞争。 “可能对研究界、产业界，甚至对很多人都是’横空出世’。”唐杰说，“在DeepSeek这种范式下，Chat时代基本上算是解决了。我们做得再好，也许跟DeepSeek差不多，或许在上面再个性化一点、变成有情感的Chat。但总的来讲，这个范式基本到头了，剩下更多是工程和技术问题。” 这个判断促使智谱做出战略转向。团队内部争论了很多个晚上，最终决定把所有精力放在Coding和Agent上。2025年7月，智谱发布4.5版本，把Coding、Agentic、Reasoning能力整合在一起。 但真实世界的反馈很快给了他们一记重击。 用户拿着模型去编”植物大战僵尸”，结果编不出来。”真实编程环境下有大量问题需要解决。”唐杰说。团队通过RLVR（可验证强化学习）配合编程环境作为反馈，才把效果提升上去。这个经历让他意识到：跑分是跑分，真正让能力进入主...</div></div></div></a><a class="pagination-related" href="/gdBlog/2025/10/09/Dify%E6%9C%AC%E5%9C%B0%E9%83%A8%E7%BD%B2/" title="Dify本地部署"><img class="cover" src="/gdBlog/./img/logoDify.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-10-09</div><div class="info-item-2">Dify本地部署</div></div><div class="info-2"><div class="info-item-1">什么是Dify？Dify 是一款开源的大语言模型（LLM）应用开发平台，它巧妙地融合了后端即服务（BaaS）与大型语言模型运维（LLMOps）的核心理念。Dify 的命名源自“Define + Modify”，寓意着开发者可以定义并持续改进其 AI 应用，同时也致力于“为你而做”（Do it for you）。该平台旨在帮助开发者乃至非技术人员，快速构建并上线生产级的生成式 AI 应用，并支持非技术人员便捷地参与 AI 应用的定义与数据运营。 Dify搭建用户既可以通过访问 “https://cloud.dify.ai/” 在线使用 Dify（需要 GitHub 或 Google 账号授权），也可以选择在本地环境中部署 Dify 社区版（此为开源版本）。下文将重点介绍如何基于 Docker Compose 部署 Dify 社区版。在开始安装 Dify 之前，请确保您的设备至少具备 双核（2 core）处理器 和 4GB 以上内存。以下步骤将演示如何在 Mac 系统中运行 Dify。首先，您需要安装 Docker Desktop 以支持 Docker 容器的运行，随后即可通过 Do...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/gdBlog/img/touxiang.jpg" onerror="this.onerror=null;this.src='/gdBlog/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">GuoDong</div><div class="author-info-description">碎碎念念 岁岁年年</div><div class="site-data"><a href="/gdBlog/archives/"><div class="headline">文章</div><div class="length-num">59</div></a><a href="/gdBlog/tags/"><div class="headline">标签</div><div class="length-num">34</div></a><a href="/gdBlog/categories/"><div class="headline">分类</div><div class="length-num">8</div></a></div><div class="card-info-social-icons"><a class="social-icon" href="https://www.douyin.com/" target="_blank" title="douyin"><i class="fab fa-tiktok" style="color: #24292e;"></i></a><a class="social-icon" href="https://www.bilibili.com/" target="_blank" title="bilibili"><i class="fab fa-bilibili" style="color: #24292e;"></i></a><a class="social-icon" href="https://github.com/gaoguodong03" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="https://leetcode.cn/studyplan/top-100-liked/" target="_blank" title="LeetCode"><i class="fab fa-comments" style="color: #24292e;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">好事马上发生</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%86%99%E5%9C%A8%E5%89%8D%E9%9D%A2"><span class="toc-number">1.</span> <span class="toc-text">写在前面</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#1-%E4%BB%8E-dense-FFN-%E5%88%B0-MoE-FFN"><span class="toc-number">2.</span> <span class="toc-text">1. 从 dense FFN 到 MoE FFN</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2-MoE-%E7%9A%84%E6%A0%B8%E5%BF%83%EF%BC%9A%E6%80%BB%E5%8F%82%E6%95%B0%E5%92%8C%E6%BF%80%E6%B4%BB%E5%8F%82%E6%95%B0%E5%88%86%E7%A6%BB"><span class="toc-number">3.</span> <span class="toc-text">2. MoE 的核心：总参数和激活参数分离</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3-Router-%E5%88%B0%E5%BA%95%E5%9C%A8%E7%AE%97%E4%BB%80%E4%B9%88"><span class="toc-number">4.</span> <span class="toc-text">3. Router 到底在算什么</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#4-Dispatch-%E5%92%8C-Combine%EF%BC%9AMoE-%E4%B8%8D%E6%98%AF%E7%AE%80%E5%8D%95%E8%B0%83%E7%94%A8%E5%87%BD%E6%95%B0"><span class="toc-number">5.</span> <span class="toc-text">4. Dispatch 和 Combine：MoE 不是简单调用函数</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#5-Capacity-Factor%EF%BC%9A%E4%B8%93%E5%AE%B6%E4%B8%8D%E6%98%AF%E6%97%A0%E9%99%90%E6%8E%A5%E8%AF%8A"><span class="toc-number">6.</span> <span class="toc-text">5. Capacity Factor：专家不是无限接诊</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#6-%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%EF%BC%9A%E8%AE%A9%E4%B8%93%E5%AE%B6%E7%9C%9F%E7%9A%84%E5%AD%A6%E4%BC%9A%E5%88%86%E5%B7%A5"><span class="toc-number">7.</span> <span class="toc-text">6. 负载均衡：让专家真的学会分工</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#7-top-1%E3%80%81top-2%E3%80%81%E5%85%B1%E4%BA%AB%E4%B8%93%E5%AE%B6%EF%BC%9A%E5%87%A0%E7%A7%8D%E5%85%B8%E5%9E%8B%E8%B7%AF%E7%94%B1%E5%BD%A2%E6%80%81"><span class="toc-number">8.</span> <span class="toc-text">7. top-1、top-2、共享专家：几种典型路由形态</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#8-%E5%88%86%E5%B8%83%E5%BC%8F-MoE%EF%BC%9A%E7%93%B6%E9%A2%88%E7%BB%8F%E5%B8%B8%E4%B8%8D%E5%9C%A8%E7%9F%A9%E9%98%B5%E4%B9%98%E6%B3%95"><span class="toc-number">9.</span> <span class="toc-text">8. 分布式 MoE：瓶颈经常不在矩阵乘法</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#9-DeepSeekMoE%EF%BC%9A%E4%B8%BA%E4%BB%80%E4%B9%88%E8%AF%B4%E5%AE%83%E5%9C%A8%E8%BF%BD%E6%B1%82%E2%80%9C%E4%B8%93%E5%AE%B6%E6%9B%B4%E5%83%8F%E4%B8%93%E5%AE%B6%E2%80%9D"><span class="toc-number">10.</span> <span class="toc-text">9. DeepSeekMoE：为什么说它在追求“专家更像专家”</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#9-1-%E6%9B%B4%E7%BB%86%E7%B2%92%E5%BA%A6%E7%9A%84-routed-experts"><span class="toc-number">10.1.</span> <span class="toc-text">9.1 更细粒度的 routed experts</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#9-2-shared-experts-%E6%89%BF%E6%8B%85%E9%80%9A%E7%94%A8%E8%83%BD%E5%8A%9B"><span class="toc-number">10.2.</span> <span class="toc-text">9.2 shared experts 承担通用能力</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#10-MoE-%E5%92%8C-dense-model-%E7%9A%84%E7%9C%9F%E5%AE%9E%E5%8F%96%E8%88%8D"><span class="toc-number">11.</span> <span class="toc-text">10. MoE 和 dense model 的真实取舍</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#11-%E4%B8%80%E4%B8%AA%E4%BB%8E%E8%BE%93%E5%85%A5%E5%88%B0%E8%BE%93%E5%87%BA%E7%9A%84%E5%AE%8C%E6%95%B4-MoE-%E5%BF%83%E6%99%BA%E6%A8%A1%E5%9E%8B"><span class="toc-number">12.</span> <span class="toc-text">11. 一个从输入到输出的完整 MoE 心智模型</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#12-%E8%AF%BB-MoE-%E8%AE%BA%E6%96%87%E6%97%B6%E5%8F%AF%E4%BB%A5%E6%8A%93%E4%BD%8F%E8%BF%99%E5%87%A0%E4%B8%AA%E9%97%AE%E9%A2%98"><span class="toc-number">13.</span> <span class="toc-text">12. 读 MoE 论文时可以抓住这几个问题</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#13-%E6%88%91%E7%8E%B0%E5%9C%A8%E5%A6%82%E4%BD%95%E7%90%86%E8%A7%A3-MoE"><span class="toc-number">14.</span> <span class="toc-text">13. 我现在如何理解 MoE</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="toc-number">15.</span> <span class="toc-text">参考资料</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/gdBlog/2026/05/31/MoE%EF%BC%9A%E5%A4%A7%E6%A8%A1%E5%9E%8B%E4%B8%BA%E4%BB%80%E4%B9%88%E5%BC%80%E5%A7%8B%E5%AD%A6%E4%BC%9A%E5%88%86%E5%B7%A5/" title="MoE：大模型为什么开始学会分工">MoE：大模型为什么开始学会分工</a><time datetime="2026-05-31T08:04:46.657Z" title="更新于 2026-05-31 16:04:46">2026-05-31</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/gdBlog/2026/05/30/AI-%E6%97%B6%E4%BB%A3%E7%9A%84%E6%96%B0%E5%AE%A0%E5%B2%97%E4%BD%8D%EF%BC%9AForward-Deployed-Engineer-%E5%88%B0%E5%BA%95%E6%98%AF%E4%BB%80%E4%B9%88/" title="AI 时代的新宠岗位：Forward Deployed Engineer 到底是什么">AI 时代的新宠岗位：Forward Deployed Engineer 到底是什么</a><time datetime="2026-05-30T10:13:16.088Z" title="更新于 2026-05-30 18:13:16">2026-05-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/gdBlog/2026/05/30/Codex-%E5%8D%9A%E5%AE%A2%E5%8F%91%E5%B8%83%E6%B5%81%E7%A8%8B%E8%B7%91%E9%80%9A%E6%B5%8B%E8%AF%95/" title="Codex 博客发布流程跑通测试">Codex 博客发布流程跑通测试</a><time datetime="2026-05-30T08:50:05.443Z" title="更新于 2026-05-30 16:50:05">2026-05-30</time></div></div></div></div></div></div></main><footer id="footer" style="background: transparent;"><div class="footer-other"><div class="footer-copyright"></div><div class="footer_custom_text"><style>
+  .footer {
+    text-align: center;
+    position: relative;
+  }
+  .footer p {
+    margin: 0.5rem 0;
+    line-height: 1;
+  }
+  .copyright {
+    font-size: 1.1rem; 
+    color: #000000;
+    font-weight: 400;
+  }
+  .tagline {
+    font-size: 0.8rem;
+    color: #333333;
+    font-style: italic;
+    font-weight: 500;
+  }
+  .visitor-count {
+    font-size: 0.75rem;
+    color: rgba(0, 0, 0, 0.7);
+    font-weight: 300;
+  }
+  #visitorCount {
+    font-weight: bold;
+  }
+</style>
+<div class="footer">
+  <p class="copyright">© 2025 果冻小配方 - 所有权利保留</p>
+  <p class="tagline">> 碎碎念念 岁岁年年 <</p>
+  <p class="visitor-count">访问量: <span id="visitorCount">1024</span> | 你是第 <span id="dailyVisitor">1</span> 位今日访客</p>
+</div>
+<script>
+  // 确保DOM加载完成后执行
+  document.addEventListener('DOMContentLoaded', function() {
+    // 模拟访问量增长
+    function updateVisitorCount() {
+      const countElement = document.getElementById('visitorCount');
+      let count = parseInt(localStorage.getItem('totalVisitors'), 10) || 1024;
+      count += 1;
+      countElement.textContent = count;
+      localStorage.setItem('totalVisitors', String(count));
+      const today = new Date().toDateString();
+      const dailyData = JSON.parse(localStorage.getItem('dailyVisitors') || '{"date":"", "count":0}');
+      if (dailyData.date !== today) {
+        dailyData.date = today;
+        dailyData.count = 0;
+      }
+      dailyData.count += 1;
+      document.getElementById('dailyVisitor').textContent = dailyData.count;
+      localStorage.setItem('dailyVisitors', JSON.stringify(dailyData));
+    }
+    updateVisitorCount();
+  });
+</script>
+</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/gdBlog/js/utils.js"></script><script src="/gdBlog/js/main.js"></script><div class="js-pjax"></div><script src="/config/js/happy-title.js" async></script><script src="/config/js/foot.js" async></script></div><!-- hexo injector body_end start --><script data-pjax>
+    function butterfly_categories_card_injector_config(){
+      var parent_div_git = document.getElementById('recent-posts');
+      var item_html = '<style>li.categoryBar-list-item{width:32.3%;}.categoryBar-list{max-height: 950px;overflow:auto;}.categoryBar-list::-webkit-scrollbar{width:0!important}@media screen and (max-width: 650px){.categoryBar-list{max-height: 800px;}}</style><div class="recent-post-item" style="height:auto;width:100%;padding:0px;"><div id="categoryBar"><ul class="categoryBar-list"><li class="categoryBar-list-item" style="background:url(/img/logo.jpg);"> <a class="categoryBar-list-link" href="categories/Hello-Agents/">Hello-Agents</a><span class="categoryBar-list-count">8</span><span class="categoryBar-list-descr">果冻的航海日记</span></li><li class="categoryBar-list-item" style="background:url(/img/logo.jpg);"> <a class="categoryBar-list-link" href="categories/果冻的科普专区/">果冻的科普专区</a><span class="categoryBar-list-count">12</span><span class="categoryBar-list-descr">Hexo</span></li><li class="categoryBar-list-item" style="background:url(/img/logo.jpg);"> <a class="categoryBar-list-link" href="categories/果冻的理论学习/">果冻的理论学习</a><span class="categoryBar-list-count">15</span><span class="categoryBar-list-descr">果冻的奇妙小工具</span></li><li class="categoryBar-list-item" style="background:url(/img/logo.jpg);"> <a class="categoryBar-list-link" href="categories/果冻的航海日志/">果冻的航海日志</a><span class="categoryBar-list-count">10</span><span class="categoryBar-list-descr">果冻的日记本</span></li><li class="categoryBar-list-item" style="background:url(undefined);"> <a class="categoryBar-list-link" href="categories/果冻的奇妙小工具/">果冻的奇妙小工具</a><span class="categoryBar-list-count">6</span><span class="categoryBar-list-descr"></span></li><li class="categoryBar-list-item" style="background:url(undefined);"> <a class="categoryBar-list-link" href="categories/道不可言言而非也/">道不可言言而非也</a><span class="categoryBar-list-count">1</span><span class="categoryBar-list-descr"></span></li><li class="categoryBar-list-item" style="background:url(undefined);"> <a class="categoryBar-list-link" href="categories/Hexo/">Hexo</a><span class="categoryBar-list-count">1</span><span class="categoryBar-list-descr"></span></li><li class="categoryBar-list-item" style="background:url(undefined);"> <a class="categoryBar-list-link" href="categories/果冻的LeetCode刷题/">果冻的LeetCode刷题</a><span class="categoryBar-list-count">5</span><span class="categoryBar-list-descr"></span></li></ul></div></div>';
+      console.log('已挂载butterfly_categories_card')
+      parent_div_git.insertAdjacentHTML("afterbegin",item_html)
+      }
+    if( document.getElementById('recent-posts') && (location.pathname ==='/categories/'|| '/categories/' ==='all')){
+    butterfly_categories_card_injector_config()
+    }
+  </script><div class="js-pjax"><script async="async">var arr = document.getElementsByClassName('recent-post-item');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__zoomIn');
+    arr[i].setAttribute('data-wow-duration', '300ms');
+    arr[i].setAttribute('data-wow-delay', '0ms');
+    arr[i].setAttribute('data-wow-offset', '0');
+    arr[i].setAttribute('data-wow-iteration', '1');
+  }</script><script async="async">var arr = document.getElementsByClassName('card-widget');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__zoomIn');
+    arr[i].setAttribute('data-wow-duration', '');
+    arr[i].setAttribute('data-wow-delay', '');
+    arr[i].setAttribute('data-wow-offset', '');
+    arr[i].setAttribute('data-wow-iteration', '');
+  }</script></div><script defer src="https://npm.elemecdn.com/hexo-butterfly-wowjs/lib/wow.min.js"></script><script defer src="https://npm.elemecdn.com/hexo-butterfly-wowjs/lib/wow_init.js"></script><script data-pjax>
+  function butterfly_swiper_injector_config(){
+    var parent_div_git = document.getElementById('recent-posts');
+    var item_html = '<div class="recent-post-item" style="height: auto;width: 100%"><div class="blog-slider swiper-container-fade swiper-container-horizontal" id="swiper_container"><div class="blog-slider__wrp swiper-wrapper" style="transition-duration: 0ms;"></div><div class="blog-slider__pagination swiper-pagination-clickable swiper-pagination-bullets"></div></div></div>';
+    console.log('已挂载butterfly_swiper')
+    parent_div_git.insertAdjacentHTML("afterbegin",item_html)
+    }
+  var elist = 'undefined'.split(',');
+  var cpage = location.pathname;
+  var epage = '/';
+  var flag = 0;
+
+  for (var i=0;i<elist.length;i++){
+    if (cpage.includes(elist[i])){
+      flag++;
+    }
+  }
+
+  if ((epage ==='all')&&(flag == 0)){
+    butterfly_swiper_injector_config();
+  }
+  else if (epage === cpage){
+    butterfly_swiper_injector_config();
+  }
+  </script><script defer src="https://npm.elemecdn.com/hexo-butterfly-swiper/lib/swiper.min.js"></script><script defer data-pjax src="https://npm.elemecdn.com/hexo-butterfly-swiper/lib/swiper_init.js"></script><!-- hexo injector body_end end --></body></html>
