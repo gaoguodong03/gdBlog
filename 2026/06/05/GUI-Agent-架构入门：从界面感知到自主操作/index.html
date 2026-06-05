@@ -1,0 +1,684 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>GUI Agent 架构入门：从界面感知到自主操作 | 果冻小配方</title><meta name="author" content="GuoDong"><meta name="copyright" content="GuoDong"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="过去我们聊 Agent，很多时候聊的是“文本世界里的 Agent”。 它读一段用户输入，拆解任务，调用搜索、数据库、代码执行器、文件系统、MCP 工具，最后把结果组织成一段文本。这个方向已经很熟悉了：ReAct、Plan-and-Execute、Reflection、多 Agent、Memory、Tool Use，这些范式本质上都围绕一个问题展开：大模型如何在文本和工具之间形成更可靠的行动链。 但">
+<meta property="og:type" content="article">
+<meta property="og:title" content="GUI Agent 架构入门：从界面感知到自主操作">
+<meta property="og:url" content="https://gaoguodong03.github.io/gdBlog/2026/06/05/GUI-Agent-%E6%9E%B6%E6%9E%84%E5%85%A5%E9%97%A8%EF%BC%9A%E4%BB%8E%E7%95%8C%E9%9D%A2%E6%84%9F%E7%9F%A5%E5%88%B0%E8%87%AA%E4%B8%BB%E6%93%8D%E4%BD%9C/index.html">
+<meta property="og:site_name" content="果冻小配方">
+<meta property="og:description" content="过去我们聊 Agent，很多时候聊的是“文本世界里的 Agent”。 它读一段用户输入，拆解任务，调用搜索、数据库、代码执行器、文件系统、MCP 工具，最后把结果组织成一段文本。这个方向已经很熟悉了：ReAct、Plan-and-Execute、Reflection、多 Agent、Memory、Tool Use，这些范式本质上都围绕一个问题展开：大模型如何在文本和工具之间形成更可靠的行动链。 但">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://gaoguodong03.github.io/gdBlog/img/gui-agent-architecture-cover.svg">
+<meta property="article:published_time" content="2026-06-05T00:00:00.000Z">
+<meta property="article:modified_time" content="2026-06-05T12:04:11.347Z">
+<meta property="article:author" content="GuoDong">
+<meta property="article:tag" content="Agent">
+<meta property="article:tag" content="GUI Agent">
+<meta property="article:tag" content="调研">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://gaoguodong03.github.io/gdBlog/img/gui-agent-architecture-cover.svg"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "GUI Agent 架构入门：从界面感知到自主操作",
+  "url": "https://gaoguodong03.github.io/gdBlog/2026/06/05/GUI-Agent-%E6%9E%B6%E6%9E%84%E5%85%A5%E9%97%A8%EF%BC%9A%E4%BB%8E%E7%95%8C%E9%9D%A2%E6%84%9F%E7%9F%A5%E5%88%B0%E8%87%AA%E4%B8%BB%E6%93%8D%E4%BD%9C/",
+  "image": "https://gaoguodong03.github.io/gdBlog/img/gui-agent-architecture-cover.svg",
+  "datePublished": "2026-06-05T00:00:00.000Z",
+  "dateModified": "2026-06-05T12:04:11.347Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "GuoDong",
+      "url": "https://gaoguodong03.github.io/gdBlog"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/gdBlog/img/logo.jpg"><link rel="canonical" href="https://gaoguodong03.github.io/gdBlog/2026/06/05/GUI-Agent-%E6%9E%B6%E6%9E%84%E5%85%A5%E9%97%A8%EF%BC%9A%E4%BB%8E%E7%95%8C%E9%9D%A2%E6%84%9F%E7%9F%A5%E5%88%B0%E8%87%AA%E4%B8%BB%E6%93%8D%E4%BD%9C/index.html"><link rel="preconnect"/><link rel="stylesheet" href="/gdBlog/css/index.css"><link rel="stylesheet" href="/gdBlog/pluginsSrc/@fortawesome/fontawesome-free/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/gdBlog/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: '/gdBlog/pluginsSrc/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'GUI Agent 架构入门：从界面感知到自主操作',
+  isHighlightShrink: true,
+  isToc: true,
+  pageType: 'post'
+}</script><style>#article-container.post-content h1:before, h2:before, h3:before, h4:before, h5:before, h6:before { -webkit-animation: avatar_turn_around 1s linear infinite; -moz-animation: avatar_turn_around 1s linear infinite; -o-animation: avatar_turn_around 1s linear infinite; -ms-animation: avatar_turn_around 1s linear infinite; animation: avatar_turn_around 1s linear infinite; }</style><!-- hexo injector head_end start --><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-swiper/lib/swiper.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-swiper/lib/swiperstyle.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="/gdBlog/./css/categorybar.css"><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-wowjs/lib/animate.min.css" media="print" onload="this.media='screen'"><!-- hexo injector head_end end --><meta name="generator" content="Hexo 8.0.0"></head><body><div id="web_bg" style="background-image: url(/gdBlog/img/bg1.jpg);"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/gdBlog/img/touxiang.jpg" onerror="this.onerror=null;this.src='/gdBlog/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/gdBlog/archives/"><div class="headline">文章</div><div class="length-num">62</div></a><a href="/gdBlog/tags/"><div class="headline">标签</div><div class="length-num">37</div></a><a href="/gdBlog/categories/"><div class="headline">分类</div><div class="length-num">8</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/gdBlog/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/link/"><i class="fa-fw fas fa-link"></i><span> 书签</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/gdBlog/./img/gui-agent-architecture-cover.svg);"><nav id="nav"><!-- 左侧博客信息区域--><span id="blog-info"><a class="nav-site-title" href="/gdBlog/"><img class="site-icon" src="/gdBlog/img/logo.jpg" alt="Logo"><span class="site-name">果冻小配方</span></a><a class="nav-page-title" href="/gdBlog/"><span class="site-name">GUI Agent 架构入门：从界面感知到自主操作</span></a></span><!-- 新增的导航菜单容器（居中布局关键）--><div id="nav-menus-container"><!-- 菜单主体部分--><div id="menus"><!-- 搜索按钮--><!-- 菜单项--><div class="menus_items"><div class="menus_item"><a class="site-page" href="/gdBlog/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/link/"><i class="fa-fw fas fa-link"></i><span> 书签</span></a></div></div></div><!-- 移动端汉堡菜单按钮（保持原位置）--><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">GUI Agent 架构入门：从界面感知到自主操作</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-06-05T00:00:00.000Z" title="发表于 2026-06-05 08:00:00">2026-06-05</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-06-05T12:04:11.347Z" title="更新于 2026-06-05 20:04:11">2026-06-05</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/gdBlog/categories/%E6%9E%9C%E5%86%BB%E7%9A%84%E7%90%86%E8%AE%BA%E5%AD%A6%E4%B9%A0/">果冻的理论学习</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">总字数:</span><span class="word-count">9.6k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>29分钟</span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><p>过去我们聊 Agent，很多时候聊的是“文本世界里的 Agent”。</p>
+<p>它读一段用户输入，拆解任务，调用搜索、数据库、代码执行器、文件系统、MCP 工具，最后把结果组织成一段文本。这个方向已经很熟悉了：ReAct、Plan-and-Execute、Reflection、多 Agent、Memory、Tool Use，这些范式本质上都围绕一个问题展开：大模型如何在文本和工具之间形成更可靠的行动链。</p>
+<p>但 GUI Agent 不一样。</p>
+<p>GUI Agent 面对的不是结构清晰的 API，而是一个图形用户界面。它看到的是浏览器窗口、按钮、输入框、弹窗、菜单、表格、滚动条、文件选择器、验证码、系统通知、加载动画，以及各种“人类一眼就懂、机器不一定能懂”的界面暗示。</p>
+<p>也就是说，GUI Agent 的任务不是“回答问题”，而是“使用软件”。</p>
+<p>比如：</p>
+<ul>
+<li>打开一个网页后台，登录，搜索订单，导出报表；</li>
+<li>在浏览器里查资料，把内容复制到文档里；</li>
+<li>在手机 App 里完成订票、下单、修改设置；</li>
+<li>在桌面系统中打开文件、重命名、压缩、上传；</li>
+<li>在一个没有 API 的旧系统里，通过界面把流程跑完。</li>
+</ul>
+<p>这类任务真正困难的地方在于：Agent 不只是要理解用户想做什么，还要理解当前界面处在什么状态、下一步应该操作哪个控件、操作后有没有成功。如果说普通工具型 Agent 更像“会调用函数的助理”，那么 GUI Agent 更像“坐在电脑前帮你操作软件的人”。</p>
+<p>这篇文章先不急着堆论文名，也不急着讨论某一个模型。我们先建立一张架构地图：一个基于 GUI 的 Agent，通常可以拆成哪几层？每一层解决什么问题？主流架构到底放在哪一层？为什么很多 GUI Agent 看起来很聪明，真正用起来却很容易点错、卡住、循环、误操作？</p>
+<h2 id="先把材料读成几句话"><a href="#先把材料读成几句话" class="headerlink" title="先把材料读成几句话"></a>先把材料读成几句话</h2><p>在学习 GUI Agent 前，可以先看几类代表性工作。</p>
+<p><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2306.06070">Mind2Web</a> 关注的是 Web Agent：模型要在真实网站上完成任务，而不是在玩具网页里做选择题。它提醒我们，网页任务里有大量真实复杂性：页面结构复杂、元素很多、任务需要多步完成，而且不同网站之间差异很大。</p>
+<p><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2401.13919">WebVoyager</a> 更进一步强调多模态网页操作。真实网页不只是 HTML，它还有视觉布局、图标、广告、弹窗、浮层、滚动区域。只读文本和 DOM 往往不够，模型需要同时利用截图和页面结构。</p>
+<p><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2401.10935">SeeClick</a> 把重点放在 GUI grounding 上，也就是“看见界面之后，能不能点准”。这件事听起来简单，其实是 GUI Agent 的核心瓶颈之一。模型知道“下一步要点提交按钮”还不够，它必须知道提交按钮在屏幕上的具体位置。</p>
+<p><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2404.07972">OSWorld</a> 则把问题放到真实操作系统里评测。它不是只看网页，而是让 Agent 在真实桌面环境中完成跨应用任务。这类基准说明了一件事：GUI Agent 要想真正使用电脑，就必须面对文件系统、浏览器、办公软件、系统设置等复杂环境。</p>
+<p><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2501.12326">UI-TARS</a> 这类工作代表了更 native 的 GUI Agent 方向：把截图、语言指令和动作空间放到一起训练，让模型直接面向图形界面生成操作动作。</p>
+<p>OpenAI 的 <a target="_blank" rel="noopener" href="https://platform.openai.com/docs/guides/tools-computer-use">Computer Use</a> 和 Anthropic 的 computer use 方向，则从产品化角度展示了另一个事实：GUI Agent 不是单纯模型能力，而是一整套运行时系统。它需要截图、动作接口、浏览器或虚拟机环境、安全确认、日志和失败恢复。</p>
+<p>所以，学习 GUI Agent 时，我认为最重要的不是先背系统名字，而是先抓住一个判断：</p>
+<p><strong>GUI Agent 本质上是一个运行在图形界面上的闭环控制系统。</strong></p>
+<p>它不是“加了截图的聊天机器人”，也不是“更聪明的 RPA”。它至少包含观察、理解、定位、决策、执行、反馈和评估几个部分。下面我们用五层架构来拆。</p>
+<h2 id="GUI-Agent-的基本闭环"><a href="#GUI-Agent-的基本闭环" class="headerlink" title="GUI Agent 的基本闭环"></a>GUI Agent 的基本闭环</h2><p>一个最小可用的 GUI Agent，通常会反复执行这样的循环：</p>
+<p><img src="https://raw.githubusercontent.com/gaoguodong03/gdBlogPic/img/img/20260605193924128.svg" alt="GUI Agent 的观察、理解、规划、行动反馈闭环"></p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">用户目标</span><br><span class="line">  -&gt; 观察界面</span><br><span class="line">  -&gt; 理解当前状态</span><br><span class="line">  -&gt; 决定下一步</span><br><span class="line">  -&gt; 定位操作目标</span><br><span class="line">  -&gt; 执行动作</span><br><span class="line">  -&gt; 再次观察界面</span><br><span class="line">  -&gt; 判断是否完成或需要修正</span><br></pre></td></tr></table></figure>
+
+<p>比如用户说：“帮我登录后台，下载昨天的销售报表。”</p>
+<p>Agent 不能直接回答“好的”。它要真的做事：</p>
+<ol>
+<li>打开目标网站；</li>
+<li>观察登录页；</li>
+<li>找到账号输入框；</li>
+<li>输入账号；</li>
+<li>找到密码输入框；</li>
+<li>输入密码；</li>
+<li>点击登录；</li>
+<li>等待页面跳转；</li>
+<li>判断是否登录成功；</li>
+<li>找到报表菜单；</li>
+<li>选择日期；</li>
+<li>点击导出；</li>
+<li>等待文件下载；</li>
+<li>检查文件是否存在；</li>
+<li>向用户报告结果。</li>
+</ol>
+<p>这里每一步都可能失败。</p>
+<p>按钮可能没加载出来，页面可能弹出二次验证，日期控件可能不是普通输入框，下载按钮可能在滚动区域下面，文件可能被浏览器拦截，登录可能失败但页面没有明显错误提示。</p>
+<p>这就是 GUI Agent 和普通问答 Agent 的关键区别：普通问答 Agent 的失败通常表现为“回答错了”；GUI Agent 的失败可能表现为“点错了、删错了、提交错了、卡在某个页面上不知道发生了什么”。</p>
+<p>所以 GUI Agent 架构必须比普通 Agent 更重视运行时闭环。它不是一次推理完成任务，而是在界面反馈中不断修正。</p>
+<h2 id="五层架构总览"><a href="#五层架构总览" class="headerlink" title="五层架构总览"></a>五层架构总览</h2><p>我会把 GUI Agent 拆成五层：</p>
+<p><img src="https://raw.githubusercontent.com/gaoguodong03/gdBlogPic/img/img/20260605193924132.svg" alt="一个实用 GUI Agent 系统通常不只包含模型，还包含环境、感知、决策、技能、安全和评估"></p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">第五层：安全与评估层</span><br><span class="line">第四层：决策层</span><br><span class="line">第三层：Grounding 层</span><br><span class="line">第二层：感知层</span><br><span class="line">第一层：环境层</span><br></pre></td></tr></table></figure>
+
+<p>这五层不是严格的代码目录划分，而是一种理解方式。</p>
+<p>环境层决定 Agent 在哪里运行；感知层决定它看见什么；Grounding 层决定它能不能把意图落到具体控件上；决策层决定它下一步怎么做；安全与评估层决定它能不能可靠、可控地完成任务。</p>
+<p>如果只看模型，很容易误以为 GUI Agent 的核心问题是“大模型够不够聪明”。但从工程视角看，很多失败其实出在分层之间：</p>
+<ul>
+<li>环境层没有提供稳定截图；</li>
+<li>感知层漏掉了关键弹窗；</li>
+<li>Grounding 层点错了按钮；</li>
+<li>决策层陷入重复尝试；</li>
+<li>评估层误判任务已经完成；</li>
+<li>安全层没有拦住高风险动作。</li>
+</ul>
+<p>下面逐层展开。</p>
+<h2 id="第一层：环境层"><a href="#第一层：环境层" class="headerlink" title="第一层：环境层"></a>第一层：环境层</h2><p>环境层回答的是：Agent 到底运行在哪里？</p>
+<p>GUI Agent 不是飘在空气里的模型。它必须连接到一个可以被观察、可以被操作的环境。这个环境可能是浏览器，也可能是完整桌面系统，也可能是手机模拟器，还可能是一个远程虚拟机。</p>
+<p>常见环境有几类。</p>
+<p>第一类是浏览器环境。</p>
+<p>这是目前最常见的 GUI Agent 场景。浏览器里有大量真实任务：搜索、登录、表单填写、后台管理、网页应用、数据下载、在线文档、邮箱、CRM、工单系统。浏览器环境的好处是可控性比较强，开发者可以拿到 DOM、URL、页面标题、网络请求、cookie、localStorage，也可以通过 Playwright、Selenium、Chrome DevTools Protocol 这类工具执行动作。</p>
+<p>浏览器环境里，Agent 可以不只是“看截图”，还可以读页面结构。比如它可以知道某个按钮的文本、属性、CSS selector、坐标、是否可见。这使得 Web Agent 往往比纯桌面 Agent 更容易做稳定。</p>
+<p>第二类是桌面环境。</p>
+<p>桌面环境更接近“真正用电脑”。Agent 面对的是整个操作系统，包括浏览器、文件管理器、终端、办公软件、聊天软件、图片工具、压缩软件、系统设置。桌面环境的优势是覆盖面广，很多没有 API 的软件也能通过界面操作；缺点是复杂度高，状态空间大，动作风险也更高。</p>
+<p>桌面环境通常依赖截图、鼠标键盘动作、窗口管理、accessibility API、OCR 和文件系统检查。比如 OSWorld 这类基准之所以重要，就是因为它把 Agent 放到了更真实的电脑环境里，而不是只在网页里完成简化任务。</p>
+<p>第三类是手机环境。</p>
+<p>手机 App 的 GUI Agent 通常运行在 Android 模拟器、真实设备或远程手机上。它可以通过 UIAutomator、Accessibility Service、Appium 等方式读取控件树，也可以通过截图理解界面。手机环境的特点是交互动作更多样：点击、长按、滑动、返回、输入、权限弹窗、底部导航、系统分享面板等。</p>
+<p>手机 GUI Agent 很适合研究“真实 App 自动化”，因为很多 App 没有开放 API，也不可能通过 DOM 操作，只能像用户一样点屏幕。</p>
+<p>第四类是远程桌面或虚拟机环境。</p>
+<p>这类环境常用于评测和安全隔离。Agent 不直接操作用户本机，而是在一个沙箱、虚拟机、VNC 或浏览器容器里完成任务。它的好处是即使 Agent 出错，也不至于破坏用户真实环境；同时可以记录完整轨迹，方便复盘和评估。</p>
+<p>环境层看似只是“运行在哪里”，但它实际上决定了上层架构的天花板。</p>
+<p>如果环境只给截图，Agent 就必须走视觉路线；如果环境能给 DOM 和 accessibility tree，就可以走结构化路线；如果环境能提供动作回放、文件检查、网络日志，就可以做更强的评估和恢复。</p>
+<p>所以设计 GUI Agent 的第一步，不是选模型，而是问清楚：</p>
+<ul>
+<li>我是在网页、桌面、手机还是虚拟机里操作？</li>
+<li>我能拿到截图吗？</li>
+<li>我能拿到 DOM 或控件树吗？</li>
+<li>我能执行哪些动作？</li>
+<li>我能观察到动作之后的真实结果吗？</li>
+<li>出错后能不能回滚或重置环境？</li>
+</ul>
+<p>这些问题决定了后面四层怎么设计。</p>
+<h2 id="第二层：感知层"><a href="#第二层：感知层" class="headerlink" title="第二层：感知层"></a>第二层：感知层</h2><p>感知层回答的是：Agent 怎么“看见”界面？</p>
+<p>人看 GUI 很自然。我们看到一个页面，会自动理解标题、按钮、输入框、层级、分组、焦点、颜色、警告、禁用状态、当前选中的 tab。机器没有这么自然，它需要把界面变成可推理的输入。</p>
+<p>主流感知方式可以分成三类：结构化感知、视觉感知、混合感知。</p>
+<p><img src="https://raw.githubusercontent.com/gaoguodong03/gdBlogPic/img/img/20260605193924129.svg" alt="GUI Agent 的三种主要界面感知方式：结构化、视觉和混合感知"></p>
+<h3 id="结构化感知"><a href="#结构化感知" class="headerlink" title="结构化感知"></a>结构化感知</h3><p>结构化感知就是尽量不让模型只看图片，而是读取界面的结构。</p>
+<p>在网页里，结构化信号包括 DOM、HTML、ARIA 属性、可见文本、元素坐标、按钮类型、输入框类型、label、placeholder 等。在桌面和手机里，结构化信号可能来自 accessibility tree、UIAutomator、Appium、系统无障碍接口。</p>
+<p>结构化感知的优点很明显。</p>
+<p>第一，它更精确。一个按钮在 DOM 里就是一个 button，可能还有文本、id、class、role、aria-label。模型不需要从像素里猜测它是不是按钮。</p>
+<p>第二，它更便宜。文本结构比截图更小，处理成本更低。</p>
+<p>第三，它更适合执行。拿到元素 ID 或 selector 之后，可以直接触发点击，而不是估算坐标。</p>
+<p>但结构化感知也有问题。</p>
+<p>很多现代界面并不总是结构友好。Canvas 画出来的界面、游戏、远程桌面、图片化按钮、Electron 应用、复杂自定义组件，都可能让 DOM 或控件树失真。还有一些元素虽然存在于 DOM 中，但被遮挡、不可见、不可点击。模型如果只相信结构，就可能点击到用户看不见的元素。</p>
+<p>所以结构化感知很重要，但不能神化。</p>
+<h3 id="视觉感知"><a href="#视觉感知" class="headerlink" title="视觉感知"></a>视觉感知</h3><p>视觉感知就是让 Agent 看截图。</p>
+<p>截图的优势是“所见即所得”。不管是网页、桌面软件、手机 App、远程桌面，只要用户能看到，截图就能捕捉到。视觉感知可以理解布局、图标、颜色、遮挡、弹窗、加载状态、选中状态，也能处理很多结构化接口拿不到的信息。</p>
+<p>这也是为什么近两年 GUI Agent 方向越来越依赖多模态模型。SeeClick、UI-TARS、computer use 这类方向，本质上都把截图作为重要输入，让模型从界面图像中理解下一步操作。</p>
+<p>视觉感知的难点也很直接。</p>
+<p>首先是成本和延迟。截图比文本大，多模态模型调用更贵，响应更慢。</p>
+<p>其次是精确定位。模型看懂“登录按钮在右下角”还不够，它要输出精确坐标。一个按钮可能只有几十像素高，点偏一点就无效。</p>
+<p>再次是状态理解。截图是瞬间状态，很多动态信息不容易表达，比如页面正在加载、某个按钮刚刚变成可点击、某个输入框获得焦点、某个下载任务已经完成。</p>
+<p>所以视觉感知覆盖面更广，但稳定性更难。</p>
+<h3 id="混合感知"><a href="#混合感知" class="headerlink" title="混合感知"></a>混合感知</h3><p>工程上最实用的路线通常是混合感知。</p>
+<p>也就是同时使用截图、DOM、OCR、accessibility tree、坐标、窗口信息、文件系统状态等多种信号。</p>
+<p>比如网页任务中，Agent 可以这样观察：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">截图：理解页面整体布局和遮挡关系</span><br><span class="line">DOM：获得可操作元素、文本、属性</span><br><span class="line">OCR：补充图片化文字或 canvas 内容</span><br><span class="line">坐标：把元素映射到屏幕位置</span><br><span class="line">URL：判断页面是否跳转</span><br><span class="line">下载目录：判断文件是否导出成功</span><br></pre></td></tr></table></figure>
+
+<p>混合感知的优势在于互补。</p>
+<p>DOM 告诉你“页面上有哪些元素”；截图告诉你“用户实际看到了什么”；OCR 告诉你“图片里写了什么”；坐标告诉你“动作应该落在哪里”；文件和网络日志告诉你“操作是否产生了真实结果”。</p>
+<p>但混合感知也带来系统复杂度。</p>
+<p>不同信号之间可能冲突。DOM 里有按钮，但截图里被弹窗盖住；OCR 识别出一段文字，但它不是可点击元素；元素坐标来自浏览器视口，但执行动作发生在远程桌面坐标系里；页面滚动后，旧坐标失效。</p>
+<p>所以感知层不只是“把信息给模型”，还要做信息对齐：</p>
+<ul>
+<li>哪些元素当前可见？</li>
+<li>哪些元素真的可点击？</li>
+<li>文本和控件之间是什么关系？</li>
+<li>截图坐标、浏览器坐标、远程桌面坐标是否一致？</li>
+<li>页面变化后哪些缓存需要刷新？</li>
+</ul>
+<p>这层做得越好，决策层就越轻松。很多所谓“模型不聪明”的问题，本质上是感知输入太乱。</p>
+<h2 id="第三层：Grounding-层"><a href="#第三层：Grounding-层" class="headerlink" title="第三层：Grounding 层"></a>第三层：Grounding 层</h2><p>Grounding 层回答的是：Agent 怎么把自然语言意图落到具体界面动作上？</p>
+<p>这层非常关键，因为 GUI Agent 的许多失败都发生在这里。</p>
+<p>用户说“点击登录”。决策层可能也判断下一步应该点击登录。可问题是：登录按钮到底是哪一个？</p>
+<p>页面上可能有：</p>
+<ul>
+<li>顶部导航里的“登录”；</li>
+<li>弹窗里的“登录”；</li>
+<li>第三方登录区域；</li>
+<li>灰色不可点击的登录按钮；</li>
+<li>被遮挡的登录按钮；</li>
+<li>移动端折叠菜单里的登录按钮；</li>
+<li>当前视口外的登录按钮。</li>
+</ul>
+<p>Grounding 层要做的就是把“登录按钮”变成一个可执行目标：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">目标意图：点击登录按钮</span><br><span class="line">候选元素：页面中所有 button / link / 可点击区域</span><br><span class="line">过滤条件：文本、位置、可见性、上下文、是否 disabled</span><br><span class="line">目标选择：当前登录表单下方的主按钮</span><br><span class="line">执行表示：元素 ID / selector / 坐标</span><br><span class="line">动作：click</span><br></pre></td></tr></table></figure>
+
+<p>如果是网页，Grounding 的结果可能是 selector 或 element handle。如果是桌面截图，Grounding 的结果可能是坐标。如果是手机 App，可能是 resource-id、text、bounds，或者 tap 坐标。</p>
+<p>Grounding 可以分成几个子问题。</p>
+<p>第一个是目标识别。</p>
+<p>模型要判断哪个控件符合意图。比如“日期选择器”“导出按钮”“保存设置”“展开高级选项”，这些名称未必直接出现在界面文本里，需要结合上下文理解。</p>
+<p>第二个是坐标定位。</p>
+<p>在 screenshot-only 架构里，模型往往要直接输出 <code>(x, y)</code>。这要求模型不仅理解语义，还要有很强的空间定位能力。SeeClick 这类工作之所以重要，就是因为它把 GUI grounding 作为核心能力来训练和评测。</p>
+<p>第三个是可操作性判断。</p>
+<p>不是看起来像按钮就能点。按钮可能被禁用，可能被 loading 状态覆盖，可能需要先勾选协议，可能在滚动容器里只露出一部分，可能点击区域比视觉区域更小。</p>
+<p>第四个是动作参数生成。</p>
+<p>GUI 动作不只有点击，还包括输入、滚动、拖拽、快捷键、选择、复制粘贴、文件上传。不同动作需要不同参数：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">click(x, y)</span><br><span class="line">type(text)</span><br><span class="line">scroll(direction, amount)</span><br><span class="line">drag(start_x, start_y, end_x, end_y)</span><br><span class="line">hotkey(&quot;cmd+s&quot;)</span><br><span class="line">select_option(element, value)</span><br><span class="line">upload_file(path)</span><br></pre></td></tr></table></figure>
+
+<p>第五个是执行后校验。</p>
+<p>点击之后，页面有没有变化？输入之后，文本是否真的进入了输入框？下载之后，文件是否真的出现？如果没有变化，是点错了、页面慢、还是动作无效？</p>
+<p>这就是为什么 Grounding 不能只看作“坐标预测”。它其实是自然语言意图、界面语义、空间位置和动作执行之间的桥。</p>
+<p>如果感知层负责“看见”，Grounding 层负责“点准”。</p>
+<h2 id="第四层：决策层"><a href="#第四层：决策层" class="headerlink" title="第四层：决策层"></a>第四层：决策层</h2><p>决策层回答的是：Agent 怎么决定下一步做什么？</p>
+<p>这一层最接近我们平时说的 Agent 架构。ReAct、Planner-Executor、Reflection、Skill&#x2F;RPA、多 Agent、端到端 VLA，大多都可以放在决策层讨论。</p>
+<p><img src="https://raw.githubusercontent.com/gaoguodong03/gdBlogPic/img/img/20260605193924131.svg" alt="Planner-Executor 架构把长程任务规划和低层界面执行拆开"></p>
+<p>但在 GUI Agent 里，决策层有一个特殊约束：它的每个决定都必须落到真实界面动作上。普通 Agent 调错一个搜索词，最多结果不好；GUI Agent 点错一个按钮，可能提交表单、删除文件、发出消息。</p>
+<p>所以 GUI Agent 的决策层不能只追求“聪明”，还要追求“稳”。</p>
+<h3 id="ReAct：边看边做"><a href="#ReAct：边看边做" class="headerlink" title="ReAct：边看边做"></a>ReAct：边看边做</h3><p>ReAct 的基本形式是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Thought：我现在在登录页，需要输入账号</span><br><span class="line">Action：click(account_input)</span><br><span class="line">Observation：输入框获得焦点</span><br><span class="line">Thought：现在输入账号</span><br><span class="line">Action：type(...)</span><br><span class="line">Observation：账号已输入</span><br></pre></td></tr></table></figure>
+
+<p>ReAct 很适合 GUI Agent，因为 GUI 操作天然就是一步一步反馈的。每次动作之后，界面会变化；Agent 再根据新观察决定下一步。</p>
+<p>它的优点是灵活。</p>
+<p>如果登录后出现二次验证，Agent 可以根据新观察调整。如果搜索结果为空，Agent 可以换关键词。如果按钮没出现，Agent 可以滚动或等待。</p>
+<p>但 ReAct 的问题也明显。</p>
+<p>第一，长任务容易漂移。每一步都局部决策，可能走着走着忘了整体目标。</p>
+<p>第二，成本高。每点一步都调用模型，会增加延迟和费用。</p>
+<p>第三，容易循环。比如页面没变化，Agent 可能反复点击同一个按钮。</p>
+<p>第四，格式和动作空间要严格约束。模型如果输出了不可执行动作，运行时就会失败。</p>
+<p>所以 ReAct 适合短链路、局部反馈强的 GUI 任务，但不适合完全承担长流程规划。</p>
+<h3 id="Plan-and-Execute：先规划，再执行"><a href="#Plan-and-Execute：先规划，再执行" class="headerlink" title="Plan-and-Execute：先规划，再执行"></a>Plan-and-Execute：先规划，再执行</h3><p>Plan-and-Execute，也可以叫 Planner-Executor 架构，是 GUI Agent 里非常自然的一种分层。</p>
+<p>Planner 负责高层规划：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">1. 打开后台系统</span><br><span class="line">2. 登录账号</span><br><span class="line">3. 进入报表中心</span><br><span class="line">4. 选择昨天日期</span><br><span class="line">5. 导出销售报表</span><br><span class="line">6. 检查下载文件</span><br></pre></td></tr></table></figure>
+
+<p>Executor 负责低层执行：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">点击输入框</span><br><span class="line">输入账号</span><br><span class="line">点击菜单</span><br><span class="line">滚动页面</span><br><span class="line">选择日期</span><br><span class="line">点击导出</span><br></pre></td></tr></table></figure>
+
+<p>这种架构的好处是长任务更清楚。Planner 保持全局目标，Executor 处理界面细节。任务失败时，也可以回到某个子任务继续，而不是从头开始。</p>
+<p>它特别适合企业办公自动化。因为企业流程通常有清晰步骤：登录、筛选、导出、上传、审批、发送。高层步骤相对稳定，低层界面可能有变化。</p>
+<p>但 Planner-Executor 也有难点。</p>
+<p>第一，计划可能过时。Planner 一开始制定的步骤，执行过程中可能被弹窗、权限、异常状态打断。</p>
+<p>第二，Planner 和 Executor 的接口要设计好。Planner 不能只说“处理一下报表”，它要给 Executor 可执行的子目标；Executor 也不能只说“失败了”，它要反馈失败原因。</p>
+<p>第三，什么时候重新规划很关键。每一步都重新规划太贵；完全不重新规划又容易卡死。</p>
+<p>所以比较好的做法是：Planner 提供粗粒度路线，Executor 做局部 ReAct，遇到异常再触发 replanning。</p>
+<h3 id="Reflection：执行后自我检查"><a href="#Reflection：执行后自我检查" class="headerlink" title="Reflection：执行后自我检查"></a>Reflection：执行后自我检查</h3><p>Reflection 在 GUI Agent 里也很重要，但它和文本任务里的 Reflection 不完全一样。</p>
+<p>文本任务中，Reflection 常常是让模型检查答案质量。GUI Agent 中，Reflection 更像是检查执行轨迹：</p>
+<ul>
+<li>我刚才点击后页面有没有变化？</li>
+<li>这个页面是不是任务目标页面？</li>
+<li>我是不是点错了相似按钮？</li>
+<li>当前状态是否和计划一致？</li>
+<li>是否需要回退、刷新、等待或换路径？</li>
+</ul>
+<p>例如 Agent 点击了“导出”，但没有文件下载。这时 Reflection 可以分析：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">可能原因：</span><br><span class="line">1. 没有选择日期；</span><br><span class="line">2. 按钮被禁用；</span><br><span class="line">3. 弹出了权限确认；</span><br><span class="line">4. 浏览器拦截下载；</span><br><span class="line">5. 导出需要等待更久。</span><br></pre></td></tr></table></figure>
+
+<p>然后它再决定下一步是等待、检查弹窗、重新选择条件，还是向用户确认权限。</p>
+<p>Reflection 的价值在于提高鲁棒性。GUI 任务充满不确定性，如果没有反思机制，Agent 很容易把“动作发出去了”误认为“任务完成了”。</p>
+<p>但 Reflection 也有成本。它会增加模型调用和延迟。如果每一步都反思，系统会很慢。所以更实用的方式是按风险触发：</p>
+<ul>
+<li>页面长时间无变化；</li>
+<li>动作连续失败；</li>
+<li>即将执行高风险操作；</li>
+<li>任务完成前做最终检查；</li>
+<li>观察结果和预期不一致。</li>
+</ul>
+<p>也就是说，Reflection 不一定是每一步都执行的固定流程，而是 GUI Agent 的故障诊断能力。</p>
+<h3 id="Skill-RPA-增强：把稳定流程沉淀下来"><a href="#Skill-RPA-增强：把稳定流程沉淀下来" class="headerlink" title="Skill &#x2F; RPA 增强：把稳定流程沉淀下来"></a>Skill &#x2F; RPA 增强：把稳定流程沉淀下来</h3><p>GUI Agent 如果每次都从零看界面、从零规划、从零点击，成本会很高，也不稳定。</p>
+<p>现实中很多 GUI 任务是重复的：</p>
+<ul>
+<li>登录某个系统；</li>
+<li>打开某个菜单；</li>
+<li>导出某类报表；</li>
+<li>上传文件；</li>
+<li>创建工单；</li>
+<li>在固定表单里填字段；</li>
+<li>从某个页面复制数据。</li>
+</ul>
+<p>这些流程可以沉淀成 Skill 或 RPA 脚本。</p>
+<p>Skill &#x2F; RPA 增强架构的思路是：让大模型负责理解任务和处理异常，让稳定流程交给可复用技能。</p>
+<p>例如用户说：“帮我导出昨天的销售报表。”</p>
+<p>Agent 可以判断这属于已有技能：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">skill: export_sales_report</span><br><span class="line">params:</span><br><span class="line">  date: yesterday</span><br><span class="line">  format: xlsx</span><br></pre></td></tr></table></figure>
+
+<p>技能内部可能用 Playwright、Selenium、Appium 或系统脚本完成稳定点击。模型不需要每次重新推理按钮在哪里。</p>
+<p>这种架构非常适合生产环境。因为生产环境追求稳定和成本，而不是每一步都炫技。</p>
+<p>它的缺点是维护成本。界面改版后，技能可能失效；流程变了，脚本要更新；不同用户权限不同，技能要处理分支。</p>
+<p>所以 Skill&#x2F;RPA 增强不是替代 GUI Agent，而是和 GUI Agent 互补。一个好的系统应该允许：</p>
+<ul>
+<li>常见稳定流程走技能；</li>
+<li>新任务或异常情况走模型推理；</li>
+<li>技能失败后回到视觉&#x2F;结构化观察；</li>
+<li>成功轨迹反过来沉淀为新技能。</li>
+</ul>
+<p>这也是 GUI Agent 从 demo 走向真实使用的关键。</p>
+<h3 id="多-Agent：把规划、视觉、执行、验证拆开"><a href="#多-Agent：把规划、视觉、执行、验证拆开" class="headerlink" title="多 Agent：把规划、视觉、执行、验证拆开"></a>多 Agent：把规划、视觉、执行、验证拆开</h3><p>复杂 GUI Agent 还可以做多 Agent 分工。</p>
+<p>比如：</p>
+<ul>
+<li>Planner Agent：负责拆解任务；</li>
+<li>Perception Agent：负责解释截图和控件树；</li>
+<li>Grounding Agent：负责选择目标元素和坐标；</li>
+<li>Executor Agent：负责调用动作接口；</li>
+<li>Verifier Agent：负责判断任务是否完成；</li>
+<li>Safety Agent：负责拦截高风险操作。</li>
+</ul>
+<p>这种设计的好处是职责清楚。每个 Agent 可以用不同 prompt、不同模型、不同工具，甚至不同评估标准。</p>
+<p>比如视觉理解可以用强多模态模型，执行层可以用确定性脚本，验证层可以结合文件系统和页面状态，安全层可以用规则和模型共同判断。</p>
+<p>但多 Agent 也会引入复杂度。</p>
+<p>第一，通信成本高。每一层都要传递状态，容易变慢。</p>
+<p>第二，错误归因困难。任务失败时，很难判断是 Planner 错、感知错、Grounding 错，还是执行接口错。</p>
+<p>第三，系统调试复杂。多个 Agent 之间可能互相甩锅，或者输出粒度不匹配。</p>
+<p>所以多 Agent 不适合一开始就上。它更适合任务复杂、风险高、需要审计和分工的场景。</p>
+<h3 id="端到端-VLA-Native-GUI-Agent：从截图到动作"><a href="#端到端-VLA-Native-GUI-Agent：从截图到动作" class="headerlink" title="端到端 VLA &#x2F; Native GUI Agent：从截图到动作"></a>端到端 VLA &#x2F; Native GUI Agent：从截图到动作</h3><p>还有一类更前沿的方向，可以叫端到端 VLA 或 Native GUI Agent。</p>
+<p>VLA 是 Vision-Language-Action。放到 GUI Agent 里，就是模型接收截图和语言指令，然后直接生成 GUI 动作。</p>
+<p>例如：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">输入：</span><br><span class="line">  用户目标：打开设置，把语言改成中文</span><br><span class="line">  当前截图：系统设置页面</span><br><span class="line"></span><br><span class="line">输出：</span><br><span class="line">  click(x=742, y=318)</span><br></pre></td></tr></table></figure>
+
+<p>UI-TARS 这类工作就更接近这个方向。它试图让模型原生理解 GUI，并直接输出鼠标键盘动作，而不是完全依赖外部规则和 DOM。</p>
+<p>这个方向的优势是泛化潜力大。只要界面能显示出来，模型就可能操作。它不依赖某个网站的 DOM，不依赖某个 App 的控件树，也不需要每个流程都手写脚本。</p>
+<p>但它也有很大挑战。</p>
+<p>第一，训练数据难。需要大量真实 GUI 轨迹，包括截图、指令、动作、结果。</p>
+<p>第二，评估难。GUI 任务不是单步分类，必须看最终状态。</p>
+<p>第三，安全难。模型直接输出动作，如果缺少约束，风险很高。</p>
+<p>第四，可解释性弱。端到端模型点了某个位置，不一定能清楚解释为什么。</p>
+<p>所以我更倾向于把 Native GUI Agent 看成底层能力，而不是完整系统。真正可用的 GUI Agent 仍然需要环境、感知、Grounding、安全、评估、日志、技能和人类确认。</p>
+<h3 id="决策层的小结"><a href="#决策层的小结" class="headerlink" title="决策层的小结"></a>决策层的小结</h3><p>把这些架构放在一起看，会发现它们不是互斥关系。</p>
+<p>一个成熟 GUI Agent 可能是这样的组合：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Planner 负责长程任务拆解；</span><br><span class="line">Executor 在每个子任务里使用 ReAct；</span><br><span class="line">Grounding 模块把目标映射到元素或坐标；</span><br><span class="line">Skill 处理高频稳定流程；</span><br><span class="line">Reflection 负责失败恢复和最终检查；</span><br><span class="line">Verifier 判断任务是否真的完成；</span><br><span class="line">Safety 模块拦截高风险动作。</span><br></pre></td></tr></table></figure>
+
+<p>所以学习决策层时，不要问“哪一种架构最好”，而要问：</p>
+<ul>
+<li>这个任务是短流程还是长流程？</li>
+<li>是否有稳定重复步骤？</li>
+<li>是否需要视觉理解？</li>
+<li>失败后能不能重试？</li>
+<li>动作风险有多高？</li>
+<li>是否需要人类确认？</li>
+</ul>
+<p>不同问题对应不同架构组合。</p>
+<h2 id="第五层：安全与评估层"><a href="#第五层：安全与评估层" class="headerlink" title="第五层：安全与评估层"></a>第五层：安全与评估层</h2><p>安全与评估层回答的是：怎么知道 Agent 做对了？怎么防止它乱做？</p>
+<p>这层在 GUI Agent 里非常重要，因为 GUI Agent 会真实改变外部环境。</p>
+<p>普通聊天 Agent 说错一句话，用户可以不采纳。GUI Agent 如果点错按钮，可能提交订单、删除文件、发送邮件、修改配置、转账付款。这就是为什么 computer use 类产品都非常强调权限、确认和隔离。</p>
+<p>安全与评估层至少包括几个部分。</p>
+<h3 id="权限边界"><a href="#权限边界" class="headerlink" title="权限边界"></a>权限边界</h3><p>系统必须定义 Agent 能操作什么、不能操作什么。</p>
+<p>比如：</p>
+<ul>
+<li>是否允许访问某些网站？</li>
+<li>是否允许下载文件？</li>
+<li>是否允许上传文件？</li>
+<li>是否允许删除文件？</li>
+<li>是否允许发送消息？</li>
+<li>是否允许提交表单？</li>
+<li>是否允许支付、购买、转账？</li>
+</ul>
+<p>这些不能完全交给模型自觉。应该有明确规则、allowlist、denylist 和动作拦截。</p>
+<h3 id="人类确认"><a href="#人类确认" class="headerlink" title="人类确认"></a>人类确认</h3><p>高风险动作应该让人确认。</p>
+<p>比如：</p>
+<ul>
+<li>删除；</li>
+<li>支付；</li>
+<li>提交申请；</li>
+<li>发送邮件或消息；</li>
+<li>修改生产配置；</li>
+<li>授权第三方；</li>
+<li>上传敏感文件。</li>
+</ul>
+<p>GUI Agent 的安全原则应该是：低风险动作可以自动化，高风险动作必须确认。</p>
+<h3 id="日志和轨迹"><a href="#日志和轨迹" class="headerlink" title="日志和轨迹"></a>日志和轨迹</h3><p>GUI Agent 必须记录轨迹。</p>
+<p>包括：</p>
+<ul>
+<li>每一步观察到什么；</li>
+<li>模型为什么决定下一步；</li>
+<li>选择了哪个目标；</li>
+<li>执行了什么动作；</li>
+<li>动作结果是什么；</li>
+<li>是否触发安全确认；</li>
+<li>最终如何判断完成。</li>
+</ul>
+<p>没有日志，GUI Agent 很难调试，也很难信任。任务失败时，开发者必须能复盘：是看错了、想错了、点错了，还是执行环境出问题了。</p>
+<h3 id="任务完成判断"><a href="#任务完成判断" class="headerlink" title="任务完成判断"></a>任务完成判断</h3><p>GUI Agent 最大的问题之一是“自以为完成”。</p>
+<p>比如 Agent 点击了导出按钮，就报告“已导出”。但真实情况可能是：</p>
+<ul>
+<li>文件还在生成；</li>
+<li>下载被浏览器阻止；</li>
+<li>导出失败但页面提示很小；</li>
+<li>文件下载了但格式不对；</li>
+<li>下载的是空报表；</li>
+<li>日期选错了。</li>
+</ul>
+<p>所以评估层不能只看动作是否执行，还要看最终状态是否满足任务目标。</p>
+<p>对于不同任务，完成信号不同：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">下载任务：文件存在、文件名正确、大小合理、可打开</span><br><span class="line">表单任务：页面出现成功提示、数据可回查</span><br><span class="line">搜索任务：结果页面包含目标信息</span><br><span class="line">设置任务：设置值已经变更并保存</span><br><span class="line">上传任务：服务端返回成功，列表中出现文件</span><br></pre></td></tr></table></figure>
+
+<p>这也是 OSWorld 这类评测重要的原因：它关注真实任务完成，而不是模型说自己完成。</p>
+<h3 id="沙箱隔离"><a href="#沙箱隔离" class="headerlink" title="沙箱隔离"></a>沙箱隔离</h3><p>GUI Agent 最好运行在沙箱里。</p>
+<p>浏览器容器、虚拟机、远程桌面、手机模拟器，都是常见方式。沙箱的意义是限制损害范围，同时提供可重置环境。</p>
+<p>对于研究和评测，沙箱可以让任务反复运行；对于生产系统，沙箱可以隔离敏感资源；对于用户个人电脑，沙箱可以避免 Agent 误操作真实文件。</p>
+<p>安全与评估层不是最后才补的功能。它应该从一开始就参与架构设计。</p>
+<h2 id="三条主线：看见、点准、做完"><a href="#三条主线：看见、点准、做完" class="headerlink" title="三条主线：看见、点准、做完"></a>三条主线：看见、点准、做完</h2><p>讲完五层之后，我们可以把 GUI Agent 的难点压缩成三句话：</p>
+<p>第一，能不能看见。</p>
+<p>这对应感知层。Agent 是否能理解当前界面？是否知道有哪些控件？是否能识别弹窗、错误提示、加载状态？</p>
+<p>第二，能不能点准。</p>
+<p>这对应 Grounding 层。Agent 是否能把自然语言目标映射到正确元素或坐标？是否能处理滚动、遮挡、相似按钮、禁用状态？</p>
+<p>第三，能不能做完。</p>
+<p>这对应决策层和评估层。Agent 是否能完成长流程？是否能从失败中恢复？是否能判断任务真的完成？是否能避免高风险误操作？</p>
+<p>很多 demo 只展示“看起来会操作”。但真正有用的 GUI Agent，需要在这三件事上同时过关。</p>
+<h2 id="GUI-Agent-和传统-RPA-的关系"><a href="#GUI-Agent-和传统-RPA-的关系" class="headerlink" title="GUI Agent 和传统 RPA 的关系"></a>GUI Agent 和传统 RPA 的关系</h2><p>谈 GUI Agent 很容易绕不开 RPA。</p>
+<p>RPA 也是操作界面。它可以点击按钮、填写表单、导出报表。那 GUI Agent 和 RPA 有什么区别？</p>
+<p>我理解二者不是替代关系，而是连续谱。</p>
+<p>传统 RPA 更像确定性脚本。它适合稳定流程、固定界面、明确规则。比如每天早上打开系统，选择固定菜单，导出固定报表。只要界面不变，RPA 很可靠、成本低、可审计。</p>
+<p>GUI Agent 更像带有理解和恢复能力的操作者。它适合界面有变化、任务描述更自然、流程有分支、需要根据反馈判断下一步的场景。</p>
+<p>但 GUI Agent 不应该抛弃 RPA。相反，最实用的系统往往是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">稳定部分交给 RPA / Skill；</span><br><span class="line">变化部分交给模型；</span><br><span class="line">异常部分交给 Reflection 和人类确认；</span><br><span class="line">最终结果交给评估层验证。</span><br></pre></td></tr></table></figure>
+
+<p>所以可以把 GUI Agent 看成“RPA 的上层智能调度和异常处理能力”，也可以把 RPA 看成“GUI Agent 的可复用动作技能库”。</p>
+<h2 id="GUI-Agent-和普通-Tool-Agent-的区别"><a href="#GUI-Agent-和普通-Tool-Agent-的区别" class="headerlink" title="GUI Agent 和普通 Tool Agent 的区别"></a>GUI Agent 和普通 Tool Agent 的区别</h2><p>普通 Tool Agent 调用的是 API。API 有函数名、参数、返回值、错误码。虽然也会失败，但接口边界比较清楚。</p>
+<p>GUI Agent 调用的是界面。界面不是为机器设计的，而是为人设计的。它有视觉暗示、布局习惯、动态变化、遮挡关系、非标准组件。</p>
+<p>这导致几个差异。</p>
+<p>第一，动作空间不同。</p>
+<p>Tool Agent 的动作是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">search(query)</span><br><span class="line">read_file(path)</span><br><span class="line">send_email(to, subject, body)</span><br></pre></td></tr></table></figure>
+
+<p>GUI Agent 的动作是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">click(x, y)</span><br><span class="line">type(text)</span><br><span class="line">scroll(amount)</span><br><span class="line">drag(...)</span><br><span class="line">hotkey(...)</span><br></pre></td></tr></table></figure>
+
+<p>后者更底层，更容易出错。</p>
+<p>第二，状态观察不同。</p>
+<p>Tool Agent 可以直接拿到结构化返回值。GUI Agent 看到的是页面变化，需要自己判断含义。</p>
+<p>第三，错误反馈不同。</p>
+<p>API 调用失败可能返回 400、403、500。GUI 操作失败可能什么都不发生，也可能出现一个很小的红字提示。</p>
+<p>第四，安全风险不同。</p>
+<p>Tool Agent 的权限通常在 API 层定义。GUI Agent 可能通过界面访问到很多隐含能力，比如删除、发送、付款、授权。</p>
+<p>所以 GUI Agent 不是简单地把工具从 API 换成鼠标键盘。它需要一整套更强的观察、定位、评估和安全机制。</p>
+<h2 id="学习路径"><a href="#学习路径" class="headerlink" title="学习路径"></a>学习路径</h2><p>如果要系统学习 GUI Agent，我建议按下面顺序来。</p>
+<p>第一步，理解基本闭环。</p>
+<p>先不要急着看模型。先把 observe、plan、ground、act、verify 这个循环想清楚。任何 GUI Agent 都绕不开这条链。</p>
+<p>第二步，学习 Web Agent。</p>
+<p>Web Agent 是最好的入门场景，因为浏览器既有真实复杂性，又能提供 DOM、截图、网络、文件下载等丰富信号。可以从 Mind2Web、WebVoyager、SeeAct 这些方向理解网页任务为什么难。</p>
+<p>第三步，学习 GUI grounding。</p>
+<p>重点看模型如何从界面描述中选择目标元素，或者从截图中预测坐标。SeeClick 这类工作可以帮助理解“点准”为什么是独立问题。</p>
+<p>第四步，学习 computer use &#x2F; desktop agent。</p>
+<p>这时再看 OSWorld、UI-TARS、OpenAI Computer Use、Anthropic computer use，会更容易理解它们为什么强调截图、动作空间、沙箱、评估和安全。</p>
+<p>第五步，回到工程架构。</p>
+<p>最后再思考：如果我要做一个真实可用的 GUI Agent，我该怎么组合五层？</p>
+<p>比如一个企业后台 Agent，可能更适合：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">浏览器环境</span><br><span class="line">+ DOM / screenshot 混合感知</span><br><span class="line">+ 元素级 grounding</span><br><span class="line">+ Planner-Executor 决策</span><br><span class="line">+ Skill 库处理固定流程</span><br><span class="line">+ Reflection 处理异常</span><br><span class="line">+ 下载文件和页面状态做最终评估</span><br><span class="line">+ 高风险动作人类确认</span><br></pre></td></tr></table></figure>
+
+<p>而一个通用桌面 Agent，可能更依赖：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">虚拟机环境</span><br><span class="line">+ 截图 / OCR / accessibility tree</span><br><span class="line">+ 坐标级 grounding</span><br><span class="line">+ ReAct + Planner</span><br><span class="line">+ 强安全沙箱</span><br><span class="line">+ 完整轨迹日志</span><br></pre></td></tr></table></figure>
+
+<p>不同场景没有统一答案，但五层框架可以帮助我们快速定位问题。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>GUI Agent 的目标，是让智能体从“会回答”走向“会操作”。</p>
+<p>它的本质不是聊天，也不是简单脚本，而是一个运行在图形界面上的闭环控制系统。</p>
+<p>这套系统至少包含五层：</p>
+<p>环境层决定它在哪里操作；<br>感知层决定它看见什么；<br>Grounding 层决定它能不能点准；<br>决策层决定它下一步怎么做；<br>安全与评估层决定它能不能可靠地做完。</p>
+<p>其中决策层可以容纳很多主流 Agent 架构：ReAct 适合边看边做，Planner-Executor 适合长任务，Reflection 适合失败恢复，Skill&#x2F;RPA 适合稳定流程，多 Agent 适合复杂分工，端到端 VLA 则代表更原生的 GUI 操作模型方向。</p>
+<p>但最终决定 GUI Agent 是否可用的，不只是模型是否强，而是整个架构是否闭环。</p>
+<p>它要看得见、点得准、做得完、可恢复、可评估、可审计、可控制。</p>
+<p>这也是 GUI Agent 最有意思的地方：它把大模型从文本世界带回了真实软件世界。过去我们通过 API 让模型调用工具，现在我们开始让模型直接面对人类每天使用的图形界面。这个方向一旦成熟，很多没有 API、没有自动化接口、只能靠人手操作的软件流程，都可能被重新组织。</p>
+<p>但也正因为它真的能操作外部世界，我们不能只用“模型智能”来理解它。更准确的理解方式是：GUI Agent 是模型、界面、动作、反馈、安全和评估共同组成的系统工程。</p>
+<p>先理解这张架构图，再去看具体论文和产品，就会清楚很多。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://gaoguodong03.github.io/gdBlog">GuoDong</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://gaoguodong03.github.io/gdBlog/2026/06/05/GUI-Agent-%E6%9E%B6%E6%9E%84%E5%85%A5%E9%97%A8%EF%BC%9A%E4%BB%8E%E7%95%8C%E9%9D%A2%E6%84%9F%E7%9F%A5%E5%88%B0%E8%87%AA%E4%B8%BB%E6%93%8D%E4%BD%9C/">https://gaoguodong03.github.io/gdBlog/2026/06/05/GUI-Agent-%E6%9E%B6%E6%9E%84%E5%85%A5%E9%97%A8%EF%BC%9A%E4%BB%8E%E7%95%8C%E9%9D%A2%E6%84%9F%E7%9F%A5%E5%88%B0%E8%87%AA%E4%B8%BB%E6%93%8D%E4%BD%9C/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://gaoguodong03.github.io/gdBlog" target="_blank">果冻小配方</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/gdBlog/tags/%E8%B0%83%E7%A0%94/">调研</a><a class="post-meta__tags" href="/gdBlog/tags/Agent/">Agent</a><a class="post-meta__tags" href="/gdBlog/tags/GUI-Agent/">GUI Agent</a></div><div class="post-share"><div class="social-share" data-image="/gdBlog/./img/gui-agent-architecture-cover.svg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="/gdBlog/pluginsSrc/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="/gdBlog/pluginsSrc/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related full-width" href="/gdBlog/2026/06/05/DOM-%E5%92%8C-Accessibility-Tree%EF%BC%9A%E7%BD%91%E9%A1%B5%E5%85%B6%E5%AE%9E%E6%9C%89%E4%B8%A4%E6%A3%B5%E6%A0%91/" title="DOM 和 Accessibility Tree：网页其实有两棵树"><img class="cover" src="/gdBlog/./img/dom-accessibility-tree-cover.svg" onerror="onerror=null;src='/gdBlog/img/404.jpg'" alt="cover of next post"><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">DOM 和 Accessibility Tree：网页其实有两棵树</div></div><div class="info-2"><div class="info-item-1">我们平时打开一个网页，看到的是按钮、文字、图片、输入框。 但在浏览器内部，网页不只是一张“画出来的页面”。浏览器会把它整理成不同的结构，其中最常被提到的两棵树，就是 DOM 和 Accessibility Tree。 如果你刚接触前端、GUI Agent、浏览器自动化，或者只是想知道“为什么看起来一样的按钮，程序和读屏软件不一定能识别”，这两个概念非常重要。 先用一句话理解DOM 是网页的施工图，Accessibility Tree 是给辅助工具看的用户地图。 DOM 关心的是：  页面用了哪些 HTML 标签 这些标签怎么嵌套 每个节点有什么属性、文本和事件 JavaScript 应该怎么找到并修改它们  Accessibility Tree 关心的是：  这个东西对用户来说是什么 它叫什么名字 它能不能被操作 它现在是什么状态  也就是说： 12DOM：网页是怎么写出来的Accessibility Tree：网页对用户来说是什么  DOM：浏览器看到的网页结构DOM 的全称是 Document Object Model，中文通常叫“文档对象模型”。 比如网页里有这样一段 HT...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/gdBlog/2026/01/13/AGI-NEXT-%E5%B3%B0%E4%BC%9A/" title="AGI-NEXT 峰会"><img class="cover" src="/gdBlog/./img/logoLLM.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-01-13</div><div class="info-item-2">AGI-NEXT 峰会</div></div><div class="info-2"><div class="info-item-1">Q1: 为什么说Chat时代已经结束？ 经过一年的观察，唐杰认为单纯做Chat已经不是在真正解决问题。他原本预判大模型会替代搜索，但现实是谷歌反而用AI把自己的搜索革命了。而2025年初DeepSeek的出现，在他看来彻底终结了Chat范式的竞争。 “可能对研究界、产业界，甚至对很多人都是’横空出世’。”唐杰说，“在DeepSeek这种范式下，Chat时代基本上算是解决了。我们做得再好，也许跟DeepSeek差不多，或许在上面再个性化一点、变成有情感的Chat。但总的来讲，这个范式基本到头了，剩下更多是工程和技术问题。” 这个判断促使智谱做出战略转向。团队内部争论了很多个晚上，最终决定把所有精力放在Coding和Agent上。2025年7月，智谱发布4.5版本，把Coding、Agentic、Reasoning能力整合在一起。 但真实世界的反馈很快给了他们一记重击。 用户拿着模型去编”植物大战僵尸”，结果编不出来。”真实编程环境下有大量问题需要解决。”唐杰说。团队通过RLVR（可验证强化学习）配合编程环境作为反馈，才把效果提升上去。这个经历让他意识到：跑分是跑分，真正让能力进入主...</div></div></div></a><a class="pagination-related" href="/gdBlog/2025/10/11/%E5%A4%9A%E6%99%BA%E8%83%BD%E4%BD%93%E5%8D%8F%E5%90%8C%E6%9E%B6%E6%9E%84%E8%B0%83%E7%A0%94/" title="多智能体协同架构调研"><img class="cover" src="/gdBlog/./img/logoZiyouzhiyi.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-10-11</div><div class="info-item-2">多智能体协同架构调研</div></div><div class="info-2"><div class="info-item-1">上下文工程 任务管理者 依次往总线扔任务 会议时间文档链接：https://free4inno.feishu.cn/wiki/CxV0wuVATi8Z0hk6wF8cWgzCnTb报告时间：2025&#x2F;10&#x2F;10报告人：孟千斌 简要记录调研了多种多智能体协同架构，包括 OpenManus、微软开源的 AutoGen、字节开源的 LongManus（基于 LongGraph）等，并对它们进行了横向对比  OpenManus：因闭源，分析基于官网 Blog 及演示视频，聚焦其多智能体协同模式，单智能体模式未涉及。 AutoGen：提供 5 种多智能体协同解法： 双智能体聊天（带函数调用）：由用户代理和助手构成，通过交替对话、任务拆分函数调用逐步完成任务，支持人工在关键节点介入。 群聊（Group chat）：预设多角色智能体与群聊管理器，管理器根据上下文和角色能力自动路由任务，公共历史记录信息，支持发布 &#x2F; 订阅模式优化。 AutoBuild：能从自然语言需求出发，自动生成带角色定位的智能体并组成群聊，经协作完成任务后反思总结并返回结果。 Mixture ...</div></div></div></a><a class="pagination-related" href="/gdBlog/2026/01/13/%E5%B7%A5%E5%85%B7%E9%80%89%E5%8F%96/" title="工具选取"><img class="cover" src="/gdBlog/./img/logoLLM.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-01-13</div><div class="info-item-2">工具选取</div></div><div class="info-2"><div class="info-item-1">• 工具检索：这里的重点是根据子任务和工具之间的相似性，将这些子任务与工具清单中合适的工具进行匹配。目的是选择与每个子任务相似度最高的前 K 个工具 {a1, a2, …, aK}，为每个子任务形成一组候选工具。  • 工具选择和填充参数：在此阶段，根据描述从集合{a1，a2，…，aK} 中为每个子任务选择最合适的工具。此阶段还包括准备工具执行的参数，如其文档中所指定。   • 工具执行与重试：选择工具并设置参数后，执行工具。如果工具在执行过程中失败，流程将返回到工具选择阶段以进行替代选择。这种重试机制会一直持续到成功执行或达到最大尝试 R 为止。 1. AutoTool: 高效工具选择框架（2025年11月）论文信息：《AutoTool: Efficient Tool Selection for Large Language Model Agents》（已被 AAAI 2026 录用）arxiv​ 核心创新：该论文指出，当前 ReAct 等框架存在的主要瓶颈是工具选择的高推理成本。作者提出了基于图的 AutoTool 框架，核心观察是工具使用惯性（tool usage iner...</div></div></div></a><a class="pagination-related" href="/gdBlog/2026/03/17/%E6%99%BA%E8%83%BD%E4%BD%93%E5%B7%A5%E7%A8%8B%E7%9A%84-8-%E4%B8%AA%E7%AD%89%E7%BA%A7/" title="智能体工程的 8 个等级"><img class="cover" src="/gdBlog/./img/logoAgent.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-03-17</div><div class="info-item-2">智能体工程的 8 个等级</div></div><div class="info-2"><div class="info-item-1">原文：The 8 Levels of Agentic Engineering — Bassim Eledath 作者：Bassim Eledath AI 的编程能力正在超越我们驾驭它的能力。这就是为什么所有那些拼命刷 SWE-bench 分数的努力，并没有与工程领导层真正关心的生产力指标同步。Anthropic 团队用 10 天就上线了 Cowork，而另一个团队用着同样的模型却连一个 POC（概念验证）都搞不定——区别在于一个团队已经弥合了能力与实践之间的差距，而另一个还没有。 这个差距不会一夜之间消失，而是分等级逐步缩小。总共 8 个等级。读到这篇文章的大多数人可能已经过了前几个等级，而你应该迫不及待地想达到下一个——因为每升一级都意味着产出的巨大飞跃，而每次模型能力的提升都会进一步放大这些收益。 你应该在意的另一个原因是多人协作效应。你的产出比你想象的更依赖于队友的等级。假设你是 7 级高手，晚上睡觉时后台智能体就在帮你提好几个 PR。但如果你的代码仓库需要一位同事审批才能合并，而这位同事还停留在 2 级，仍在手动审查 PR，那你的吞吐量就被卡死了。所以帮队友升级，对你自己...</div></div></div></a><a class="pagination-related" href="/gdBlog/2026/01/12/%E8%AE%B0%E5%BF%86%EF%BC%8C%E4%B8%8A%E4%B8%8B%E6%96%87%EF%BC%8C%E8%A7%84%E5%88%92%EF%BC%8C%E9%80%89%E5%8F%96%E7%8E%B0%E7%8A%B6/" title="智能体四模块现状"><img class="cover" src="/gdBlog/./img/logoZiyouzhiyi.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-01-12</div><div class="info-item-2">智能体四模块现状</div></div><div class="info-2"><div class="info-item-1">1. 记忆 (Memory): 从被动存储到主动学习智能体的记忆模块负责信息的持久化存储和高效检索，解决了大型语言模型（LLM）本身“无状态”、“健忘”的核心问题。  早期状态 (2023-2024): 主要依赖RAG (Retrieval-Augmented Generation)。通过将外部知识（文档、数据库）转换为向量，并存储在向量数据库（如Pinecone, Chroma）中。当用户提问时，系统检索最相关的文本片段，并将其作为“短期记忆”喂给LLM。这是一种相对被动的“开卷考试”。  最新进展 (2025-2026):  主动记忆管理 (Active Memory Curation): Agent不再只是被动检索。它能够自主决定什么信息值得被记住、什么信息应该被遗忘或归档。例如，在一次复杂的任务后，Agent 会生成一个“任务总结”或“经验教训”，并将其结构化地存入长期记忆中，而不是存储原始的、冗长的对话记录。 分层与混合记忆 (Hierarchical &amp; Hybrid Memory): Agent的记忆系统变得更加复杂，模拟人脑结构。 感觉记忆 (Sensor...</div></div></div></a><a class="pagination-related" href="/gdBlog/2026/01/12/A2UI/" title="A2UI(Agent to User Interface)"><img class="cover" src="/gdBlog/./img/logoLLM.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-01-12</div><div class="info-item-2">A2UI(Agent to User Interface)</div></div><div class="info-2"><div class="info-item-1">背景现有AI交互模式的局限性  低效对话交互：用户需通过多轮文本对话完成简单任务（如订餐厅需反复确认时间、人数等细节），效率”低的像蜗牛爬”。  生成式UI技术缺陷：以Copilot Kit为代表的方案存在前端依赖过重问题，AI仅作为”提线木偶”，无法自主定义界面结构。  行业标准碎片化：动态性、安全性、跨平台适配等关键问题缺乏统一解决方案，导致”各搞各的，标准不统一，像一盘散沙”。   A2UI协议核心架构定义与核心理念A2UI（Agent to User Interface）是Google提出的AI界面描述协议，指的是 智能体到用户界面 的无缝集成框架。它代表了一种新的AI交互范式，将大型语言模型&#x2F;智能体与实际用户界面直接连接，实现AI驱动的自动化交互。 12345678┌────────────────────┐    ┌────────────────────┐    ┌────────────────────┐│   AI智能体/LLM     │ →  │    A2UI框架层       │ →  │  应用UI/操作系统   ││  (如GPT、Clau...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/gdBlog/img/touxiang.jpg" onerror="this.onerror=null;this.src='/gdBlog/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">GuoDong</div><div class="author-info-description">碎碎念念 岁岁年年</div><div class="site-data"><a href="/gdBlog/archives/"><div class="headline">文章</div><div class="length-num">62</div></a><a href="/gdBlog/tags/"><div class="headline">标签</div><div class="length-num">37</div></a><a href="/gdBlog/categories/"><div class="headline">分类</div><div class="length-num">8</div></a></div><div class="card-info-social-icons"><a class="social-icon" href="https://www.bilibili.com/" target="_blank" title="bilibili"><i class="fab fa-bilibili" style="color: #24292e;"></i></a><a class="social-icon" href="https://github.com/gaoguodong03" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="https://leetcode.cn/studyplan/top-100-liked/" target="_blank" title="LeetCode"><i class="fab fa-comments" style="color: #24292e;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">好事马上发生</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%88%E6%8A%8A%E6%9D%90%E6%96%99%E8%AF%BB%E6%88%90%E5%87%A0%E5%8F%A5%E8%AF%9D"><span class="toc-number">1.</span> <span class="toc-text">先把材料读成几句话</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#GUI-Agent-%E7%9A%84%E5%9F%BA%E6%9C%AC%E9%97%AD%E7%8E%AF"><span class="toc-number">2.</span> <span class="toc-text">GUI Agent 的基本闭环</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94%E5%B1%82%E6%9E%B6%E6%9E%84%E6%80%BB%E8%A7%88"><span class="toc-number">3.</span> <span class="toc-text">五层架构总览</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AC%AC%E4%B8%80%E5%B1%82%EF%BC%9A%E7%8E%AF%E5%A2%83%E5%B1%82"><span class="toc-number">4.</span> <span class="toc-text">第一层：环境层</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AC%AC%E4%BA%8C%E5%B1%82%EF%BC%9A%E6%84%9F%E7%9F%A5%E5%B1%82"><span class="toc-number">5.</span> <span class="toc-text">第二层：感知层</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BB%93%E6%9E%84%E5%8C%96%E6%84%9F%E7%9F%A5"><span class="toc-number">5.1.</span> <span class="toc-text">结构化感知</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A7%86%E8%A7%89%E6%84%9F%E7%9F%A5"><span class="toc-number">5.2.</span> <span class="toc-text">视觉感知</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B7%B7%E5%90%88%E6%84%9F%E7%9F%A5"><span class="toc-number">5.3.</span> <span class="toc-text">混合感知</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AC%AC%E4%B8%89%E5%B1%82%EF%BC%9AGrounding-%E5%B1%82"><span class="toc-number">6.</span> <span class="toc-text">第三层：Grounding 层</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AC%AC%E5%9B%9B%E5%B1%82%EF%BC%9A%E5%86%B3%E7%AD%96%E5%B1%82"><span class="toc-number">7.</span> <span class="toc-text">第四层：决策层</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#ReAct%EF%BC%9A%E8%BE%B9%E7%9C%8B%E8%BE%B9%E5%81%9A"><span class="toc-number">7.1.</span> <span class="toc-text">ReAct：边看边做</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Plan-and-Execute%EF%BC%9A%E5%85%88%E8%A7%84%E5%88%92%EF%BC%8C%E5%86%8D%E6%89%A7%E8%A1%8C"><span class="toc-number">7.2.</span> <span class="toc-text">Plan-and-Execute：先规划，再执行</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Reflection%EF%BC%9A%E6%89%A7%E8%A1%8C%E5%90%8E%E8%87%AA%E6%88%91%E6%A3%80%E6%9F%A5"><span class="toc-number">7.3.</span> <span class="toc-text">Reflection：执行后自我检查</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Skill-RPA-%E5%A2%9E%E5%BC%BA%EF%BC%9A%E6%8A%8A%E7%A8%B3%E5%AE%9A%E6%B5%81%E7%A8%8B%E6%B2%89%E6%B7%80%E4%B8%8B%E6%9D%A5"><span class="toc-number">7.4.</span> <span class="toc-text">Skill &#x2F; RPA 增强：把稳定流程沉淀下来</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A4%9A-Agent%EF%BC%9A%E6%8A%8A%E8%A7%84%E5%88%92%E3%80%81%E8%A7%86%E8%A7%89%E3%80%81%E6%89%A7%E8%A1%8C%E3%80%81%E9%AA%8C%E8%AF%81%E6%8B%86%E5%BC%80"><span class="toc-number">7.5.</span> <span class="toc-text">多 Agent：把规划、视觉、执行、验证拆开</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AB%AF%E5%88%B0%E7%AB%AF-VLA-Native-GUI-Agent%EF%BC%9A%E4%BB%8E%E6%88%AA%E5%9B%BE%E5%88%B0%E5%8A%A8%E4%BD%9C"><span class="toc-number">7.6.</span> <span class="toc-text">端到端 VLA &#x2F; Native GUI Agent：从截图到动作</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%86%B3%E7%AD%96%E5%B1%82%E7%9A%84%E5%B0%8F%E7%BB%93"><span class="toc-number">7.7.</span> <span class="toc-text">决策层的小结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AC%AC%E4%BA%94%E5%B1%82%EF%BC%9A%E5%AE%89%E5%85%A8%E4%B8%8E%E8%AF%84%E4%BC%B0%E5%B1%82"><span class="toc-number">8.</span> <span class="toc-text">第五层：安全与评估层</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9D%83%E9%99%90%E8%BE%B9%E7%95%8C"><span class="toc-number">8.1.</span> <span class="toc-text">权限边界</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%BA%E7%B1%BB%E7%A1%AE%E8%AE%A4"><span class="toc-number">8.2.</span> <span class="toc-text">人类确认</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%97%A5%E5%BF%97%E5%92%8C%E8%BD%A8%E8%BF%B9"><span class="toc-number">8.3.</span> <span class="toc-text">日志和轨迹</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%BB%E5%8A%A1%E5%AE%8C%E6%88%90%E5%88%A4%E6%96%AD"><span class="toc-number">8.4.</span> <span class="toc-text">任务完成判断</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B2%99%E7%AE%B1%E9%9A%94%E7%A6%BB"><span class="toc-number">8.5.</span> <span class="toc-text">沙箱隔离</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E6%9D%A1%E4%B8%BB%E7%BA%BF%EF%BC%9A%E7%9C%8B%E8%A7%81%E3%80%81%E7%82%B9%E5%87%86%E3%80%81%E5%81%9A%E5%AE%8C"><span class="toc-number">9.</span> <span class="toc-text">三条主线：看见、点准、做完</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#GUI-Agent-%E5%92%8C%E4%BC%A0%E7%BB%9F-RPA-%E7%9A%84%E5%85%B3%E7%B3%BB"><span class="toc-number">10.</span> <span class="toc-text">GUI Agent 和传统 RPA 的关系</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#GUI-Agent-%E5%92%8C%E6%99%AE%E9%80%9A-Tool-Agent-%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="toc-number">11.</span> <span class="toc-text">GUI Agent 和普通 Tool Agent 的区别</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AD%A6%E4%B9%A0%E8%B7%AF%E5%BE%84"><span class="toc-number">12.</span> <span class="toc-text">学习路径</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">13.</span> <span class="toc-text">总结</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/gdBlog/2026/06/05/GUI-Agent-%E6%9E%B6%E6%9E%84%E5%85%A5%E9%97%A8%EF%BC%9A%E4%BB%8E%E7%95%8C%E9%9D%A2%E6%84%9F%E7%9F%A5%E5%88%B0%E8%87%AA%E4%B8%BB%E6%93%8D%E4%BD%9C/" title="GUI Agent 架构入门：从界面感知到自主操作">GUI Agent 架构入门：从界面感知到自主操作</a><time datetime="2026-06-05T12:04:11.347Z" title="更新于 2026-06-05 20:04:11">2026-06-05</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/gdBlog/2026/06/05/DOM-%E5%92%8C-Accessibility-Tree%EF%BC%9A%E7%BD%91%E9%A1%B5%E5%85%B6%E5%AE%9E%E6%9C%89%E4%B8%A4%E6%A3%B5%E6%A0%91/" title="DOM 和 Accessibility Tree：网页其实有两棵树">DOM 和 Accessibility Tree：网页其实有两棵树</a><time datetime="2026-06-05T12:03:47.839Z" title="更新于 2026-06-05 20:03:47">2026-06-05</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/gdBlog/2026/05/31/%E5%88%AB%E5%86%8D%E6%B7%B7%E6%B7%86-MoE%E3%80%81Role-Prompting-%E5%92%8C%E5%A4%9A-Agent/" title="别再混淆 MoE、Role Prompting 和多 Agent">别再混淆 MoE、Role Prompting 和多 Agent</a><time datetime="2026-05-31T10:24:14.111Z" title="更新于 2026-05-31 18:24:14">2026-05-31</time></div></div></div></div></div></div></main><footer id="footer" style="background: transparent;"><div class="footer-other"><div class="footer-copyright"></div><div class="footer_custom_text"><style>
+  .footer {
+    text-align: center;
+    position: relative;
+  }
+  .footer p {
+    margin: 0.5rem 0;
+    line-height: 1;
+  }
+  .copyright {
+    font-size: 1.1rem; 
+    color: #000000;
+    font-weight: 400;
+  }
+  .tagline {
+    font-size: 0.8rem;
+    color: #333333;
+    font-style: italic;
+    font-weight: 500;
+  }
+  .visitor-count {
+    font-size: 0.75rem;
+    color: rgba(0, 0, 0, 0.7);
+    font-weight: 300;
+  }
+  #visitorCount {
+    font-weight: bold;
+  }
+</style>
+<div class="footer">
+  <p class="copyright">© 2025 果冻小配方 - 所有权利保留</p>
+  <p class="tagline">> 碎碎念念 岁岁年年 <</p>
+  <p class="visitor-count">访问量: <span id="visitorCount">1024</span> | 你是第 <span id="dailyVisitor">1</span> 位今日访客</p>
+</div>
+<script>
+  // 确保DOM加载完成后执行
+  document.addEventListener('DOMContentLoaded', function() {
+    // 模拟访问量增长
+    function updateVisitorCount() {
+      const countElement = document.getElementById('visitorCount');
+      let count = parseInt(localStorage.getItem('totalVisitors'), 10) || 1024;
+      count += 1;
+      countElement.textContent = count;
+      localStorage.setItem('totalVisitors', String(count));
+      const today = new Date().toDateString();
+      const dailyData = JSON.parse(localStorage.getItem('dailyVisitors') || '{"date":"", "count":0}');
+      if (dailyData.date !== today) {
+        dailyData.date = today;
+        dailyData.count = 0;
+      }
+      dailyData.count += 1;
+      document.getElementById('dailyVisitor').textContent = dailyData.count;
+      localStorage.setItem('dailyVisitors', JSON.stringify(dailyData));
+    }
+    updateVisitorCount();
+  });
+</script>
+</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/gdBlog/js/utils.js"></script><script src="/gdBlog/js/main.js"></script><div class="js-pjax"></div><script src="/config/js/happy-title.js" async></script><script src="/config/js/foot.js" async></script></div><!-- hexo injector body_end start --><script data-pjax>
+  function butterfly_swiper_injector_config(){
+    var parent_div_git = document.getElementById('recent-posts');
+    var item_html = '<div class="recent-post-item" style="height: auto;width: 100%"><div class="blog-slider swiper-container-fade swiper-container-horizontal" id="swiper_container"><div class="blog-slider__wrp swiper-wrapper" style="transition-duration: 0ms;"></div><div class="blog-slider__pagination swiper-pagination-clickable swiper-pagination-bullets"></div></div></div>';
+    console.log('已挂载butterfly_swiper')
+    parent_div_git.insertAdjacentHTML("afterbegin",item_html)
+    }
+  var elist = 'undefined'.split(',');
+  var cpage = location.pathname;
+  var epage = '/';
+  var flag = 0;
+
+  for (var i=0;i<elist.length;i++){
+    if (cpage.includes(elist[i])){
+      flag++;
+    }
+  }
+
+  if ((epage ==='all')&&(flag == 0)){
+    butterfly_swiper_injector_config();
+  }
+  else if (epage === cpage){
+    butterfly_swiper_injector_config();
+  }
+  </script><script defer src="https://npm.elemecdn.com/hexo-butterfly-swiper/lib/swiper.min.js"></script><script defer data-pjax src="https://npm.elemecdn.com/hexo-butterfly-swiper/lib/swiper_init.js"></script><script data-pjax>
+    function butterfly_categories_card_injector_config(){
+      var parent_div_git = document.getElementById('recent-posts');
+      var item_html = '<style>li.categoryBar-list-item{width:32.3%;}.categoryBar-list{max-height: 950px;overflow:auto;}.categoryBar-list::-webkit-scrollbar{width:0!important}@media screen and (max-width: 650px){.categoryBar-list{max-height: 800px;}}</style><div class="recent-post-item" style="height:auto;width:100%;padding:0px;"><div id="categoryBar"><ul class="categoryBar-list"><li class="categoryBar-list-item" style="background:url(/img/logo.jpg);"> <a class="categoryBar-list-link" href="categories/Hello-Agents/">Hello-Agents</a><span class="categoryBar-list-count">8</span><span class="categoryBar-list-descr">果冻的航海日记</span></li><li class="categoryBar-list-item" style="background:url(/img/logo.jpg);"> <a class="categoryBar-list-link" href="categories/果冻的科普专区/">果冻的科普专区</a><span class="categoryBar-list-count">14</span><span class="categoryBar-list-descr">Hexo</span></li><li class="categoryBar-list-item" style="background:url(/img/logo.jpg);"> <a class="categoryBar-list-link" href="categories/果冻的航海日志/">果冻的航海日志</a><span class="categoryBar-list-count">10</span><span class="categoryBar-list-descr">果冻的奇妙小工具</span></li><li class="categoryBar-list-item" style="background:url(/img/logo.jpg);"> <a class="categoryBar-list-link" href="categories/果冻的理论学习/">果冻的理论学习</a><span class="categoryBar-list-count">16</span><span class="categoryBar-list-descr">果冻的日记本</span></li><li class="categoryBar-list-item" style="background:url(undefined);"> <a class="categoryBar-list-link" href="categories/道不可言言而非也/">道不可言言而非也</a><span class="categoryBar-list-count">1</span><span class="categoryBar-list-descr"></span></li><li class="categoryBar-list-item" style="background:url(undefined);"> <a class="categoryBar-list-link" href="categories/果冻的奇妙小工具/">果冻的奇妙小工具</a><span class="categoryBar-list-count">6</span><span class="categoryBar-list-descr"></span></li><li class="categoryBar-list-item" style="background:url(undefined);"> <a class="categoryBar-list-link" href="categories/Hexo/">Hexo</a><span class="categoryBar-list-count">1</span><span class="categoryBar-list-descr"></span></li><li class="categoryBar-list-item" style="background:url(undefined);"> <a class="categoryBar-list-link" href="categories/果冻的LeetCode刷题/">果冻的LeetCode刷题</a><span class="categoryBar-list-count">5</span><span class="categoryBar-list-descr"></span></li></ul></div></div>';
+      console.log('已挂载butterfly_categories_card')
+      parent_div_git.insertAdjacentHTML("afterbegin",item_html)
+      }
+    if( document.getElementById('recent-posts') && (location.pathname ==='/categories/'|| '/categories/' ==='all')){
+    butterfly_categories_card_injector_config()
+    }
+  </script><div class="js-pjax"><script async="async">var arr = document.getElementsByClassName('recent-post-item');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__zoomIn');
+    arr[i].setAttribute('data-wow-duration', '300ms');
+    arr[i].setAttribute('data-wow-delay', '0ms');
+    arr[i].setAttribute('data-wow-offset', '0');
+    arr[i].setAttribute('data-wow-iteration', '1');
+  }</script><script async="async">var arr = document.getElementsByClassName('card-widget');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__zoomIn');
+    arr[i].setAttribute('data-wow-duration', '');
+    arr[i].setAttribute('data-wow-delay', '');
+    arr[i].setAttribute('data-wow-offset', '');
+    arr[i].setAttribute('data-wow-iteration', '');
+  }</script></div><script defer src="https://npm.elemecdn.com/hexo-butterfly-wowjs/lib/wow.min.js"></script><script defer src="https://npm.elemecdn.com/hexo-butterfly-wowjs/lib/wow_init.js"></script><!-- hexo injector body_end end --></body></html>

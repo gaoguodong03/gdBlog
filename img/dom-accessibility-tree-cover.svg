@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">DOM and Accessibility Tree cover</title>
+  <desc id="desc">Two simplified browser trees showing DOM structure and accessibility semantics.</desc>
+  <rect width="1200" height="630" fill="#f6f7f9"/>
+  <rect x="0" y="0" width="1200" height="630" fill="#ffffff"/>
+  <path d="M0 560 C180 520 310 590 500 548 C690 506 824 468 1200 520 L1200 630 L0 630 Z" fill="#e8f1ef"/>
+  <path d="M0 0 L1200 0 L1200 116 C1010 140 842 96 630 122 C408 150 215 114 0 142 Z" fill="#1f2937"/>
+  <text x="72" y="78" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="700" fill="#ffffff">DOM / Accessibility Tree</text>
+  <text x="72" y="124" font-family="Arial, Helvetica, sans-serif" font-size="20" fill="#d1d5db">A page has code structure and user-facing semantics</text>
+
+  <g transform="translate(92 184)">
+    <rect x="0" y="0" width="448" height="298" rx="18" fill="#eef2ff" stroke="#4f46e5" stroke-width="3"/>
+    <text x="32" y="52" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" fill="#312e81">DOM</text>
+    <text x="32" y="86" font-family="Arial, Helvetica, sans-serif" font-size="17" fill="#4338ca">How the page is written</text>
+    <line x1="224" y1="116" x2="224" y2="156" stroke="#4f46e5" stroke-width="4"/>
+    <line x1="112" y1="156" x2="336" y2="156" stroke="#4f46e5" stroke-width="4"/>
+    <line x1="112" y1="156" x2="112" y2="198" stroke="#4f46e5" stroke-width="4"/>
+    <line x1="336" y1="156" x2="336" y2="198" stroke="#4f46e5" stroke-width="4"/>
+    <rect x="154" y="102" width="140" height="44" rx="8" fill="#ffffff" stroke="#4f46e5" stroke-width="2"/>
+    <text x="194" y="131" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="700" fill="#312e81">html</text>
+    <rect x="48" y="198" width="128" height="44" rx="8" fill="#ffffff" stroke="#4f46e5" stroke-width="2"/>
+    <text x="76" y="226" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#312e81">button</text>
+    <rect x="272" y="198" width="128" height="44" rx="8" fill="#ffffff" stroke="#4f46e5" stroke-width="2"/>
+    <text x="302" y="226" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#312e81">input</text>
+  </g>
+
+  <g transform="translate(660 184)">
+    <rect x="0" y="0" width="448" height="298" rx="18" fill="#ecfdf5" stroke="#059669" stroke-width="3"/>
+    <text x="32" y="52" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" fill="#064e3b">Accessibility Tree</text>
+    <text x="32" y="86" font-family="Arial, Helvetica, sans-serif" font-size="17" fill="#047857">What the user can understand</text>
+    <line x1="224" y1="116" x2="224" y2="156" stroke="#059669" stroke-width="4"/>
+    <line x1="112" y1="156" x2="336" y2="156" stroke="#059669" stroke-width="4"/>
+    <line x1="112" y1="156" x2="112" y2="198" stroke="#059669" stroke-width="4"/>
+    <line x1="336" y1="156" x2="336" y2="198" stroke="#059669" stroke-width="4"/>
+    <rect x="138" y="102" width="172" height="44" rx="8" fill="#ffffff" stroke="#059669" stroke-width="2"/>
+    <text x="171" y="130" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700" fill="#064e3b">document</text>
+    <rect x="38" y="198" width="148" height="44" rx="8" fill="#ffffff" stroke="#059669" stroke-width="2"/>
+    <text x="62" y="226" font-family="Arial, Helvetica, sans-serif" font-size="17" fill="#064e3b">button: Save</text>
+    <rect x="262" y="198" width="148" height="44" rx="8" fill="#ffffff" stroke="#059669" stroke-width="2"/>
+    <text x="285" y="226" font-family="Arial, Helvetica, sans-serif" font-size="17" fill="#064e3b">textbox: Email</text>
+  </g>
+
+  <g transform="translate(410 514)">
+    <rect x="0" y="0" width="380" height="58" rx="12" fill="#111827"/>
+    <text x="30" y="37" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="700" fill="#ffffff">Looks like UI, but semantics matter</text>
+  </g>
+</svg>
