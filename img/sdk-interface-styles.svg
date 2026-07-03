@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">Interface Styles Dark Cover</title>
+  <desc id="desc">A dark cover background with colorful interface style nodes around a clean center title area.</desc>
+  <rect width="1200" height="630" fill="#111827"/>
+  <g opacity="0.16" stroke="#e5e7eb" stroke-width="2">
+    <path d="M70 112H1130"/>
+    <path d="M70 518H1130"/>
+    <path d="M160 64V566"/>
+    <path d="M1040 64V566"/>
+  </g>
+  <g fill="none" stroke="#94a3b8" stroke-width="4" stroke-linecap="round" opacity="0.62">
+    <path d="M600 332V388"/>
+    <path d="M600 388H232V430"/>
+    <path d="M600 388H416V468"/>
+    <path d="M600 388V488"/>
+    <path d="M600 388H784V468"/>
+    <path d="M600 388H968V430"/>
+  </g>
+  <g opacity="0.9">
+    <rect x="270" y="166" width="660" height="152" rx="34" fill="#1f2937"/>
+    <rect x="318" y="214" width="564" height="16" rx="8" fill="#64748b"/>
+    <rect x="390" y="256" width="420" height="12" rx="6" fill="#475569"/>
+  </g>
+  <g font-family="Arial, 'Noto Sans SC', sans-serif" font-weight="700">
+    <g transform="translate(118 430)">
+      <rect width="228" height="86" rx="16" fill="#e63946"/>
+      <text x="114" y="52" text-anchor="middle" font-size="28" fill="#fff">HTTP API</text>
+    </g>
+    <g transform="translate(302 500)">
+      <rect width="228" height="86" rx="16" fill="#2a9d8f"/>
+      <text x="114" y="52" text-anchor="middle" font-size="28" fill="#fff">SDK</text>
+    </g>
+    <g transform="translate(486 448)">
+      <rect width="228" height="86" rx="16" fill="#457b9d"/>
+      <text x="114" y="52" text-anchor="middle" font-size="27" fill="#fff">Service</text>
+    </g>
+    <g transform="translate(670 500)">
+      <rect width="228" height="86" rx="16" fill="#f4a261"/>
+      <text x="114" y="52" text-anchor="middle" font-size="27" fill="#111827">Adapter</text>
+    </g>
+    <g transform="translate(854 430)">
+      <rect width="228" height="86" rx="16" fill="#6d597a"/>
+      <text x="114" y="52" text-anchor="middle" font-size="27" fill="#fff">Event</text>
+    </g>
+  </g>
+  <g fill="#e5e7eb" opacity="0.18">
+    <circle cx="118" cy="124" r="9"/>
+    <circle cx="154" cy="124" r="9"/>
+    <circle cx="190" cy="124" r="9"/>
+    <circle cx="1010" cy="124" r="9"/>
+    <circle cx="1046" cy="124" r="9"/>
+    <circle cx="1082" cy="124" r="9"/>
+  </g>
+</svg>

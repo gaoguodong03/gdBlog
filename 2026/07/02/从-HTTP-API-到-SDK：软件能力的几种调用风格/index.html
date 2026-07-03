@@ -1,0 +1,596 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>SDK 到底是什么：五种常见的软件调用风格 | 果冻小配方</title><meta name="author" content="GuoDong"><meta name="copyright" content="GuoDong"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="最近在讨论项目里的一个模块怎么接入。导师提了一句：“这里最好用 SDK 接入，不要直接 HTTP 接入。” 这句话乍一听很简单，但真要写进方案里，就会发现它背后有一个更大的问题：  一个软件能力，到底可以用什么“风格”交给别人使用？  比如文件管理能力。它可以上传文件、下载文件、删除文件、列出文件、生成预览链接。那其他代码要怎么使用它？ 可以直接发 HTTP 请求。可以调一个 SDK。可以在后端内">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SDK 到底是什么：五种常见的软件调用风格">
+<meta property="og:url" content="https://gaoguodong03.github.io/gdBlog/2026/07/02/%E4%BB%8E-HTTP-API-%E5%88%B0-SDK%EF%BC%9A%E8%BD%AF%E4%BB%B6%E8%83%BD%E5%8A%9B%E7%9A%84%E5%87%A0%E7%A7%8D%E8%B0%83%E7%94%A8%E9%A3%8E%E6%A0%BC/index.html">
+<meta property="og:site_name" content="果冻小配方">
+<meta property="og:description" content="最近在讨论项目里的一个模块怎么接入。导师提了一句：“这里最好用 SDK 接入，不要直接 HTTP 接入。” 这句话乍一听很简单，但真要写进方案里，就会发现它背后有一个更大的问题：  一个软件能力，到底可以用什么“风格”交给别人使用？  比如文件管理能力。它可以上传文件、下载文件、删除文件、列出文件、生成预览链接。那其他代码要怎么使用它？ 可以直接发 HTTP 请求。可以调一个 SDK。可以在后端内">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://gaoguodong03.github.io/gdBlog/img/sdk-calling-styles-cover.png">
+<meta property="article:published_time" content="2026-07-02T00:00:00.000Z">
+<meta property="article:modified_time" content="2026-07-03T05:56:09.031Z">
+<meta property="article:author" content="GuoDong">
+<meta property="article:tag" content="API">
+<meta property="article:tag" content="SDK">
+<meta property="article:tag" content="架构">
+<meta property="article:tag" content="软件工程">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://gaoguodong03.github.io/gdBlog/img/sdk-calling-styles-cover.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "SDK 到底是什么：五种常见的软件调用风格",
+  "url": "https://gaoguodong03.github.io/gdBlog/2026/07/02/%E4%BB%8E-HTTP-API-%E5%88%B0-SDK%EF%BC%9A%E8%BD%AF%E4%BB%B6%E8%83%BD%E5%8A%9B%E7%9A%84%E5%87%A0%E7%A7%8D%E8%B0%83%E7%94%A8%E9%A3%8E%E6%A0%BC/",
+  "image": "https://gaoguodong03.github.io/gdBlog/img/sdk-calling-styles-cover.png",
+  "datePublished": "2026-07-02T00:00:00.000Z",
+  "dateModified": "2026-07-03T05:56:09.031Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "GuoDong",
+      "url": "https://gaoguodong03.github.io/gdBlog"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/gdBlog/img/logo.jpg"><link rel="canonical" href="https://gaoguodong03.github.io/gdBlog/2026/07/02/%E4%BB%8E-HTTP-API-%E5%88%B0-SDK%EF%BC%9A%E8%BD%AF%E4%BB%B6%E8%83%BD%E5%8A%9B%E7%9A%84%E5%87%A0%E7%A7%8D%E8%B0%83%E7%94%A8%E9%A3%8E%E6%A0%BC/index.html"><link rel="preconnect"/><link rel="stylesheet" href="/gdBlog/css/index.css"><link rel="stylesheet" href="/gdBlog/pluginsSrc/@fortawesome/fontawesome-free/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/gdBlog/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: '/gdBlog/pluginsSrc/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'SDK 到底是什么：五种常见的软件调用风格',
+  isHighlightShrink: true,
+  isToc: true,
+  pageType: 'post'
+}</script><style>#article-container.post-content h1:before, h2:before, h3:before, h4:before, h5:before, h6:before { -webkit-animation: avatar_turn_around 1s linear infinite; -moz-animation: avatar_turn_around 1s linear infinite; -o-animation: avatar_turn_around 1s linear infinite; -ms-animation: avatar_turn_around 1s linear infinite; animation: avatar_turn_around 1s linear infinite; }</style><!-- hexo injector head_end start --><link rel="stylesheet" href="/gdBlog/./css/categorybar.css"><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-swiper/lib/swiper.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-swiper/lib/swiperstyle.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-wowjs/lib/animate.min.css" media="print" onload="this.media='screen'"><!-- hexo injector head_end end --><meta name="generator" content="Hexo 8.0.0"></head><body><div id="web_bg" style="background-image: url(/gdBlog/img/bg1.jpg);"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/gdBlog/img/touxiang.jpg" onerror="this.onerror=null;this.src='/gdBlog/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/gdBlog/archives/"><div class="headline">文章</div><div class="length-num">63</div></a><a href="/gdBlog/tags/"><div class="headline">标签</div><div class="length-num">40</div></a><a href="/gdBlog/categories/"><div class="headline">分类</div><div class="length-num">8</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/gdBlog/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/link/"><i class="fa-fw fas fa-link"></i><span> 书签</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/gdBlog/./img/sdk-calling-styles-cover.png);"><nav id="nav"><!-- 左侧博客信息区域--><span id="blog-info"><a class="nav-site-title" href="/gdBlog/"><img class="site-icon" src="/gdBlog/img/logo.jpg" alt="Logo"><span class="site-name">果冻小配方</span></a><a class="nav-page-title" href="/gdBlog/"><span class="site-name">SDK 到底是什么：五种常见的软件调用风格</span></a></span><!-- 新增的导航菜单容器（居中布局关键）--><div id="nav-menus-container"><!-- 菜单主体部分--><div id="menus"><!-- 搜索按钮--><!-- 菜单项--><div class="menus_items"><div class="menus_item"><a class="site-page" href="/gdBlog/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/link/"><i class="fa-fw fas fa-link"></i><span> 书签</span></a></div></div></div><!-- 移动端汉堡菜单按钮（保持原位置）--><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">SDK 到底是什么：五种常见的软件调用风格</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-07-02T00:00:00.000Z" title="发表于 2026-07-02 08:00:00">2026-07-02</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-07-03T05:56:09.031Z" title="更新于 2026-07-03 13:56:09">2026-07-03</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/gdBlog/categories/%E6%9E%9C%E5%86%BB%E7%9A%84%E7%90%86%E8%AE%BA%E5%AD%A6%E4%B9%A0/">果冻的理论学习</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">总字数:</span><span class="word-count">3k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>9分钟</span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><p>最近在讨论项目里的一个模块怎么接入。导师提了一句：“这里最好用 SDK 接入，不要直接 HTTP 接入。”</p>
+<p>这句话乍一听很简单，但真要写进方案里，就会发现它背后有一个更大的问题：</p>
+<blockquote>
+<p>一个软件能力，到底可以用什么“风格”交给别人使用？</p>
+</blockquote>
+<p>比如文件管理能力。它可以上传文件、下载文件、删除文件、列出文件、生成预览链接。那其他代码要怎么使用它？</p>
+<p>可以直接发 HTTP 请求。<br>可以调一个 SDK。<br>可以在后端内部调 Service。<br>可以按插件规则扩展它。<br>也可以通过命令行操作它。</p>
+<p>这些都不是简单的“写法不同”，而是不同的能力暴露方式。</p>
+<p>这篇文章就专门聊聊 SDK，以及和它经常放在一起比较的几种调用风格：</p>
+<ul>
+<li>HTTP API</li>
+<li>SDK &#x2F; Client Library</li>
+<li>Service Layer</li>
+<li>Framework &#x2F; Plugin</li>
+<li>CLI</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/gaoguodong03/gdBlogPic/img/img/20260703134715017.png" alt="先别急着二选一：SDK 不是 HTTP 的反义词"></p>
+<h2 id="先说-API、HTTP-API-和-SDK"><a href="#先说-API、HTTP-API-和-SDK" class="headerlink" title="先说 API、HTTP API 和 SDK"></a>先说 API、HTTP API 和 SDK</h2><p>这三个词很容易混在一起。</p>
+<p><strong>API</strong> 是最宽泛的词，意思是“接口”。它描述的是：这个系统提供什么能力，别人怎么调用。</p>
+<p><strong>HTTP API</strong> 是 API 的一种实现方式。它通过 HTTP 请求暴露能力。</p>
+<p>比如：</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">POST /files/upload</span><br><span class="line">GET /files/&#123;file_id&#125;</span><br><span class="line">DELETE /files/&#123;file_id&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>SDK</strong> 是 Software Development Kit，软件开发工具包。它不是单个接口，而是一套给开发者使用的工具。</p>
+<p>比如：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">client.upload(<span class="string">&quot;report.pdf&quot;</span>)</span><br><span class="line">client.get_download_url(file_id)</span><br><span class="line">client.delete(file_id)</span><br></pre></td></tr></table></figure>
+
+<p>注意一个关键点：</p>
+<blockquote>
+<p>SDK 和 HTTP 不是完全对立的东西。很多 SDK 的底层仍然是在发 HTTP 请求，只是它不让你每次都亲手拼 URL、header、body 和签名。</p>
+</blockquote>
+<p>所以老师说“用 SDK，不要用 HTTP”，很多时候真正想表达的是：</p>
+<blockquote>
+<p>不要让业务代码到处写裸 HTTP 请求。应该有一层更稳定、更好用的封装。</p>
+</blockquote>
+<h2 id="1-HTTP-API：最直接的接口"><a href="#1-HTTP-API：最直接的接口" class="headerlink" title="1. HTTP API：最直接的接口"></a>1. HTTP API：最直接的接口</h2><p>HTTP API 是最常见的能力暴露方式。</p>
+<p>它的风格是：你给我一个 URL、一个请求方法、一组参数，我返回给你结果。</p>
+<p>例如文件上传：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line">response = requests.post(</span><br><span class="line">    <span class="string">&quot;https://example.com/files/upload&quot;</span>,</span><br><span class="line">    headers=&#123;<span class="string">&quot;Authorization&quot;</span>: <span class="string">&quot;Bearer token&quot;</span>&#125;,</span><br><span class="line">    files=&#123;<span class="string">&quot;file&quot;</span>: <span class="built_in">open</span>(<span class="string">&quot;report.pdf&quot;</span>, <span class="string">&quot;rb&quot;</span>)&#125;</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<p>它的好处非常明显：直接、开放、通用。</p>
+<p>只要你的系统能发 HTTP 请求，不管你是 Python、Java、Go、JavaScript，还是另一个外部系统，都可以接。</p>
+<p>所以 HTTP API 很适合：</p>
+<ul>
+<li>前端调用后端</li>
+<li>外部系统集成</li>
+<li>微服务之间通信</li>
+<li>提供开放平台接口</li>
+<li>跨语言、跨进程、跨机器调用</li>
+</ul>
+<p>但 HTTP API 的麻烦也很真实。</p>
+<p>调用者要自己处理：</p>
+<ul>
+<li>请求地址怎么拼</li>
+<li>token 怎么放</li>
+<li>上传文件用什么格式</li>
+<li>超时和重试怎么做</li>
+<li>错误码怎么解释</li>
+<li>返回 JSON 怎么解析</li>
+<li>接口版本变了怎么办</li>
+</ul>
+<p>如果只是写一个 Demo，这些都还好。<br>但如果正式项目里十几个地方都在手写 HTTP 请求，就会很快变成“哪里都能调，哪里都不好改”。</p>
+<p>HTTP API 的关键词是：</p>
+<blockquote>
+<p><strong>直接，但调用者要承担更多细节。</strong></p>
+</blockquote>
+<p><img src="https://raw.githubusercontent.com/gaoguodong03/gdBlogPic/img/img/20260703134715018.png" alt="HTTP API：最直接、最通用的入口"></p>
+<h2 id="2-SDK-Client-Library：把接口包装得更像工具"><a href="#2-SDK-Client-Library：把接口包装得更像工具" class="headerlink" title="2. SDK &#x2F; Client Library：把接口包装得更像工具"></a>2. SDK &#x2F; Client Library：把接口包装得更像工具</h2><p>SDK 风格更像是把一堆底层能力打包成一个开发者容易使用的工具箱。</p>
+<p>同样是文件上传，用 SDK 风格可能变成：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">client = FileClient(api_key=<span class="string">&quot;xxx&quot;</span>, endpoint=<span class="string">&quot;https://example.com&quot;</span>)</span><br><span class="line"></span><br><span class="line">result = client.upload(<span class="string">&quot;report.pdf&quot;</span>)</span><br><span class="line">url = client.get_download_url(result.file_id)</span><br><span class="line">client.delete(result.file_id)</span><br></pre></td></tr></table></figure>
+
+<p>看起来只是少写了几行代码，但本质变化很大。</p>
+<p>调用者现在关心的是：</p>
+<ul>
+<li>我要上传文件</li>
+<li>我要拿下载链接</li>
+<li>我要删除文件</li>
+</ul>
+<p>而不是：</p>
+<ul>
+<li>请求方法是 <code>POST</code> 还是 <code>PUT</code></li>
+<li><code>Content-Type</code> 是什么</li>
+<li>token 应该放 header 还是 query</li>
+<li>401、403、404 分别怎么处理</li>
+</ul>
+<p>一个比较完整的 SDK 通常会包含这些东西：</p>
+<table>
+<thead>
+<tr>
+<th>组成</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Client 入口</td>
+<td>保存配置、鉴权信息、服务地址</td>
+</tr>
+<tr>
+<td>领域方法</td>
+<td>比如 <code>upload</code>、<code>delete</code>、<code>list_files</code></td>
+</tr>
+<tr>
+<td>数据模型</td>
+<td>比如 <code>FileInfo</code>、<code>UploadResult</code></td>
+</tr>
+<tr>
+<td>错误封装</td>
+<td>把 HTTP 错误变成更清楚的业务异常</td>
+</tr>
+<tr>
+<td>默认策略</td>
+<td>超时、重试、分页、日志、版本兼容</td>
+</tr>
+<tr>
+<td>示例文档</td>
+<td>让开发者知道怎么快速接入</td>
+</tr>
+</tbody></table>
+<p>所以 SDK 的价值不是“看起来更高级”，而是它改善了开发者体验。</p>
+<p>它把“协议细节”包装成“业务动作”。</p>
+<p>HTTP API 像是在说：</p>
+<blockquote>
+<p>请按文档构造这个请求。</p>
+</blockquote>
+<p>SDK 像是在说：</p>
+<blockquote>
+<p>你直接调用这个方法就行。</p>
+</blockquote>
+<p>这就是 SDK &#x2F; Client Library 风格的核心：</p>
+<blockquote>
+<p><strong>把底层接口封装成稳定、易用、面向开发者的方法集合。</strong></p>
+</blockquote>
+<p>这里顺便区分一下 SDK 和 Client Library。</p>
+<p>很多时候二者会被混用。严格一点说，Client Library 更轻，主要负责封装远程调用；SDK 更完整，除了 Client，还可能包含工具、示例、类型定义、调试能力、脚手架、文档等。</p>
+<p>但在日常项目讨论里，如果老师说“SDK 接入”，大概率指的就是：</p>
+<blockquote>
+<p>用一层官方或项目内封装好的 Client，而不是到处裸写 HTTP。</p>
+</blockquote>
+<p><img src="https://raw.githubusercontent.com/gaoguodong03/gdBlogPic/img/img/20260703134715019.png" alt="SDK &#x2F; Client Library：把接口包装成好用的方法"></p>
+<h2 id="3-Service-Layer：项目内部的服务层"><a href="#3-Service-Layer：项目内部的服务层" class="headerlink" title="3. Service Layer：项目内部的服务层"></a>3. Service Layer：项目内部的服务层</h2><p>Service Layer 和 SDK 有点像，但它通常不是给外部开发者用的，而是给项目内部代码用的。</p>
+<p>比如文件管理功能和你的业务系统就在同一个后端里，这时你可能不会让内部模块互相发 HTTP 请求，而是直接调用服务层：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">file_service.upload(file)</span><br><span class="line">file_service.get_file_info(file_id)</span><br><span class="line">file_service.delete(file_id)</span><br></pre></td></tr></table></figure>
+
+<p>这就是 Service Layer 风格。</p>
+<p>它的重点不是“对外接入”，而是“内部复用”。</p>
+<p>典型结构大概是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Controller / Router</span><br><span class="line">        ↓</span><br><span class="line">Business Logic</span><br><span class="line">        ↓</span><br><span class="line">FileService</span><br><span class="line">        ↓</span><br><span class="line">Storage / Database / Remote API</span><br></pre></td></tr></table></figure>
+
+<p>外部用户可以通过 HTTP API 访问文件能力；但系统内部的订单模块、用户模块、审批模块，不一定也要去发 HTTP 请求。</p>
+<p>它们可以直接调用 <code>FileService</code>。</p>
+<p>这有一个非常实际的好处：内部逻辑不会被 HTTP 细节污染。</p>
+<p>比如业务代码不需要知道：</p>
+<ul>
+<li>文件接口 URL 是什么</li>
+<li>HTTP 状态码怎么映射</li>
+<li>请求体怎么序列化</li>
+<li>内部模块之间是否需要 token</li>
+</ul>
+<p>它只需要知道：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">file_service.upload(file)</span><br></pre></td></tr></table></figure>
+
+<p>Service Layer 的关键词是：</p>
+<blockquote>
+<p><strong>在同一个项目内部，把业务能力沉淀成可复用的服务。</strong></p>
+</blockquote>
+<p>所以，如果文件管理模块还没有独立成外部服务，先设计 Service Layer 往往比一上来就设计 HTTP Client 更自然。</p>
+<p><img src="https://raw.githubusercontent.com/gaoguodong03/gdBlogPic/img/img/20260703134715020.png" alt="Service Layer：项目内部复用业务能力"></p>
+<h2 id="4-Framework-Plugin：不是你调用它，而是它调用你"><a href="#4-Framework-Plugin：不是你调用它，而是它调用你" class="headerlink" title="4. Framework &#x2F; Plugin：不是你调用它，而是它调用你"></a>4. Framework &#x2F; Plugin：不是你调用它，而是它调用你</h2><p><img src="https://raw.githubusercontent.com/gaoguodong03/gdBlogPic/img/img/20260703134715021.png" alt="Plugin vs CLI：扩展机制与操作工具"></p>
+<p>前面几种风格，大多是“我主动调用某个能力”。</p>
+<p>Framework &#x2F; Plugin 风格就不太一样了。</p>
+<p>它更像是：</p>
+<blockquote>
+<p>你按照框架规定的方式写代码，然后框架在合适的时机调用你。</p>
+</blockquote>
+<p>比如文件上传完成后，我想自动做病毒扫描：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">VirusScanPlugin</span>(<span class="title class_ inherited__">FilePlugin</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">after_upload</span>(<span class="params">self, file</span>):</span><br><span class="line">        scan(file)</span><br></pre></td></tr></table></figure>
+
+<p>这里不是业务代码直接写：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">scan(file)</span><br></pre></td></tr></table></figure>
+
+<p>而是文件系统框架在上传完成后，自动触发 <code>after_upload</code>。</p>
+<p>这种风格常见于：</p>
+<ul>
+<li>Web 框架</li>
+<li>插件系统</li>
+<li>编辑器扩展</li>
+<li>工作流引擎</li>
+<li>CMS 系统</li>
+<li>AI 工具平台</li>
+</ul>
+<p>它的核心是“控制反转”。</p>
+<p>普通 SDK 是你调用它：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">client.upload(file)</span><br></pre></td></tr></table></figure>
+
+<p>Framework &#x2F; Plugin 是它在生命周期里调用你：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">plugin.after_upload(file)</span><br></pre></td></tr></table></figure>
+
+<p>这种方式适合做生态和扩展。</p>
+<p>比如文件管理模块可以提供这些插件点：</p>
+<ul>
+<li><code>before_upload</code></li>
+<li><code>after_upload</code></li>
+<li><code>before_delete</code></li>
+<li><code>after_delete</code></li>
+<li><code>on_preview</code></li>
+</ul>
+<p>这样别人就能在不改核心代码的情况下扩展能力。</p>
+<p>Framework &#x2F; Plugin 的关键词是：</p>
+<blockquote>
+<p><strong>框架定义规则，开发者按规则补充能力。</strong></p>
+</blockquote>
+<p>它比 SDK 更“强势”。SDK 只是给你工具；Framework 会规定你怎么组织代码、什么时候执行、能接在哪些位置。</p>
+<h2 id="5-CLI：给人和脚本用的命令行入口"><a href="#5-CLI：给人和脚本用的命令行入口" class="headerlink" title="5. CLI：给人和脚本用的命令行入口"></a>5. CLI：给人和脚本用的命令行入口</h2><p>CLI 是 Command Line Interface，命令行接口。</p>
+<p>它不是给业务代码高频调用的首选方式，但它非常适合给人和脚本使用。</p>
+<p>比如文件管理模块可以提供命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">filectl upload report.pdf</span><br><span class="line">filectl list</span><br><span class="line">filectl delete file_123</span><br><span class="line">filectl preview file_123</span><br></pre></td></tr></table></figure>
+
+<p>CLI 的使用场景很实在：</p>
+<ul>
+<li>本地调试</li>
+<li>运维操作</li>
+<li>批量导入</li>
+<li>自动化脚本</li>
+<li>CI&#x2F;CD 流程</li>
+<li>临时排查问题</li>
+</ul>
+<p>比如你想快速验证文件服务是否正常，不一定非要写一段 Python 代码。一个命令就够了：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">filectl upload ./test.pdf</span><br></pre></td></tr></table></figure>
+
+<p>如果成功，说明服务、鉴权、网络、存储链路至少有一条基础路径是通的。</p>
+<p>CLI 往往不是孤立存在的。它底层可能调用 HTTP API，也可能调用 SDK，也可能直接调用 Service。</p>
+<p>也就是说：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">CLI</span><br><span class="line"> ↓</span><br><span class="line">SDK / Client</span><br><span class="line"> ↓</span><br><span class="line">HTTP API</span><br></pre></td></tr></table></figure>
+
+<p>或者：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">CLI</span><br><span class="line"> ↓</span><br><span class="line">Service Layer</span><br></pre></td></tr></table></figure>
+
+<p>CLI 的关键词是：</p>
+<blockquote>
+<p><strong>让人和脚本可以方便地操作系统能力。</strong></p>
+</blockquote>
+<p>它不是最优雅的业务调用方式，但经常是最顺手的工程工具。</p>
+<h2 id="这五种风格到底怎么选？"><a href="#这五种风格到底怎么选？" class="headerlink" title="这五种风格到底怎么选？"></a>这五种风格到底怎么选？</h2><p>可以先记住一句话：</p>
+<blockquote>
+<p>HTTP API 解决“怎么跨网络访问”，SDK 解决“怎么让开发者好用”，Service Layer 解决“项目内部怎么复用”，Framework &#x2F; Plugin 解决“别人怎么扩展你”，CLI 解决“人和脚本怎么操作”。</p>
+</blockquote>
+<p>放到文件管理场景里，大概是这样：</p>
+<table>
+<thead>
+<tr>
+<th>风格</th>
+<th>面向谁</th>
+<th>典型用法</th>
+<th>适合解决什么问题</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>HTTP API</td>
+<td>外部系统、前端、其他服务</td>
+<td><code>POST /files/upload</code></td>
+<td>跨网络、跨语言调用</td>
+</tr>
+<tr>
+<td>SDK &#x2F; Client Library</td>
+<td>其他开发者、其他项目</td>
+<td><code>client.upload(file)</code></td>
+<td>降低接入成本</td>
+</tr>
+<tr>
+<td>Service Layer</td>
+<td>同一个后端项目内部</td>
+<td><code>file_service.upload(file)</code></td>
+<td>内部业务复用</td>
+</tr>
+<tr>
+<td>Framework &#x2F; Plugin</td>
+<td>扩展开发者</td>
+<td><code>after_upload(file)</code></td>
+<td>插件化、生命周期扩展</td>
+</tr>
+<tr>
+<td>CLI</td>
+<td>人、脚本、运维流程</td>
+<td><code>filectl upload a.pdf</code></td>
+<td>调试、自动化、批处理</td>
+</tr>
+</tbody></table>
+<p>它们不是互斥关系。</p>
+<p>一个成熟系统里，经常会同时存在这些层：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">人 / 脚本</span><br><span class="line">  ↓</span><br><span class="line">CLI</span><br><span class="line"></span><br><span class="line">外部系统</span><br><span class="line">  ↓</span><br><span class="line">HTTP API</span><br><span class="line">  ↓</span><br><span class="line">Service Layer</span><br><span class="line"></span><br><span class="line">其他项目</span><br><span class="line">  ↓</span><br><span class="line">SDK / Client Library</span><br><span class="line">  ↓</span><br><span class="line">HTTP API</span><br><span class="line"></span><br><span class="line">扩展开发者</span><br><span class="line">  ↓</span><br><span class="line">Plugin Hooks</span><br><span class="line">  ↓</span><br><span class="line">Service Layer</span><br></pre></td></tr></table></figure>
+
+<p>所以不要把问题简化成“SDK 和 HTTP 谁更好”。</p>
+<p>更准确的问题应该是：</p>
+<blockquote>
+<p>当前这个模块，是要给谁用？用在什么边界上？调用者应该看到多少底层细节？</p>
+</blockquote>
+<h2 id="回到“SDK-接入而不是-HTTP-接入”"><a href="#回到“SDK-接入而不是-HTTP-接入”" class="headerlink" title="回到“SDK 接入而不是 HTTP 接入”"></a>回到“SDK 接入而不是 HTTP 接入”</h2><p>如果有人建议“用 SDK 接入，不要用 HTTP 接入”，可以把这句话翻译成更工程化的版本：</p>
+<blockquote>
+<p>不要让业务代码直接散落书写 HTTP 请求。应该把远程能力封装成一个稳定的 Client，让调用者通过方法调用完成业务动作。</p>
+</blockquote>
+<p>如果这个模块还在同一个后端项目里，也可以继续补一句：</p>
+<blockquote>
+<p>如果文件管理还没有独立部署，内部调用可以先走 Service Layer；等它需要开放给外部系统时，再提供 HTTP API；如果其他项目要频繁接入，再在 HTTP API 之上封装 SDK &#x2F; Client Library。</p>
+</blockquote>
+<p>这就比简单说“SDK 比 HTTP 好”准确得多。</p>
+<p>因为 SDK 不是魔法。</p>
+<p>SDK 的本质是：</p>
+<blockquote>
+<p>把一个能力包装成开发者更容易理解、更不容易用错、更适合长期维护的调用入口。</p>
+</blockquote>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>最后再用一版更口语化的方式记：</p>
+<ul>
+<li><strong>HTTP API</strong>：把能力放到网上，谁会发请求谁就能调。</li>
+<li><strong>SDK &#x2F; Client Library</strong>：把请求细节藏起来，让开发者像调本地方法一样使用能力。</li>
+<li><strong>Service Layer</strong>：项目内部别绕远路，直接沉淀业务服务。</li>
+<li><strong>Framework &#x2F; Plugin</strong>：你别乱调我，按我的规则写扩展，我到时候来调你。</li>
+<li><strong>CLI</strong>：给人和脚本一个顺手的命令行入口。</li>
+</ul>
+<p>如果只记一句：</p>
+<blockquote>
+<p>HTTP API 是入口，SDK 是包装，Service 是内部能力，Plugin 是扩展机制，CLI 是操作工具。</p>
+</blockquote>
+<p><img src="https://raw.githubusercontent.com/gaoguodong03/gdBlogPic/img/img/20260703134715022.png" alt="一句话速记：五种调用风格"></p>
+<p>理解了这几个风格，再听到“这个模块用 SDK 接入”时，就不会只停留在名词上，而是能继续追问：这个 SDK 是给谁用的？底层接什么？它和 HTTP API、Service Layer 的边界在哪里？</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://gaoguodong03.github.io/gdBlog">GuoDong</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://gaoguodong03.github.io/gdBlog/2026/07/02/%E4%BB%8E-HTTP-API-%E5%88%B0-SDK%EF%BC%9A%E8%BD%AF%E4%BB%B6%E8%83%BD%E5%8A%9B%E7%9A%84%E5%87%A0%E7%A7%8D%E8%B0%83%E7%94%A8%E9%A3%8E%E6%A0%BC/">https://gaoguodong03.github.io/gdBlog/2026/07/02/%E4%BB%8E-HTTP-API-%E5%88%B0-SDK%EF%BC%9A%E8%BD%AF%E4%BB%B6%E8%83%BD%E5%8A%9B%E7%9A%84%E5%87%A0%E7%A7%8D%E8%B0%83%E7%94%A8%E9%A3%8E%E6%A0%BC/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://gaoguodong03.github.io/gdBlog" target="_blank">果冻小配方</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/gdBlog/tags/%E6%9E%B6%E6%9E%84/">架构</a><a class="post-meta__tags" href="/gdBlog/tags/SDK/">SDK</a><a class="post-meta__tags" href="/gdBlog/tags/API/">API</a><a class="post-meta__tags" href="/gdBlog/tags/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B/">软件工程</a></div><div class="post-share"><div class="social-share" data-image="/gdBlog/./img/sdk-calling-styles-cover.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="/gdBlog/pluginsSrc/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="/gdBlog/pluginsSrc/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related full-width" href="/gdBlog/2026/06/05/GUI-Agent-%E6%9E%B6%E6%9E%84%E5%85%A5%E9%97%A8%EF%BC%9A%E4%BB%8E%E7%95%8C%E9%9D%A2%E6%84%9F%E7%9F%A5%E5%88%B0%E8%87%AA%E4%B8%BB%E6%93%8D%E4%BD%9C/" title="GUI Agent 架构入门：从界面感知到自主操作"><img class="cover" src="/gdBlog/./img/gui-agent-architecture-cover.svg" onerror="onerror=null;src='/gdBlog/img/404.jpg'" alt="cover of next post"><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">GUI Agent 架构入门：从界面感知到自主操作</div></div><div class="info-2"><div class="info-item-1">过去我们聊 Agent，很多时候聊的是“文本世界里的 Agent”。 它读一段用户输入，拆解任务，调用搜索、数据库、代码执行器、文件系统、MCP 工具，最后把结果组织成一段文本。这个方向已经很熟悉了：ReAct、Plan-and-Execute、Reflection、多 Agent、Memory、Tool Use，这些范式本质上都围绕一个问题展开：大模型如何在文本和工具之间形成更可靠的行动链。 但 GUI Agent 不一样。 GUI Agent 面对的不是结构清晰的 API，而是一个图形用户界面。它看到的是浏览器窗口、按钮、输入框、弹窗、菜单、表格、滚动条、文件选择器、验证码、系统通知、加载动画，以及各种“人类一眼就懂、机器不一定能懂”的界面暗示。 也就是说，GUI Agent 的任务不是“回答问题”，而是“使用软件”。 比如：  打开一个网页后台，登录，搜索订单，导出报表； 在浏览器里查资料，把内容复制到文档里； 在手机 App 里完成订票、下单、修改设置； 在桌面系统中打开文件、重命名、压缩、上传； 在一个没有 API 的旧系统里，通过界面把流程跑完。  这类任务真正困难的...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/gdBlog/2026/05/31/MoE%EF%BC%9A%E5%A4%A7%E6%A8%A1%E5%9E%8B%E4%B8%BA%E4%BB%80%E4%B9%88%E5%BC%80%E5%A7%8B%E5%AD%A6%E4%BC%9A%E5%88%86%E5%B7%A5/" title="MoE：大模型为什么开始学会分工"><img class="cover" src="/gdBlog/./img/logoLLM.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-31</div><div class="info-item-2">MoE：大模型为什么开始学会分工</div></div><div class="info-2"><div class="info-item-1">写在前面最近学习大模型架构时，反复看到一个词：MoE，也就是 Mixture of Experts，专家混合。 它经常和 DeepSeek、Mixtral、Switch Transformer 这些模型一起出现。最吸引人的地方是：一个模型可以拥有非常大的总参数量，但每次推理时只激活其中一小部分参数。 比如 Mixtral 8x7B 的每个 MoE 层有 8 个专家，但每个 token 只选 2 个专家；DeepSeek-V2 的总参数是 236B，但每个 token 激活约 21B 参数；DeepSeek-V3 的总参数是 671B，每个 token 激活约 37B 参数。 所以 MoE 最有意思的问题不是“它是不是更大”，而是：  能不能让模型拥有更大的知识容量，同时不让每次推理的计算成本同比例暴涨？  这篇文章是我对 MoE 的一次系统学习整理。相比只把它理解成“多个专家一起工作”，我更愿意把 MoE 看成一种大模型内部的组织方式：用 Router 把 token 分配给不同专家，用稀疏激活把模型容量和计算成本部分解耦。 1. 从 dense FFN 到 MoE FFNTra...</div></div></div></a><a class="pagination-related" href="/gdBlog/2026/04/22/%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BD%A0%E7%9A%84-AI-%E4%BC%98%E5%85%88-%E6%88%98%E7%95%A5%E5%8F%AF%E8%83%BD%E5%A4%A7%E9%94%99%E7%89%B9%E9%94%99/" title="为什么你的 AI 优先 战略可能大错特错"><img class="cover" src="/gdBlog/./img/logoLLM.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-04-22</div><div class="info-item-2">为什么你的 AI 优先 战略可能大错特错</div></div><div class="info-2"><div class="info-item-1">作者：Peter Pang 原文：Why Your “AI-First” Strategy Is Probably Wrong 我们 99% 的生产环境代码都是由 AI 编写的。上周二早上 10 点，我们上线了一项新功能，中午进行了 A&#x2F;B 测试，结果下午 3 点就把它砍掉了，因为数据表现不佳。下午 5 点，我们又发布了一个优化后的版本。如果放在三个月前，这样一个完整的迭代周期至少需要六个星期。 我们能做到这一步，绝不是因为在代码编辑器里装了个 Copilot 插件那么简单。我们彻底打破了原有的工程研发流程，并围绕 AI 进行了全面重构。我们改变了做计划、写代码、测试、部署以及团队组织的方式。我们甚至重塑了公司里每个人的角色。 CREAO 是一个 AI 智能体 (AI Agent) 平台。公司有 25 名员工，其中 10 名是工程师。我们在 2025 年 11 月开始研发智能体，就在两个月前，我从零开始，彻底重组了整个产品架构和工程工作流。 OpenAI 在 2026 年 2 月发布了一个新概念，完美总结了我们一直在做的事情。他们称之为脚手架工程 (Harness En...</div></div></div></a><a class="pagination-related" href="/gdBlog/2026/01/02/%E5%A4%A7%E5%9E%8B%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84%E6%AF%94%E8%BE%83/" title="大型语言模型架构比较"><img class="cover" src="/gdBlog/./img/logoLLM.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-01-02</div><div class="info-item-2">大型语言模型架构比较</div></div><div class="info-2"><div class="info-item-1">写在前面文章链接：从 DeepSeek V3 到 Mistral 3 Large：现代大型语言模型架构设计解析 [[2025年大型语言模型现状：进展、问题与预测]] 自最初的 GPT 架构开发以来，已经过去七年。乍一看，回顾 GPT-2（2019 年）以及 DeepSeek V3 和 Llama 4（2024-2025 年），你可能会惊讶于这些模型在结构上依然如此相似。当然，位置嵌入已经从绝对嵌入演变为旋转嵌入（RoPE），多头注意力基本被分组查询注意力取代，更高效的 SwiGLU 取代了像 GELU 这样的激活函数。但在这些细微的改进背后，我们真的见证了突破性的变革，还是仅仅在打磨相同的架构基础？ 比较大型语言模型以确定其表现良好（或不佳）的关键因素，向来具有挑战性：数据集、训练技术和超参数差异巨大，且通常缺乏充分的文档。不过，我认为审视架构本身的结构变化，对于了解 2025 年 LLM 开发者的动态，仍然有很大价值。（其中一部分见下图 1。）因此，在本文中，我将不讨论基准性能或训练算法，而是聚焦于定义当今旗舰开放模型的架构发展。 ![[ObsidianPicture&#x2F...</div></div></div></a><a class="pagination-related" href="/gdBlog/2026/01/13/%E5%B7%A5%E5%85%B7%E9%80%89%E5%8F%96/" title="工具选取"><img class="cover" src="/gdBlog/./img/logoLLM.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-01-13</div><div class="info-item-2">工具选取</div></div><div class="info-2"><div class="info-item-1">• 工具检索：这里的重点是根据子任务和工具之间的相似性，将这些子任务与工具清单中合适的工具进行匹配。目的是选择与每个子任务相似度最高的前 K 个工具 {a1, a2, …, aK}，为每个子任务形成一组候选工具。  • 工具选择和填充参数：在此阶段，根据描述从集合{a1，a2，…，aK} 中为每个子任务选择最合适的工具。此阶段还包括准备工具执行的参数，如其文档中所指定。   • 工具执行与重试：选择工具并设置参数后，执行工具。如果工具在执行过程中失败，流程将返回到工具选择阶段以进行替代选择。这种重试机制会一直持续到成功执行或达到最大尝试 R 为止。 1. AutoTool: 高效工具选择框架（2025年11月）论文信息：《AutoTool: Efficient Tool Selection for Large Language Model Agents》（已被 AAAI 2026 录用）arxiv​ 核心创新：该论文指出，当前 ReAct 等框架存在的主要瓶颈是工具选择的高推理成本。作者提出了基于图的 AutoTool 框架，核心观察是工具使用惯性（tool usage iner...</div></div></div></a><a class="pagination-related" href="/gdBlog/2026/03/17/%E6%99%BA%E8%83%BD%E4%BD%93%E5%B7%A5%E7%A8%8B%E7%9A%84-8-%E4%B8%AA%E7%AD%89%E7%BA%A7/" title="智能体工程的 8 个等级"><img class="cover" src="/gdBlog/./img/logoAgent.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-03-17</div><div class="info-item-2">智能体工程的 8 个等级</div></div><div class="info-2"><div class="info-item-1">原文：The 8 Levels of Agentic Engineering — Bassim Eledath 作者：Bassim Eledath AI 的编程能力正在超越我们驾驭它的能力。这就是为什么所有那些拼命刷 SWE-bench 分数的努力，并没有与工程领导层真正关心的生产力指标同步。Anthropic 团队用 10 天就上线了 Cowork，而另一个团队用着同样的模型却连一个 POC（概念验证）都搞不定——区别在于一个团队已经弥合了能力与实践之间的差距，而另一个还没有。 这个差距不会一夜之间消失，而是分等级逐步缩小。总共 8 个等级。读到这篇文章的大多数人可能已经过了前几个等级，而你应该迫不及待地想达到下一个——因为每升一级都意味着产出的巨大飞跃，而每次模型能力的提升都会进一步放大这些收益。 你应该在意的另一个原因是多人协作效应。你的产出比你想象的更依赖于队友的等级。假设你是 7 级高手，晚上睡觉时后台智能体就在帮你提好几个 PR。但如果你的代码仓库需要一位同事审批才能合并，而这位同事还停留在 2 级，仍在手动审查 PR，那你的吞吐量就被卡死了。所以帮队友升级，对你自己...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/gdBlog/img/touxiang.jpg" onerror="this.onerror=null;this.src='/gdBlog/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">GuoDong</div><div class="author-info-description">碎碎念念 岁岁年年</div><div class="site-data"><a href="/gdBlog/archives/"><div class="headline">文章</div><div class="length-num">63</div></a><a href="/gdBlog/tags/"><div class="headline">标签</div><div class="length-num">40</div></a><a href="/gdBlog/categories/"><div class="headline">分类</div><div class="length-num">8</div></a></div><div class="card-info-social-icons"><a class="social-icon" href="https://www.bilibili.com/" target="_blank" title="bilibili"><i class="fab fa-bilibili" style="color: #24292e;"></i></a><a class="social-icon" href="https://github.com/gaoguodong03" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="https://leetcode.cn/studyplan/top-100-liked/" target="_blank" title="LeetCode"><i class="fab fa-comments" style="color: #24292e;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">好事马上发生</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%88%E8%AF%B4-API%E3%80%81HTTP-API-%E5%92%8C-SDK"><span class="toc-number">1.</span> <span class="toc-text">先说 API、HTTP API 和 SDK</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-HTTP-API%EF%BC%9A%E6%9C%80%E7%9B%B4%E6%8E%A5%E7%9A%84%E6%8E%A5%E5%8F%A3"><span class="toc-number">2.</span> <span class="toc-text">1. HTTP API：最直接的接口</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-SDK-Client-Library%EF%BC%9A%E6%8A%8A%E6%8E%A5%E5%8F%A3%E5%8C%85%E8%A3%85%E5%BE%97%E6%9B%B4%E5%83%8F%E5%B7%A5%E5%85%B7"><span class="toc-number">3.</span> <span class="toc-text">2. SDK &#x2F; Client Library：把接口包装得更像工具</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-Service-Layer%EF%BC%9A%E9%A1%B9%E7%9B%AE%E5%86%85%E9%83%A8%E7%9A%84%E6%9C%8D%E5%8A%A1%E5%B1%82"><span class="toc-number">4.</span> <span class="toc-text">3. Service Layer：项目内部的服务层</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-Framework-Plugin%EF%BC%9A%E4%B8%8D%E6%98%AF%E4%BD%A0%E8%B0%83%E7%94%A8%E5%AE%83%EF%BC%8C%E8%80%8C%E6%98%AF%E5%AE%83%E8%B0%83%E7%94%A8%E4%BD%A0"><span class="toc-number">5.</span> <span class="toc-text">4. Framework &#x2F; Plugin：不是你调用它，而是它调用你</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-CLI%EF%BC%9A%E7%BB%99%E4%BA%BA%E5%92%8C%E8%84%9A%E6%9C%AC%E7%94%A8%E7%9A%84%E5%91%BD%E4%BB%A4%E8%A1%8C%E5%85%A5%E5%8F%A3"><span class="toc-number">6.</span> <span class="toc-text">5. CLI：给人和脚本用的命令行入口</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%BF%99%E4%BA%94%E7%A7%8D%E9%A3%8E%E6%A0%BC%E5%88%B0%E5%BA%95%E6%80%8E%E4%B9%88%E9%80%89%EF%BC%9F"><span class="toc-number">7.</span> <span class="toc-text">这五种风格到底怎么选？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9E%E5%88%B0%E2%80%9CSDK-%E6%8E%A5%E5%85%A5%E8%80%8C%E4%B8%8D%E6%98%AF-HTTP-%E6%8E%A5%E5%85%A5%E2%80%9D"><span class="toc-number">8.</span> <span class="toc-text">回到“SDK 接入而不是 HTTP 接入”</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B0%8F%E7%BB%93"><span class="toc-number">9.</span> <span class="toc-text">小结</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/gdBlog/2026/07/02/%E4%BB%8E-HTTP-API-%E5%88%B0-SDK%EF%BC%9A%E8%BD%AF%E4%BB%B6%E8%83%BD%E5%8A%9B%E7%9A%84%E5%87%A0%E7%A7%8D%E8%B0%83%E7%94%A8%E9%A3%8E%E6%A0%BC/" title="SDK 到底是什么：五种常见的软件调用风格">SDK 到底是什么：五种常见的软件调用风格</a><time datetime="2026-07-03T05:56:09.031Z" title="更新于 2026-07-03 13:56:09">2026-07-03</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/gdBlog/2026/06/05/GUI-Agent-%E6%9E%B6%E6%9E%84%E5%85%A5%E9%97%A8%EF%BC%9A%E4%BB%8E%E7%95%8C%E9%9D%A2%E6%84%9F%E7%9F%A5%E5%88%B0%E8%87%AA%E4%B8%BB%E6%93%8D%E4%BD%9C/" title="GUI Agent 架构入门：从界面感知到自主操作">GUI Agent 架构入门：从界面感知到自主操作</a><time datetime="2026-06-05T12:04:11.347Z" title="更新于 2026-06-05 20:04:11">2026-06-05</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/gdBlog/2026/06/05/DOM-%E5%92%8C-Accessibility-Tree%EF%BC%9A%E7%BD%91%E9%A1%B5%E5%85%B6%E5%AE%9E%E6%9C%89%E4%B8%A4%E6%A3%B5%E6%A0%91/" title="DOM 和 Accessibility Tree：网页其实有两棵树">DOM 和 Accessibility Tree：网页其实有两棵树</a><time datetime="2026-06-05T12:03:47.839Z" title="更新于 2026-06-05 20:03:47">2026-06-05</time></div></div></div></div></div></div></main><footer id="footer" style="background: transparent;"><div class="footer-other"><div class="footer-copyright"></div><div class="footer_custom_text"><style>
+  .footer {
+    text-align: center;
+    position: relative;
+  }
+  .footer p {
+    margin: 0.5rem 0;
+    line-height: 1;
+  }
+  .copyright {
+    font-size: 1.1rem; 
+    color: #000000;
+    font-weight: 400;
+  }
+  .tagline {
+    font-size: 0.8rem;
+    color: #333333;
+    font-style: italic;
+    font-weight: 500;
+  }
+  .visitor-count {
+    font-size: 0.75rem;
+    color: rgba(0, 0, 0, 0.7);
+    font-weight: 300;
+  }
+  #visitorCount {
+    font-weight: bold;
+  }
+</style>
+<div class="footer">
+  <p class="copyright">© 2025 果冻小配方 - 所有权利保留</p>
+  <p class="tagline">> 碎碎念念 岁岁年年 <</p>
+  <p class="visitor-count">访问量: <span id="visitorCount">1024</span> | 你是第 <span id="dailyVisitor">1</span> 位今日访客</p>
+</div>
+<script>
+  // 确保DOM加载完成后执行
+  document.addEventListener('DOMContentLoaded', function() {
+    // 模拟访问量增长
+    function updateVisitorCount() {
+      const countElement = document.getElementById('visitorCount');
+      let count = parseInt(localStorage.getItem('totalVisitors'), 10) || 1024;
+      count += 1;
+      countElement.textContent = count;
+      localStorage.setItem('totalVisitors', String(count));
+      const today = new Date().toDateString();
+      const dailyData = JSON.parse(localStorage.getItem('dailyVisitors') || '{"date":"", "count":0}');
+      if (dailyData.date !== today) {
+        dailyData.date = today;
+        dailyData.count = 0;
+      }
+      dailyData.count += 1;
+      document.getElementById('dailyVisitor').textContent = dailyData.count;
+      localStorage.setItem('dailyVisitors', JSON.stringify(dailyData));
+    }
+    updateVisitorCount();
+  });
+</script>
+</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/gdBlog/js/utils.js"></script><script src="/gdBlog/js/main.js"></script><div class="js-pjax"></div><script src="/config/js/happy-title.js" async></script><script src="/config/js/foot.js" async></script></div><!-- hexo injector body_end start --><script data-pjax>
+    function butterfly_categories_card_injector_config(){
+      var parent_div_git = document.getElementById('recent-posts');
+      var item_html = '<style>li.categoryBar-list-item{width:32.3%;}.categoryBar-list{max-height: 950px;overflow:auto;}.categoryBar-list::-webkit-scrollbar{width:0!important}@media screen and (max-width: 650px){.categoryBar-list{max-height: 800px;}}</style><div class="recent-post-item" style="height:auto;width:100%;padding:0px;"><div id="categoryBar"><ul class="categoryBar-list"><li class="categoryBar-list-item" style="background:url(/img/logo.jpg);"> <a class="categoryBar-list-link" href="categories/Hello-Agents/">Hello-Agents</a><span class="categoryBar-list-count">8</span><span class="categoryBar-list-descr">果冻的航海日记</span></li><li class="categoryBar-list-item" style="background:url(/img/logo.jpg);"> <a class="categoryBar-list-link" href="categories/果冻的理论学习/">果冻的理论学习</a><span class="categoryBar-list-count">17</span><span class="categoryBar-list-descr">Hexo</span></li><li class="categoryBar-list-item" style="background:url(/img/logo.jpg);"> <a class="categoryBar-list-link" href="categories/果冻的科普专区/">果冻的科普专区</a><span class="categoryBar-list-count">14</span><span class="categoryBar-list-descr">果冻的奇妙小工具</span></li><li class="categoryBar-list-item" style="background:url(/img/logo.jpg);"> <a class="categoryBar-list-link" href="categories/果冻的航海日志/">果冻的航海日志</a><span class="categoryBar-list-count">10</span><span class="categoryBar-list-descr">果冻的日记本</span></li><li class="categoryBar-list-item" style="background:url(undefined);"> <a class="categoryBar-list-link" href="categories/果冻的奇妙小工具/">果冻的奇妙小工具</a><span class="categoryBar-list-count">6</span><span class="categoryBar-list-descr"></span></li><li class="categoryBar-list-item" style="background:url(undefined);"> <a class="categoryBar-list-link" href="categories/道不可言言而非也/">道不可言言而非也</a><span class="categoryBar-list-count">1</span><span class="categoryBar-list-descr"></span></li><li class="categoryBar-list-item" style="background:url(undefined);"> <a class="categoryBar-list-link" href="categories/Hexo/">Hexo</a><span class="categoryBar-list-count">1</span><span class="categoryBar-list-descr"></span></li><li class="categoryBar-list-item" style="background:url(undefined);"> <a class="categoryBar-list-link" href="categories/果冻的LeetCode刷题/">果冻的LeetCode刷题</a><span class="categoryBar-list-count">5</span><span class="categoryBar-list-descr"></span></li></ul></div></div>';
+      console.log('已挂载butterfly_categories_card')
+      parent_div_git.insertAdjacentHTML("afterbegin",item_html)
+      }
+    if( document.getElementById('recent-posts') && (location.pathname ==='/categories/'|| '/categories/' ==='all')){
+    butterfly_categories_card_injector_config()
+    }
+  </script><script data-pjax>
+  function butterfly_swiper_injector_config(){
+    var parent_div_git = document.getElementById('recent-posts');
+    var item_html = '<div class="recent-post-item" style="height: auto;width: 100%"><div class="blog-slider swiper-container-fade swiper-container-horizontal" id="swiper_container"><div class="blog-slider__wrp swiper-wrapper" style="transition-duration: 0ms;"></div><div class="blog-slider__pagination swiper-pagination-clickable swiper-pagination-bullets"></div></div></div>';
+    console.log('已挂载butterfly_swiper')
+    parent_div_git.insertAdjacentHTML("afterbegin",item_html)
+    }
+  var elist = 'undefined'.split(',');
+  var cpage = location.pathname;
+  var epage = '/';
+  var flag = 0;
+
+  for (var i=0;i<elist.length;i++){
+    if (cpage.includes(elist[i])){
+      flag++;
+    }
+  }
+
+  if ((epage ==='all')&&(flag == 0)){
+    butterfly_swiper_injector_config();
+  }
+  else if (epage === cpage){
+    butterfly_swiper_injector_config();
+  }
+  </script><script defer src="https://npm.elemecdn.com/hexo-butterfly-swiper/lib/swiper.min.js"></script><script defer data-pjax src="https://npm.elemecdn.com/hexo-butterfly-swiper/lib/swiper_init.js"></script><div class="js-pjax"><script async="async">var arr = document.getElementsByClassName('recent-post-item');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__zoomIn');
+    arr[i].setAttribute('data-wow-duration', '300ms');
+    arr[i].setAttribute('data-wow-delay', '0ms');
+    arr[i].setAttribute('data-wow-offset', '0');
+    arr[i].setAttribute('data-wow-iteration', '1');
+  }</script><script async="async">var arr = document.getElementsByClassName('card-widget');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__zoomIn');
+    arr[i].setAttribute('data-wow-duration', '');
+    arr[i].setAttribute('data-wow-delay', '');
+    arr[i].setAttribute('data-wow-offset', '');
+    arr[i].setAttribute('data-wow-iteration', '');
+  }</script></div><script defer src="https://npm.elemecdn.com/hexo-butterfly-wowjs/lib/wow.min.js"></script><script defer src="https://npm.elemecdn.com/hexo-butterfly-wowjs/lib/wow_init.js"></script><!-- hexo injector body_end end --></body></html>
