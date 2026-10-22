@@ -1,0 +1,333 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Docker  和 k8s 之间是什么关系？ | 果冻小配方</title><meta name="author" content="GuoDong"><meta name="copyright" content="GuoDong"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="作为一个程序员，如果你想安装一个 vim 编辑下文本，在不同环境里你得执行不同的命令。在 ubuntu，你需要执行 apt-get install vim ，在 centos 里，你需要执行 yum install vim. 装个小软件尚且如此，要是你想将自己写的代码部署到各个不同操作系统的服务器上，那依赖的软件和配置就更多了，需要针对每个环境单独写一套部署脚本。难受，太难受了。 那么问题就来了，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Docker  和 k8s 之间是什么关系？">
+<meta property="og:url" content="https://gaoguodong03.github.io/gdBlog/2026/10/22/Docker-%E5%92%8C-k8s-%E4%B9%8B%E9%97%B4%E6%98%AF%E4%BB%80%E4%B9%88%E5%85%B3%E7%B3%BB%EF%BC%9F/index.html">
+<meta property="og:site_name" content="果冻小配方">
+<meta property="og:description" content="作为一个程序员，如果你想安装一个 vim 编辑下文本，在不同环境里你得执行不同的命令。在 ubuntu，你需要执行 apt-get install vim ，在 centos 里，你需要执行 yum install vim. 装个小软件尚且如此，要是你想将自己写的代码部署到各个不同操作系统的服务器上，那依赖的软件和配置就更多了，需要针对每个环境单独写一套部署脚本。难受，太难受了。 那么问题就来了，">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://gaoguodong03.github.io/gdBlog/img/logoLLM.png">
+<meta property="article:published_time" content="2026-10-22T03:34:34.500Z">
+<meta property="article:modified_time" content="2026-10-22T03:34:34.518Z">
+<meta property="article:author" content="GuoDong">
+<meta property="article:tag" content="Agent">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://gaoguodong03.github.io/gdBlog/img/logoLLM.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Docker  和 k8s 之间是什么关系？",
+  "url": "https://gaoguodong03.github.io/gdBlog/2026/10/22/Docker-%E5%92%8C-k8s-%E4%B9%8B%E9%97%B4%E6%98%AF%E4%BB%80%E4%B9%88%E5%85%B3%E7%B3%BB%EF%BC%9F/",
+  "image": "https://gaoguodong03.github.io/gdBlog/img/logoLLM.png",
+  "datePublished": "2026-10-22T03:34:34.500Z",
+  "dateModified": "2026-10-22T03:34:34.518Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "GuoDong",
+      "url": "https://gaoguodong03.github.io/gdBlog"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/gdBlog/img/logo.jpg"><link rel="canonical" href="https://gaoguodong03.github.io/gdBlog/2026/10/22/Docker-%E5%92%8C-k8s-%E4%B9%8B%E9%97%B4%E6%98%AF%E4%BB%80%E4%B9%88%E5%85%B3%E7%B3%BB%EF%BC%9F/index.html"><link rel="preconnect"/><link rel="stylesheet" href="/gdBlog/css/index.css"><link rel="stylesheet" href="/gdBlog/pluginsSrc/@fortawesome/fontawesome-free/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/gdBlog/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: '/gdBlog/pluginsSrc/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Docker  和 k8s 之间是什么关系？',
+  isHighlightShrink: true,
+  isToc: true,
+  pageType: 'post'
+}</script><style>#article-container.post-content h1:before, h2:before, h3:before, h4:before, h5:before, h6:before { -webkit-animation: avatar_turn_around 1s linear infinite; -moz-animation: avatar_turn_around 1s linear infinite; -o-animation: avatar_turn_around 1s linear infinite; -ms-animation: avatar_turn_around 1s linear infinite; animation: avatar_turn_around 1s linear infinite; }</style><!-- hexo injector head_end start --><link rel="stylesheet" href="/gdBlog/./css/categorybar.css"><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-swiper/lib/swiper.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-swiper/lib/swiperstyle.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-wowjs/lib/animate.min.css" media="print" onload="this.media='screen'"><!-- hexo injector head_end end --><meta name="generator" content="Hexo 8.0.0"></head><body><div id="web_bg" style="background-image: url(/gdBlog/img/bg1.jpg);"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/gdBlog/img/touxiang.jpg" onerror="this.onerror=null;this.src='/gdBlog/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/gdBlog/archives/"><div class="headline">文章</div><div class="length-num">68</div></a><a href="/gdBlog/tags/"><div class="headline">标签</div><div class="length-num">48</div></a><a href="/gdBlog/categories/"><div class="headline">分类</div><div class="length-num">8</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/gdBlog/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/link/"><i class="fa-fw fas fa-link"></i><span> 书签</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/gdBlog/./img/logoLLM.png);"><nav id="nav"><!-- 左侧博客信息区域--><span id="blog-info"><a class="nav-site-title" href="/gdBlog/"><img class="site-icon" src="/gdBlog/img/logo.jpg" alt="Logo"><span class="site-name">果冻小配方</span></a><a class="nav-page-title" href="/gdBlog/"><span class="site-name">Docker  和 k8s 之间是什么关系？</span></a></span><!-- 新增的导航菜单容器（居中布局关键）--><div id="nav-menus-container"><!-- 菜单主体部分--><div id="menus"><!-- 搜索按钮--><!-- 菜单项--><div class="menus_items"><div class="menus_item"><a class="site-page" href="/gdBlog/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/link/"><i class="fa-fw fas fa-link"></i><span> 书签</span></a></div></div></div><!-- 移动端汉堡菜单按钮（保持原位置）--><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">Docker  和 k8s 之间是什么关系？</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-10-22T03:34:34.500Z" title="发表于 2026-10-22 11:34:34">2026-10-22</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-10-22T03:34:34.518Z" title="更新于 2026-10-22 11:34:34">2026-10-22</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">总字数:</span><span class="word-count">3.5k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>11分钟</span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><p>作为一个程序员，如果你想安装一个 <code>vim</code> 编辑下文本，在不同环境里你得执行不同的命令。在 ubuntu，你需要执行 <code>apt-get install vim</code> ，在 centos 里，你需要执行 <code>yum install vim</code>.</p>
+<p>装个小软件尚且如此，要是你想将自己写的代码部署到各个不同操作系统的服务器上，那依赖的软件和配置就更多了，需要针对每个环境单独写一套部署脚本。<br>难受，太难受了。</p>
+<p>那么问题就来了，有没有更好的解决方案？<br>当然有， <strong>没有什么是加一层中间层不能解决的，如果有，那就再加一层</strong> ，这次我们要加的中间层是 <strong>Docker</strong> 。</p>
+<p>Docker是代码和操作系统之间的中间层</p>
+<p>哦不，准确来说是 <strong>Docker容器</strong> 。</p>
+<p>容器技术</p>
+<h2 id="Docker-是什么？"><a href="#Docker-是什么？" class="headerlink" title="Docker 是什么？"></a>Docker 是什么？</h2><p>我们经常能听到程序员说”这个程序在我环境里明明是好的啊，怎么到你这就不行了呢”？注意这里的关键词， <strong>程序</strong> 和 <strong>环境</strong> 。程序是跑在操作系统上的，而操作系统上又装了各种不同版本的依赖库和配置，这些被程序所依赖的信息，我们统称为” <strong>环境</strong> “。</p>
+<p>程序和环境</p>
+<p>程序依赖环境，环境不同，程序就可能跑不起来。如果我们能将环境和程序一起打包，给到对方运行，那问题不就解决了吗。Docker 就是这样一款可以将 <strong>程序和环境打包并运行</strong> 的工具软件。我们来看下它是怎么做的？</p>
+<h2 id="基础镜像是什么"><a href="#基础镜像是什么" class="headerlink" title="基础镜像是什么"></a>基础镜像是什么</h2><p>既然上面提到环境不同，会导致程序运行结果不同，那么我们首先要做的最重要的事情，就是 <strong>统一环境</strong> 。而环境中，最最重要的就是 <strong>操作系统</strong> 。比如 centos 还是 ubuntu，我们得选一个，让所有程序都跑在 <strong>同一个</strong> 操作系统上。并且我们知道操作系统分为用户空间和内核空间，应用程序运行在用户空间。因此，我们可以阉割操作系统，只需要利用操作系统的用户空间部分，就能构建出应用所需的环境。其次就是统一 <strong>程序语言</strong> 依赖，比如要跑 python 应用，你得装个 python 解释器，要跑个 java 应用，得装个 JVM，要跑 go 应用，那就。。什么都不需要装。选中一个基础操作系统和语言后，我们将它们对应的文件系统，依赖库，配置等放一起打包成一个类似压缩包的文件，这就是所谓的 <strong>基础镜像</strong> (Base Image)。</p>
+<p>基础镜像是什么</p>
+<h2 id="Dockerfile-是什么"><a href="#Dockerfile-是什么" class="headerlink" title="Dockerfile 是什么"></a>Dockerfile 是什么</h2><p>有了基础镜像之后还不够，我们经常还需要安装一些依赖，比如 <code>yum install gcc</code> ，甚至还要创建一些文件夹。最后才是运行我们的目标 <strong>应用程序</strong> 。我们知道 linux 中，所有工作都可以通过 <strong>命令行</strong> 完成，所以我们可以将要做的事情以命令行的形式一行行列出来。就像一份 <strong>todo list</strong> 。意思是要求在基础镜像的基础上按着 todo list 挨个执行命令。这份 todo list 长下面这样。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"># 指定基础镜像</span><br><span class="line">FROM python:3.9</span><br><span class="line"></span><br><span class="line"># 设置工作目录</span><br><span class="line">WORKDIR /app</span><br><span class="line"></span><br><span class="line"># 复制依赖文件到容器中</span><br><span class="line">COPY requirements.txt .</span><br><span class="line"></span><br><span class="line">RUN yum install gcc</span><br><span class="line"># 安装依赖</span><br><span class="line">RUN pip install --no-cache-dir -r requirements.txt</span><br><span class="line"></span><br><span class="line"># 将当前目录下的所有文件复制到容器的 /app 目录下</span><br><span class="line">COPY . /app</span><br><span class="line"></span><br><span class="line"># 设置容器启动时执行的命令</span><br><span class="line">CMD [&quot;python&quot;, &quot;app.py&quot;]</span><br></pre></td></tr></table></figure>
+
+<p>具体含义是，基于一个装了 python3.9 解释器的操作系统（基础镜像），再执行 pip install 等命令安装其他依赖，从而构建出一个适合程序运行的环境，最后用 <code>python app.py</code> 运行我们的目标应用程序。像这样一份列清楚了，从操作系统到应用服务启动，需要做哪些事情的清单文件（todo list），就是所谓的 <strong>Dockerfile</strong> 。</p>
+<h2 id="容器镜像-是什么"><a href="#容器镜像-是什么" class="headerlink" title="容器镜像 是什么"></a>容器镜像 是什么</h2><p>注意 Dockerfile 只是描述了要做哪些事情，并没有真正开始做。当我们用命令行执行 <strong>docker build</strong> 的时候，Docker 软件就会按着 Dockerfile 的说明，一行行构建环境+应用程序。最终将这个环境+程序，打包成一个类似”压缩包”的东西，我们叫它 <strong>容器镜像</strong> (container image)。</p>
+<p>容器镜像</p>
+<p>只要将容器镜像传到任意一台服务器上，对这个”压缩包”执行”解压缩”，我们就能同时运行环境和程序。太完美了！但是现在还有个问题，怎么将容器镜像传到那么多服务器上呢？</p>
+<h2 id="Registry-是什么"><a href="#Registry-是什么" class="headerlink" title="Registry 是什么"></a>Registry 是什么</h2><p>服务器那么多，挨个将容器镜像传过去也不是不行，就是将压力全给到发送方的 <strong>网络带宽</strong> 了。有没有更好的解决方案？有。可以参考 <code>github</code> 代码仓库 的做法，我们通常会使用 <code>git push</code> 将代码传到 github，有需要的人自己通过 <code>git pull</code> 的方式将代码从 github 拉到自己的机器上。</p>
+<p>github仓库</p>
+<p>那 Docker 也一样，弄一个 <strong>镜像仓库</strong> ，通过 <strong>docker push</strong> 将镜像推到仓库，有需要的时候再通过 <strong>docker pull</strong> 将镜像拉到机器上。这个负责管理镜像仓库推拉能力的服务，就叫 <strong>Docker Registry</strong> 。基于 Docker Registry 的能力，我们可以搭建各种 <strong>官方或私人镜像仓库</strong> ，比如官方的叫 DockerHub，非官方的有清华大学的 Tuna 等等，一般公司内部也会有自己的镜像仓库。</p>
+<p>Registry是什么</p>
+<h2 id="容器是什么"><a href="#容器是什么" class="headerlink" title="容器是什么"></a>容器是什么</h2><p>现在，我们解决了服务器间 <strong>传输容器镜像</strong> 的问题。我们可以跑到目的服务器上，执行 docker pull 拿到容器镜像。然后执行 docker run 命令，将这个类似”压缩包”的容器镜像给”解压缩”，获得一个 <strong>独立的环境和应用程序</strong> 并运行起来。这样一个独立的环境和应用程序，就是所谓的 <strong>容器</strong> (container)。我们可以在一个操作系统上同时跑多个容器。且这些容器之间都是互相独立，互相隔离的。</p>
+<p>容器是什么</p>
+<h2 id="Docker-和虚拟机的关系？"><a href="#Docker-和虚拟机的关系？" class="headerlink" title="Docker 和虚拟机的关系？"></a>Docker 和虚拟机的关系？</h2><p>眼熟不，这个 <strong>容器</strong> 是不是很像我们用 vmware 或 kvm 整出来的 <strong>传统虚拟机</strong> ？但不同的是，传统虚拟机自带一个完整操作系统，而容器本身不带完整操作系统，容器的基础镜像实际上只包含了操作系统的核心依赖库和配置文件等必要组件。它利用一个叫 <strong>Namespace</strong> 的能力让它看起来就像是一个独立操作系统一样。再利用一个叫 <strong>Cgroup</strong> 的能力限制它能使用的计算资源。</p>
+<p>Docker和虚拟机的区别</p>
+<p>所以说，容器本质上只是个自带独立运行环境的 <strong>特殊进程</strong> ，底层用的其实是 <strong>宿主机的操作系统内核</strong> 。</p>
+<p>容器本质是一个特殊进程</p>
+<h2 id="Docker-的架构原理"><a href="#Docker-的架构原理" class="headerlink" title="Docker 的架构原理"></a>Docker 的架构原理</h2><p>现在，我们回到日常使用场景中，聊聊 Docker 的架构原理。它是经典的 Client&#x2F;Server 架构。Client 对应 Docker-cli， Server 对应 Docker daemon。我们在命令行里敲 Docker 命令，使用的就是 Docker-cli.</p>
+<p>Docker是C&#x2F;S软件架构</p>
+<p>Docker-cli 会解析我们输入的 cmd 命令，然后调用 Docker daemon 守护进程提供的 RESTful API，守护进程收到命令后，会根据指令创建和管理各个容器。再具体点，Docker Daemon 内部分为 Docker Server、Engine 两层。Docker Server 本质上就是个 HTTP 服务，负责对外提供操作容器和镜像的 api 接口，接收到 API 请求后，会分发任务给 Engine 层，Engine 层负责创建 Job，由 Job 实际执行各种工作。</p>
+<p>Docker daemon内部架构</p>
+<p>不同的 Docker 命令会执行不同类型的 Job 任务。</p>
+<h3 id="docker-build"><a href="#docker-build" class="headerlink" title="docker build"></a>docker build</h3><p>如果你执行的是 docker build 命令，Job 则会根据 Dockerfile 指令，像包洋葱皮似的一层层构建容器镜像文件。</p>
+<p>docker build执行逻辑</p>
+<h3 id="docker-pull-push"><a href="#docker-pull-push" class="headerlink" title="docker pull&#x2F;push"></a>docker pull&#x2F;push</h3><p>如果你执行的是 docker pull 或 push 之类的镜像推拉操作，Job 则会跟外部的 <code>Docker Registry</code> 交互，将镜像上传或下载。</p>
+<p>docker pull&#x2F;push执行逻辑</p>
+<h3 id="docker-run"><a href="#docker-run" class="headerlink" title="docker run"></a>docker run</h3><p>如果你执行的是 docker run 命令，Job 就会基于镜像文件调用 containerd 组件，驱使 runC 组件创建和运行容器。</p>
+<p>docker run执行逻辑</p>
+<h2 id="Docker-到底是什么？"><a href="#Docker-到底是什么？" class="headerlink" title="Docker 到底是什么？"></a>Docker 到底是什么？</h2><p>现在我们再回过头来看这句话，Docker 本质上就是一个将 <strong>程序和环境打包并运行</strong> 的工具软件。具体点来说就是，它通过 Dockerfile 描述环境和应用程序的依赖关系， docker build 构建镜像， docker pull&#x2F;push 跟 Docker Registry 交互实现存储和分发镜像，docker run 命令基于镜像启动容器，基于容器技术运行程序和它对应的环境，从而解决环境依赖导致的各种问题。</p>
+<p>Docker到底是什么</p>
+<p>好了，到这里，我们就了解了 Docker 的架构和基本运行原理了。接下来，我们再来聊聊跟 Docker 相关的几个周边。</p>
+<h2 id="Docker-Compose-是什么？"><a href="#Docker-Compose-是什么？" class="headerlink" title="Docker Compose 是什么？"></a>Docker Compose 是什么？</h2><p>我们现在知道了 Docker 容器 本身只是 <strong>一个</strong> 特殊进程，但如果我想要部署 <strong>多个</strong> 容器，且对这些容器的顺序有一定要求呢？比如一个博客系统，当然是先启动数据库，再启动身份验证服务，最后才能启动博客 web 服务。按理说挨个执行 docker run 命令当然是没问题的，但有没有更优雅的解决方案？有。我们可以通过一个 <strong>YAML</strong> 文件写清楚要部署的 <strong>容器有哪些</strong> ， <strong>部署顺序</strong> 是怎么样的，以及这些容器占用的 <strong>cpu 和内存</strong> 等信息。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">version: &quot;3.8&quot;</span><br><span class="line"></span><br><span class="line">services:</span><br><span class="line">  A:</span><br><span class="line">    image: &quot;some-image-for-a&quot;</span><br><span class="line">    deploy:</span><br><span class="line">      resources:</span><br><span class="line">        limits:</span><br><span class="line">          cpus: &quot;0.50&quot; # 限制 CPU 使用率为 50%</span><br><span class="line">          memory: 256M # 限制内存使用量为 256MB</span><br><span class="line"></span><br><span class="line">  B:</span><br><span class="line">    image: &quot;some-image-for-b&quot;</span><br><span class="line">    depends_on:</span><br><span class="line">      - A</span><br><span class="line"></span><br><span class="line">  C:</span><br><span class="line">    image: &quot;some-image-for-c&quot;</span><br><span class="line">    depends_on:</span><br><span class="line">      - B</span><br></pre></td></tr></table></figure>
+
+<p>然后，通过一行 <code>Docker-compose up</code> 命令，开始解析 YAML 文件，将容器们一键按顺序部署，就完成 <strong>一整套服务</strong> 的部署。这其实就是 <strong>Docker Compose</strong> 干的事情。</p>
+<p>Docker compose原理</p>
+<h2 id="Docker-Swarm-是什么？"><a href="#Docker-Swarm-是什么？" class="headerlink" title="Docker Swarm 是什么？"></a>Docker Swarm 是什么？</h2><p>Docker 解决的是 <strong>一个容器</strong> 的部署。Docker Compose 解决的是 <strong>多个容器组成的一整套服务</strong> 的部署。那 Docker Swarm 就更高维度了，它解决的其实是这一整套服务 <strong>在多台服务器上的集群部署</strong> 问题。比如在 A 服务器坏了，就将服务在 B 服务器上重新部署一套，实现迁移，还能根据需要对服务做扩缩容。</p>
+<p>Docker swarm是什么</p>
+<h2 id="Docker-和-k8s-的关系是什么？"><a href="#Docker-和-k8s-的关系是什么？" class="headerlink" title="Docker 和 k8s 的关系是什么？"></a>Docker 和 k8s 的关系是什么？</h2><p>还记得之前的文章里提到的 k8s 吗？它会在多台 Node 服务器上调度 Pod，进行部署和扩缩容。</p>
+<p>k8s的node内部</p>
+<p>每个 Pod 内部可以含有多个 container，每个 container 本质上就是一个服务进程。</p>
+<p>pod内部</p>
+<p>是不是感觉 <strong>k8s</strong> 跟 <strong>Docker Swarm</strong> 做的事情很像？没错，其实 Docker Swarm 是 k8s 的 <strong>竞品</strong> ，既然是竞品，那它们做的事情其实区别就不大了。现在回过头来看 Docker 容器和 k8s 之间的关系，思路就清晰了。Docker 部署的 <strong>容器</strong> ，其实就是 k8s 调度的 Pod 里的 <strong>container</strong> ，它们都叫 <strong>容器</strong> ，其实是一回事。只不过 k8s 除了支持 Docker 的容器外，还支持别人家的容器。Docker Compose 基于多个 container 创建的 <strong>一整套服务</strong> ，其实就是 k8s 里的 <strong>pod</strong> 。而 Docker Swarm 做的事情和 k8s 一样，本质上就是在调度 pod。回过头来看下 k8s 的官方定义，叫容器编排引擎，将它理解为，以 API <strong>编</strong> 程的方式管理安 <strong>排</strong> 各个容器的引擎，是不是就特别精辟。</p>
+<p>容器编排引擎的含义</p>
+<p>现在，我们再回过头来看下 Docker 的图标，是一个个 <strong>集装箱</strong> ，放在一艘船上，这一个个集装箱指的就是互相隔离的 <strong>容器</strong> ，而 k8s 的图标，则是一个轮船上的 <strong>方向盘</strong> ，意思是 k8s 控制着轮船的航向，其实指的就是 <strong>调度</strong> 容器。这波联想就非常形象了。</p>
+<p>Docker和k8s</p>
+<p>现在大家通了吗？</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
+<li>• Docker 本质上就是一个将 <strong>程序和环境打包并运行</strong> 的工具软件，而 Docker 容器本质上只是个自带独立运行环境的 <strong>特殊进程</strong> ，底层用的其实是 <strong>宿主机的操作系统内核</strong> 。</li>
+<li>• Docker 软件 通过 Dockerfile 描述环境和应用程序的依赖关系， docker build 构建镜像， docker pull&#x2F;push 跟 Docker Registry 交互实现存储和分发镜像，docker run 命令基于镜像启动容器，基于容器技术运行程序和它对应的环境，从而解决环境依赖导致的各种问题。</li>
+<li>• Docker 解决的是 <strong>一个容器</strong> 的部署问题，Docker Compose 解决的是 <strong>多个容器组成的一套服务</strong> 的部署问题，Docker Swarm 解决的是多个容器组成的 <strong>一套服务在多台服务器上的部署问题</strong> ，k8s 则是 Docker Swarm 的竞品，在更高维度上 <strong>兼容</strong> 了 Docker 容器，实现了容器编排调度。</li>
+</ul>
+<h2 id="最后"><a href="#最后" class="headerlink" title="最后"></a>最后</h2><p>这篇文章的主题按理说写个万把字不成问题，但我压缩了很多内容，主打就是用最少的文字将技术原理通俗的讲清楚。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://gaoguodong03.github.io/gdBlog">GuoDong</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://gaoguodong03.github.io/gdBlog/2026/10/22/Docker-%E5%92%8C-k8s-%E4%B9%8B%E9%97%B4%E6%98%AF%E4%BB%80%E4%B9%88%E5%85%B3%E7%B3%BB%EF%BC%9F/">https://gaoguodong03.github.io/gdBlog/2026/10/22/Docker-%E5%92%8C-k8s-%E4%B9%8B%E9%97%B4%E6%98%AF%E4%BB%80%E4%B9%88%E5%85%B3%E7%B3%BB%EF%BC%9F/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://gaoguodong03.github.io/gdBlog" target="_blank">果冻小配方</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/gdBlog/tags/Agent/">Agent</a></div><div class="post-share"><div class="social-share" data-image="/gdBlog/./img/logoLLM.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="/gdBlog/pluginsSrc/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="/gdBlog/pluginsSrc/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related full-width" href="/gdBlog/2026/10/22/Docker%E5%92%8C%E4%BC%A0%E7%BB%9F%E8%99%9A%E6%8B%9F%E6%9C%BA%E6%9C%89%E4%BB%80%E4%B9%88%E5%8C%BA%E5%88%AB%EF%BC%9F/" title="Docker和传统虚拟机有什么区别？"><img class="cover" src="/gdBlog/./img/logoAgent.png" onerror="onerror=null;src='/gdBlog/img/404.jpg'" alt="cover of next post"><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">Docker和传统虚拟机有什么区别？</div></div><div class="info-2"><div class="info-item-1">我有一个程序员朋友，他每年情人节都要送女朋友一台服务器。 他说：“谁不想在过节当天收到一台 4核8g 的服务器呢？” “万一对方不要，我还能留着自己用。” 给他一次过节的机会，他能把 浪漫 玩的明明白白。所以今年情人节，他自己一个人过。太痛了，是那种 布洛芬都不知道他哪里痛 的痛。 虽然人跑了，但起码还有服务器陪着他，但屏幕前依然单身的你呢？ 你连服务器都没有 。那么问题就来了，你买过服务器吗？看着云厂商各种产品是不是有点懵。你知道 ecs，vps，docker 容器 是什么吗？它们有啥区别呢？ 我们今天来聊聊这个话题。 物理服务器是什么？我的柜子里有一台大学时候用的废弃电脑，自带 cpu、 内存等硬件和操作系统，根据一些教程视频，是可以做成服务器的。 像这样一台看得见摸得着的机器，其实就是云厂商页面里提到的 物理服务器 或 物理机 。不同厂商叫法不同，有的厂商叫它 独立服务器 。 跟家里电脑不一样的是，云厂商的机器性能更好，核数更高，还有专业的机房和空调伺候着。那既然这样，是不是就不需要买云厂商的服务器呢？ 糊涂啊，一台家用电脑跑起来 50 瓦，一年下来电费都好几百，还得花精力...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/gdBlog/2026/01/13/AGI-NEXT-%E5%B3%B0%E4%BC%9A/" title="AGI-NEXT 峰会"><img class="cover" src="/gdBlog/./img/logoLLM.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-01-13</div><div class="info-item-2">AGI-NEXT 峰会</div></div><div class="info-2"><div class="info-item-1">Q1: 为什么说Chat时代已经结束？ 经过一年的观察，唐杰认为单纯做Chat已经不是在真正解决问题。他原本预判大模型会替代搜索，但现实是谷歌反而用AI把自己的搜索革命了。而2025年初DeepSeek的出现，在他看来彻底终结了Chat范式的竞争。 “可能对研究界、产业界，甚至对很多人都是’横空出世’。”唐杰说，“在DeepSeek这种范式下，Chat时代基本上算是解决了。我们做得再好，也许跟DeepSeek差不多，或许在上面再个性化一点、变成有情感的Chat。但总的来讲，这个范式基本到头了，剩下更多是工程和技术问题。” 这个判断促使智谱做出战略转向。团队内部争论了很多个晚上，最终决定把所有精力放在Coding和Agent上。2025年7月，智谱发布4.5版本，把Coding、Agentic、Reasoning能力整合在一起。 但真实世界的反馈很快给了他们一记重击。 用户拿着模型去编”植物大战僵尸”，结果编不出来。”真实编程环境下有大量问题需要解决。”唐杰说。团队通过RLVR（可验证强化学习）配合编程环境作为反馈，才把效果提升上去。这个经历让他意识到：跑分是跑分，真正让能力进入主...</div></div></div></a><a class="pagination-related" href="/gdBlog/2026/05/30/AI-%E6%97%B6%E4%BB%A3%E7%9A%84%E6%96%B0%E5%AE%A0%E5%B2%97%E4%BD%8D%EF%BC%9AForward-Deployed-Engineer-%E5%88%B0%E5%BA%95%E6%98%AF%E4%BB%80%E4%B9%88/" title="AI 时代的新宠岗位：Forward Deployed Engineer 到底是什么"><img class="cover" src="/gdBlog/./img/fde-cover-baoyu.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-30</div><div class="info-item-2">AI 时代的新宠岗位：Forward Deployed Engineer 到底是什么</div></div><div class="info-2"><div class="info-item-1">原文：Forward Deployed Engineer：AI 时代的新宠岗位，到底干什么？ 作者：宝玉 最近读到宝玉老师写的这篇关于 Forward Deployed Engineer 的文章，感觉它讲的并不只是一个新岗位，而是 AI 行业正在发生的一次很重要的重心转移：  过去大家最关心的是模型能力：谁的模型更强，谁的榜单更高，谁的上下文更长。 但现在越来越关键的问题变成了：谁能把 AI 真正部署进业务现场，并且产生可衡量的价值。  Forward Deployed Engineer，通常缩写为 FDE，直译过来可以叫“前线部署工程师”。这个名字听起来有点军工味，因为它确实继承了一种很“前线”的工作方式：工程师不只坐在办公室里写代码，而是直接进入客户现场，理解业务流程、拆解真实问题、写代码、接系统、调模型、做交付。 如果说传统软件工程师更多是在产品内部构建能力，那么 FDE 更像是把能力送到客户真实战场的人。 为什么这个岗位突然重要起来了？AI 公司现在遇到的一个核心问题是：模型很强，但企业不知道怎么用。 很多企业买了大模型 API，或者采购了一个 AI 平台，但真正落到业务...</div></div></div></a><a class="pagination-related" href="/gdBlog/2026/10/22/Docker%E5%92%8C%E4%BC%A0%E7%BB%9F%E8%99%9A%E6%8B%9F%E6%9C%BA%E6%9C%89%E4%BB%80%E4%B9%88%E5%8C%BA%E5%88%AB%EF%BC%9F/" title="Docker和传统虚拟机有什么区别？"><img class="cover" src="/gdBlog/./img/logoAgent.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-10-22</div><div class="info-item-2">Docker和传统虚拟机有什么区别？</div></div><div class="info-2"><div class="info-item-1">我有一个程序员朋友，他每年情人节都要送女朋友一台服务器。 他说：“谁不想在过节当天收到一台 4核8g 的服务器呢？” “万一对方不要，我还能留着自己用。” 给他一次过节的机会，他能把 浪漫 玩的明明白白。所以今年情人节，他自己一个人过。太痛了，是那种 布洛芬都不知道他哪里痛 的痛。 虽然人跑了，但起码还有服务器陪着他，但屏幕前依然单身的你呢？ 你连服务器都没有 。那么问题就来了，你买过服务器吗？看着云厂商各种产品是不是有点懵。你知道 ecs，vps，docker 容器 是什么吗？它们有啥区别呢？ 我们今天来聊聊这个话题。 物理服务器是什么？我的柜子里有一台大学时候用的废弃电脑，自带 cpu、 内存等硬件和操作系统，根据一些教程视频，是可以做成服务器的。 像这样一台看得见摸得着的机器，其实就是云厂商页面里提到的 物理服务器 或 物理机 。不同厂商叫法不同，有的厂商叫它 独立服务器 。 跟家里电脑不一样的是，云厂商的机器性能更好，核数更高，还有专业的机房和空调伺候着。那既然这样，是不是就不需要买云厂商的服务器呢？ 糊涂啊，一台家用电脑跑起来 50 瓦，一年下来电费都好几百，还得花精力...</div></div></div></a><a class="pagination-related" href="/gdBlog/2026/06/05/GUI-Agent-%E6%9E%B6%E6%9E%84%E5%85%A5%E9%97%A8%EF%BC%9A%E4%BB%8E%E7%95%8C%E9%9D%A2%E6%84%9F%E7%9F%A5%E5%88%B0%E8%87%AA%E4%B8%BB%E6%93%8D%E4%BD%9C/" title="GUI Agent 架构入门：从界面感知到自主操作"><img class="cover" src="/gdBlog/./img/gui-agent-architecture-cover.svg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-06-05</div><div class="info-item-2">GUI Agent 架构入门：从界面感知到自主操作</div></div><div class="info-2"><div class="info-item-1">过去我们聊 Agent，很多时候聊的是“文本世界里的 Agent”。 它读一段用户输入，拆解任务，调用搜索、数据库、代码执行器、文件系统、MCP 工具，最后把结果组织成一段文本。这个方向已经很熟悉了：ReAct、Plan-and-Execute、Reflection、多 Agent、Memory、Tool Use，这些范式本质上都围绕一个问题展开：大模型如何在文本和工具之间形成更可靠的行动链。 但 GUI Agent 不一样。 GUI Agent 面对的不是结构清晰的 API，而是一个图形用户界面。它看到的是浏览器窗口、按钮、输入框、弹窗、菜单、表格、滚动条、文件选择器、验证码、系统通知、加载动画，以及各种“人类一眼就懂、机器不一定能懂”的界面暗示。 也就是说，GUI Agent 的任务不是“回答问题”，而是“使用软件”。 比如：  打开一个网页后台，登录，搜索订单，导出报表； 在浏览器里查资料，把内容复制到文档里； 在手机 App 里完成订票、下单、修改设置； 在桌面系统中打开文件、重命名、压缩、上传； 在一个没有 API 的旧系统里，通过界面把流程跑完。  这类任务真正困难的...</div></div></div></a><a class="pagination-related" href="/gdBlog/2026/03/06/OpenClaw%E9%A3%9E%E4%B9%A6%E6%9D%83%E9%99%90/" title="飞书权限"><img class="cover" src="/gdBlog/./img/logoOpenClaw.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-03-06</div><div class="info-item-2">飞书权限</div></div><div class="info-2"><div class="info-item-1">OpenClaw 接入飞书效果：接入飞书后，无需打开浏览器和PowerShell界面，直接在飞书客户端（手机&#x2F;电脑端）就能向Copaw发送指令，实现远程交互。 阶段1：飞书开放平台创建应用，获取凭证 访问「飞书开放平台」（https://open.feishu.cn/），用飞书账号登录； 点击「创建企业自建应用」，填写应用名称、描述（任意填写，便于识别），提交创建； 进入应用后台，找到「凭证与基础信息」模块，复制「App ID」和「App Secret」（后续需要用到，妥善保存）。  阶段2：配置机器人权限（关键，否则无法接收消息） 在应用后台左侧，找到「能力」选项，启用「机器人」功能； 进入「权限管理」，点击「批量导入&#x2F;导出权限」； 将以下JSON代码复制到「权限导入」框中，点击导入（无需修改任何内容）：  1&#123; &quot;scopes&quot;: &#123; &quot;tenant&quot;: [ &quot;aily:file:read&quot;, &quot;aily:file:write&quot;, &quot;applica...</div></div></div></a><a class="pagination-related" href="/gdBlog/2026/03/12/%E4%BB%8E-CC-%E4%B8%AD%E6%8F%90%E7%82%BC%E4%B8%89%E5%A4%A7%E6%A0%B8%E5%BF%83%E6%A1%86%E6%9E%B6/" title="从 Claude Code 提炼三大核心框架：Skill、SubAgent 与 MCP 的深度解析"><img class="cover" src="/gdBlog/./img/logoLLM.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-03-12</div><div class="info-item-2">从 Claude Code 提炼三大核心框架：Skill、SubAgent 与 MCP 的深度解析</div></div><div class="info-2"><div class="info-item-1"> 摘要：Claude Code 不仅仅是一个编程助手，它背后隐藏着三个通用的软件工程与系统设计框架：Skill（技能封装框架）、**SubAgent（分层代理架构）**和 MCP（模型上下文协议）。本文剥离具体的配置指令，深入探讨这三个框架的设计哲学、核心机制及其在构建通用 AI 系统中的应用价值。   引言：超越工具的思维模型当我们谈论 Claude Code 时，往往聚焦于“如何让它写得更好”。但如果我们退后一步，会发现 Claude Code 的成功并非仅仅源于模型本身的强大，更在于其底层架构巧妙地解决了大模型应用中的三大痛点：知识复用难、上下文污染重、外部集成杂。 通过解构 Claude Code，我们可以提取出三个独立的、可复用的设计框架。无论你是否使用 Claude Code，理解这三个框架对于设计任何基于 LLM 的复杂系统都至关重要。  框架一：Skill Framework（技能封装框架）—— 解决“隐性知识显性化”与“按需加载”的矛盾在传统的 Prompt Engineering 中，我们习惯将所有指令堆砌在 System Prompt 中。这导致了两个问题：...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/gdBlog/img/touxiang.jpg" onerror="this.onerror=null;this.src='/gdBlog/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">GuoDong</div><div class="author-info-description">碎碎念念 岁岁年年</div><div class="site-data"><a href="/gdBlog/archives/"><div class="headline">文章</div><div class="length-num">68</div></a><a href="/gdBlog/tags/"><div class="headline">标签</div><div class="length-num">48</div></a><a href="/gdBlog/categories/"><div class="headline">分类</div><div class="length-num">8</div></a></div><div class="card-info-social-icons"><a class="social-icon" href="https://www.bilibili.com/" target="_blank" title="bilibili"><i class="fab fa-bilibili" style="color: #24292e;"></i></a><a class="social-icon" href="https://github.com/gaoguodong03" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="https://leetcode.cn/studyplan/top-100-liked/" target="_blank" title="LeetCode"><i class="fab fa-comments" style="color: #24292e;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">好事马上发生</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Docker-%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="toc-number">1.</span> <span class="toc-text">Docker 是什么？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9F%BA%E7%A1%80%E9%95%9C%E5%83%8F%E6%98%AF%E4%BB%80%E4%B9%88"><span class="toc-number">2.</span> <span class="toc-text">基础镜像是什么</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Dockerfile-%E6%98%AF%E4%BB%80%E4%B9%88"><span class="toc-number">3.</span> <span class="toc-text">Dockerfile 是什么</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%B9%E5%99%A8%E9%95%9C%E5%83%8F-%E6%98%AF%E4%BB%80%E4%B9%88"><span class="toc-number">4.</span> <span class="toc-text">容器镜像 是什么</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Registry-%E6%98%AF%E4%BB%80%E4%B9%88"><span class="toc-number">5.</span> <span class="toc-text">Registry 是什么</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%B9%E5%99%A8%E6%98%AF%E4%BB%80%E4%B9%88"><span class="toc-number">6.</span> <span class="toc-text">容器是什么</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Docker-%E5%92%8C%E8%99%9A%E6%8B%9F%E6%9C%BA%E7%9A%84%E5%85%B3%E7%B3%BB%EF%BC%9F"><span class="toc-number">7.</span> <span class="toc-text">Docker 和虚拟机的关系？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Docker-%E7%9A%84%E6%9E%B6%E6%9E%84%E5%8E%9F%E7%90%86"><span class="toc-number">8.</span> <span class="toc-text">Docker 的架构原理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#docker-build"><span class="toc-number">8.1.</span> <span class="toc-text">docker build</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#docker-pull-push"><span class="toc-number">8.2.</span> <span class="toc-text">docker pull&#x2F;push</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#docker-run"><span class="toc-number">8.3.</span> <span class="toc-text">docker run</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Docker-%E5%88%B0%E5%BA%95%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="toc-number">9.</span> <span class="toc-text">Docker 到底是什么？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Docker-Compose-%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="toc-number">10.</span> <span class="toc-text">Docker Compose 是什么？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Docker-Swarm-%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="toc-number">11.</span> <span class="toc-text">Docker Swarm 是什么？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Docker-%E5%92%8C-k8s-%E7%9A%84%E5%85%B3%E7%B3%BB%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="toc-number">12.</span> <span class="toc-text">Docker 和 k8s 的关系是什么？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">13.</span> <span class="toc-text">总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9C%80%E5%90%8E"><span class="toc-number">14.</span> <span class="toc-text">最后</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/gdBlog/2026/10/20/Intent-Hub%EF%BC%9A%E8%AE%A9%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E8%AF%B7%E6%B1%82%E6%89%BE%E5%88%B0%E5%90%88%E9%80%82%E7%9A%84Agent%E4%B8%8ESkill/" title="Intent Hub：让自然语言请求找到合适的 Agent 与 Skill">Intent Hub：让自然语言请求找到合适的 Agent 与 Skill</a><time datetime="2026-10-22T03:39:56.355Z" title="更新于 2026-10-22 11:39:56">2026-10-22</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/gdBlog/2026/10/20/%E4%B9%A6%E7%AB%A5%E5%9B%9B%E4%B9%9D%EF%BC%9A%E6%8A%8A%E4%B8%93%E5%AE%B6%E3%80%81%E6%8A%80%E8%83%BD%E5%92%8C%E5%B7%A5%E5%85%B7%E7%BB%84%E7%BB%87%E6%88%90%E5%8F%AF%E5%A4%8D%E7%94%A8%E7%9A%84AI%E5%B7%A5%E4%BD%9C%E7%A9%BA%E9%97%B4/" title="书童四九：把专家、技能和工具组织成可复用的 AI 工作空间">书童四九：把专家、技能和工具组织成可复用的 AI 工作空间</a><time datetime="2026-10-22T03:39:56.354Z" title="更新于 2026-10-22 11:39:56">2026-10-22</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/gdBlog/2026/10/22/Docker-%E5%92%8C-k8s-%E4%B9%8B%E9%97%B4%E6%98%AF%E4%BB%80%E4%B9%88%E5%85%B3%E7%B3%BB%EF%BC%9F/" title="Docker  和 k8s 之间是什么关系？">Docker  和 k8s 之间是什么关系？</a><time datetime="2026-10-22T03:34:34.518Z" title="更新于 2026-10-22 11:34:34">2026-10-22</time></div></div></div></div></div></div></main><footer id="footer" style="background: transparent;"><div class="footer-other"><div class="footer-copyright"></div><div class="footer_custom_text"><style>
+  .footer {
+    text-align: center;
+    position: relative;
+  }
+  .footer p {
+    margin: 0.5rem 0;
+    line-height: 1;
+  }
+  .copyright {
+    font-size: 1.1rem; 
+    color: #000000;
+    font-weight: 400;
+  }
+  .tagline {
+    font-size: 0.8rem;
+    color: #333333;
+    font-style: italic;
+    font-weight: 500;
+  }
+  .visitor-count {
+    font-size: 0.75rem;
+    color: rgba(0, 0, 0, 0.7);
+    font-weight: 300;
+  }
+  #visitorCount {
+    font-weight: bold;
+  }
+</style>
+<div class="footer">
+  <p class="copyright">© 2025 果冻小配方 - 所有权利保留</p>
+  <p class="tagline">> 碎碎念念 岁岁年年 <</p>
+  <p class="visitor-count">访问量: <span id="visitorCount">1024</span> | 你是第 <span id="dailyVisitor">1</span> 位今日访客</p>
+</div>
+<script>
+  // 确保DOM加载完成后执行
+  document.addEventListener('DOMContentLoaded', function() {
+    // 模拟访问量增长
+    function updateVisitorCount() {
+      const countElement = document.getElementById('visitorCount');
+      let count = parseInt(localStorage.getItem('totalVisitors'), 10) || 1024;
+      count += 1;
+      countElement.textContent = count;
+      localStorage.setItem('totalVisitors', String(count));
+      const today = new Date().toDateString();
+      const dailyData = JSON.parse(localStorage.getItem('dailyVisitors') || '{"date":"", "count":0}');
+      if (dailyData.date !== today) {
+        dailyData.date = today;
+        dailyData.count = 0;
+      }
+      dailyData.count += 1;
+      document.getElementById('dailyVisitor').textContent = dailyData.count;
+      localStorage.setItem('dailyVisitors', JSON.stringify(dailyData));
+    }
+    updateVisitorCount();
+  });
+</script>
+</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/gdBlog/js/utils.js"></script><script src="/gdBlog/js/main.js"></script><div class="js-pjax"></div><script src="/config/js/happy-title.js" async></script><script src="/config/js/foot.js" async></script></div><!-- hexo injector body_end start --><script data-pjax>
+    function butterfly_categories_card_injector_config(){
+      var parent_div_git = document.getElementById('recent-posts');
+      var item_html = '<style>li.categoryBar-list-item{width:32.3%;}.categoryBar-list{max-height: 950px;overflow:auto;}.categoryBar-list::-webkit-scrollbar{width:0!important}@media screen and (max-width: 650px){.categoryBar-list{max-height: 800px;}}</style><div class="recent-post-item" style="height:auto;width:100%;padding:0px;"><div id="categoryBar"><ul class="categoryBar-list"><li class="categoryBar-list-item" style="background:url(/img/logo.jpg);"> <a class="categoryBar-list-link" href="categories/Hello-Agents/">Hello-Agents</a><span class="categoryBar-list-count">8</span><span class="categoryBar-list-descr">果冻的航海日记</span></li><li class="categoryBar-list-item" style="background:url(/img/logo.jpg);"> <a class="categoryBar-list-link" href="categories/果冻的理论学习/">果冻的理论学习</a><span class="categoryBar-list-count">17</span><span class="categoryBar-list-descr">Hexo</span></li><li class="categoryBar-list-item" style="background:url(/img/logo.jpg);"> <a class="categoryBar-list-link" href="categories/果冻的科普专区/">果冻的科普专区</a><span class="categoryBar-list-count">15</span><span class="categoryBar-list-descr">果冻的奇妙小工具</span></li><li class="categoryBar-list-item" style="background:url(/img/logo.jpg);"> <a class="categoryBar-list-link" href="categories/果冻的航海日志/">果冻的航海日志</a><span class="categoryBar-list-count">10</span><span class="categoryBar-list-descr">果冻的日记本</span></li><li class="categoryBar-list-item" style="background:url(undefined);"> <a class="categoryBar-list-link" href="categories/果冻的奇妙小工具/">果冻的奇妙小工具</a><span class="categoryBar-list-count">8</span><span class="categoryBar-list-descr"></span></li><li class="categoryBar-list-item" style="background:url(undefined);"> <a class="categoryBar-list-link" href="categories/道不可言言而非也/">道不可言言而非也</a><span class="categoryBar-list-count">1</span><span class="categoryBar-list-descr"></span></li><li class="categoryBar-list-item" style="background:url(undefined);"> <a class="categoryBar-list-link" href="categories/Hexo/">Hexo</a><span class="categoryBar-list-count">1</span><span class="categoryBar-list-descr"></span></li><li class="categoryBar-list-item" style="background:url(undefined);"> <a class="categoryBar-list-link" href="categories/果冻的LeetCode刷题/">果冻的LeetCode刷题</a><span class="categoryBar-list-count">5</span><span class="categoryBar-list-descr"></span></li></ul></div></div>';
+      console.log('已挂载butterfly_categories_card')
+      parent_div_git.insertAdjacentHTML("afterbegin",item_html)
+      }
+    if( document.getElementById('recent-posts') && (location.pathname ==='/categories/'|| '/categories/' ==='all')){
+    butterfly_categories_card_injector_config()
+    }
+  </script><script data-pjax>
+  function butterfly_swiper_injector_config(){
+    var parent_div_git = document.getElementById('recent-posts');
+    var item_html = '<div class="recent-post-item" style="height: auto;width: 100%"><div class="blog-slider swiper-container-fade swiper-container-horizontal" id="swiper_container"><div class="blog-slider__wrp swiper-wrapper" style="transition-duration: 0ms;"></div><div class="blog-slider__pagination swiper-pagination-clickable swiper-pagination-bullets"></div></div></div>';
+    console.log('已挂载butterfly_swiper')
+    parent_div_git.insertAdjacentHTML("afterbegin",item_html)
+    }
+  var elist = 'undefined'.split(',');
+  var cpage = location.pathname;
+  var epage = '/';
+  var flag = 0;
+
+  for (var i=0;i<elist.length;i++){
+    if (cpage.includes(elist[i])){
+      flag++;
+    }
+  }
+
+  if ((epage ==='all')&&(flag == 0)){
+    butterfly_swiper_injector_config();
+  }
+  else if (epage === cpage){
+    butterfly_swiper_injector_config();
+  }
+  </script><script defer src="https://npm.elemecdn.com/hexo-butterfly-swiper/lib/swiper.min.js"></script><script defer data-pjax src="https://npm.elemecdn.com/hexo-butterfly-swiper/lib/swiper_init.js"></script><div class="js-pjax"><script async="async">var arr = document.getElementsByClassName('recent-post-item');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__zoomIn');
+    arr[i].setAttribute('data-wow-duration', '300ms');
+    arr[i].setAttribute('data-wow-delay', '0ms');
+    arr[i].setAttribute('data-wow-offset', '0');
+    arr[i].setAttribute('data-wow-iteration', '1');
+  }</script><script async="async">var arr = document.getElementsByClassName('card-widget');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__zoomIn');
+    arr[i].setAttribute('data-wow-duration', '');
+    arr[i].setAttribute('data-wow-delay', '');
+    arr[i].setAttribute('data-wow-offset', '');
+    arr[i].setAttribute('data-wow-iteration', '');
+  }</script></div><script defer src="https://npm.elemecdn.com/hexo-butterfly-wowjs/lib/wow.min.js"></script><script defer src="https://npm.elemecdn.com/hexo-butterfly-wowjs/lib/wow_init.js"></script><!-- hexo injector body_end end --></body></html>
