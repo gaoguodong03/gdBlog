@@ -1,0 +1,679 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>从白盒蒸馏、黑盒蒸馏，再到自蒸馏！深度理解 OPD 训练的本质 | 果冻小配方</title><meta name="author" content="GuoDong"><meta name="copyright" content="GuoDong"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="前言 作者：周星星（星仔） 原文：https:&#x2F;&#x2F;zhuanlan.zhihu.com&#x2F;p&#x2F;2095863677282996988 大家好，我是星仔。这篇我们聊 OPD（On-Policy Distillation）。 2025 年 10 月，Thinking Machines Lab 在同名博客里">
+<meta property="og:type" content="article">
+<meta property="og:title" content="从白盒蒸馏、黑盒蒸馏，再到自蒸馏！深度理解 OPD 训练的本质">
+<meta property="og:url" content="https://gaoguodong03.github.io/gdBlog/2026/11/02/%E4%BB%8E%E7%99%BD%E7%9B%92%E8%92%B8%E9%A6%8F%E3%80%81%E9%BB%91%E7%9B%92%E8%92%B8%E9%A6%8F%EF%BC%8C%E5%86%8D%E5%88%B0%E8%87%AA%E8%92%B8%E9%A6%8F%EF%BC%81%E6%B7%B1%E5%BA%A6%E7%90%86%E8%A7%A3-OPD-%E8%AE%AD%E7%BB%83%E7%9A%84%E6%9C%AC%E8%B4%A8/index.html">
+<meta property="og:site_name" content="果冻小配方">
+<meta property="og:description" content="前言 作者：周星星（星仔） 原文：https:&#x2F;&#x2F;zhuanlan.zhihu.com&#x2F;p&#x2F;2095863677282996988 大家好，我是星仔。这篇我们聊 OPD（On-Policy Distillation）。 2025 年 10 月，Thinking Machines Lab 在同名博客里">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://gaoguodong03.github.io/gdBlog/img/logoLLM.png">
+<meta property="article:published_time" content="2026-11-02T03:03:13.363Z">
+<meta property="article:modified_time" content="2026-11-02T03:05:09.529Z">
+<meta property="article:author" content="GuoDong">
+<meta property="article:tag" content="Agent">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://gaoguodong03.github.io/gdBlog/img/logoLLM.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "从白盒蒸馏、黑盒蒸馏，再到自蒸馏！深度理解 OPD 训练的本质",
+  "url": "https://gaoguodong03.github.io/gdBlog/2026/11/02/%E4%BB%8E%E7%99%BD%E7%9B%92%E8%92%B8%E9%A6%8F%E3%80%81%E9%BB%91%E7%9B%92%E8%92%B8%E9%A6%8F%EF%BC%8C%E5%86%8D%E5%88%B0%E8%87%AA%E8%92%B8%E9%A6%8F%EF%BC%81%E6%B7%B1%E5%BA%A6%E7%90%86%E8%A7%A3-OPD-%E8%AE%AD%E7%BB%83%E7%9A%84%E6%9C%AC%E8%B4%A8/",
+  "image": "https://gaoguodong03.github.io/gdBlog/img/logoLLM.png",
+  "datePublished": "2026-11-02T03:03:13.363Z",
+  "dateModified": "2026-11-02T03:05:09.529Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "GuoDong",
+      "url": "https://gaoguodong03.github.io/gdBlog"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/gdBlog/img/logo.jpg"><link rel="canonical" href="https://gaoguodong03.github.io/gdBlog/2026/11/02/%E4%BB%8E%E7%99%BD%E7%9B%92%E8%92%B8%E9%A6%8F%E3%80%81%E9%BB%91%E7%9B%92%E8%92%B8%E9%A6%8F%EF%BC%8C%E5%86%8D%E5%88%B0%E8%87%AA%E8%92%B8%E9%A6%8F%EF%BC%81%E6%B7%B1%E5%BA%A6%E7%90%86%E8%A7%A3-OPD-%E8%AE%AD%E7%BB%83%E7%9A%84%E6%9C%AC%E8%B4%A8/index.html"><link rel="preconnect"/><link rel="stylesheet" href="/gdBlog/css/index.css"><link rel="stylesheet" href="/gdBlog/pluginsSrc/@fortawesome/fontawesome-free/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/gdBlog/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: '/gdBlog/pluginsSrc/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '从白盒蒸馏、黑盒蒸馏，再到自蒸馏！深度理解 OPD 训练的本质',
+  isHighlightShrink: true,
+  isToc: true,
+  pageType: 'post'
+}</script><style>#article-container.post-content h1:before, h2:before, h3:before, h4:before, h5:before, h6:before { -webkit-animation: avatar_turn_around 1s linear infinite; -moz-animation: avatar_turn_around 1s linear infinite; -o-animation: avatar_turn_around 1s linear infinite; -ms-animation: avatar_turn_around 1s linear infinite; animation: avatar_turn_around 1s linear infinite; }</style><!-- hexo injector head_end start --><link rel="stylesheet" href="/gdBlog/./css/categorybar.css"><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-swiper/lib/swiper.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-swiper/lib/swiperstyle.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-wowjs/lib/animate.min.css" media="print" onload="this.media='screen'"><!-- hexo injector head_end end --><meta name="generator" content="Hexo 8.0.0"></head><body><div id="web_bg" style="background-image: url(/gdBlog/img/bg1.jpg);"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/gdBlog/img/touxiang.jpg" onerror="this.onerror=null;this.src='/gdBlog/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/gdBlog/archives/"><div class="headline">文章</div><div class="length-num">79</div></a><a href="/gdBlog/tags/"><div class="headline">标签</div><div class="length-num">52</div></a><a href="/gdBlog/categories/"><div class="headline">分类</div><div class="length-num">8</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/gdBlog/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/link/"><i class="fa-fw fas fa-link"></i><span> 书签</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/gdBlog/./img/logoLLM.png);"><nav id="nav"><!-- 左侧博客信息区域--><span id="blog-info"><a class="nav-site-title" href="/gdBlog/"><img class="site-icon" src="/gdBlog/img/logo.jpg" alt="Logo"><span class="site-name">果冻小配方</span></a><a class="nav-page-title" href="/gdBlog/"><span class="site-name">从白盒蒸馏、黑盒蒸馏，再到自蒸馏！深度理解 OPD 训练的本质</span></a></span><!-- 新增的导航菜单容器（居中布局关键）--><div id="nav-menus-container"><!-- 菜单主体部分--><div id="menus"><!-- 搜索按钮--><!-- 菜单项--><div class="menus_items"><div class="menus_item"><a class="site-page" href="/gdBlog/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/link/"><i class="fa-fw fas fa-link"></i><span> 书签</span></a></div></div></div><!-- 移动端汉堡菜单按钮（保持原位置）--><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">从白盒蒸馏、黑盒蒸馏，再到自蒸馏！深度理解 OPD 训练的本质</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-11-02T03:03:13.363Z" title="发表于 2026-11-02 11:03:13">2026-11-02</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-11-02T03:05:09.529Z" title="更新于 2026-11-02 11:05:09">2026-11-02</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">总字数:</span><span class="word-count">14.4k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>47分钟</span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>2025 年 10 月，Thinking Machines Lab 在 <a target="_blank" rel="noopener" href="https://thinkingmachines.ai/blog/on-policy-distillation/">同名博客</a> 里展示了它降低后训练成本的潜力。更早的 <a target="_blank" rel="noopener" href="https://arxiv.org/html/2505.09388#S4.SS7.SSS2">Qwen3 报告</a> ：从同一个 Qwen3-8B 起点出发，OPD 用约十分之一的追加 GPU 小时，取得了比 RL 更高的数学、代码等评测分数。 <a target="_blank" rel="noopener" href="https://arxiv.org/html/2606.19348#S5.SS1.SSS2">DeepSeek-V4</a> 和 <a target="_blank" rel="noopener" href="https://arxiv.org/html/2601.02780v2#S4.SS1">MiMo-V2-Flash</a> 把OPD用于专家合版：先把各领域教师练强，再将能力蒸进同一个学生。</p>
+<p><strong>相对于传统 SFT 蒸馏，OPD 缓解了训推不一致。</strong> SFT 蒸馏让学生接着教师答案往下写，使用时却要接着自己的输出。OPD 让学生自己生成，再由教师提供指导，训练时就能处理自己实际会遇到的情况。 <strong>相对于只按最终结果打分的 RLVR，白盒 OPD 提供了更稠密的监督。</strong></p>
+<p>比如，学生先写一段代码；训练时，教师根据题目和各位置之前的代码，给出下一 token 的概率分布，学生据此更新参数。这里的“白盒”，就是能拿到教师的 token 概率。这些信号也可以接入 RL 更新。在教师指导有效时，OPD 有机会用较少的训练更新改善任务表现，因此也值得在持续学习中尝试。</p>
+<p><strong>教师也可以是多看了信息的自己，这是自蒸馏。</strong> 比如，学生只看题目写代码；训练时，把参考答案或失败单测加入同一模型的提示词，让它充当教师。学生根据“题目＋自己的前文”生成，教师则根据“题目＋额外信息＋同一段学生前文”提供概率指导。</p>
+<p>目标是把这些指导学进参数，让学生以后只看题目时也能受益。 <strong>如果拿不到教师概率，也可以把教师的指导转成 RL 奖励，这是黑盒蒸馏。</strong> 例如，让教师对照参考解法和学生回答，列出“结果是否正确、是否处理边界情况”等评分项，再由评估模型逐项打分，汇总成奖励，用 RL 更新学生。</p>
+<p>无论教师是谁、提供的是概率还是文本，只要 <strong>由当前学生模型自己生成回答（on-policy），再利用教师信号更新学生</strong> ，都可以归入本文讨论的广义 OPD。</p>
+<p>这篇就从白盒蒸馏讲起，再看自蒸馏和黑盒蒸馏，最后谈 OPD 训练的本质。</p>
+<p>OPD，一篇就够了。</p>
+<h2 id="01-白盒-OPD：从训练原理到工业实践"><a href="#01-白盒-OPD：从训练原理到工业实践" class="headerlink" title="01. 白盒 OPD：从训练原理到工业实践"></a>01. 白盒 OPD：从训练原理到工业实践</h2><p>白盒 OPD 的训练从学生自己生成的回答开始。教师在这些回答的各个前缀上计算下一 token 的概率，学生再利用师生的概率差异更新参数。</p>
+<p><img src="https://pica.zhimg.com/v2-8f52b7d55f266032896adedf4a71ae84_r.jpg" alt="图 1-1｜以“判断整数是否非负”为例：学生先写出 x ＞ 0，教师在同一题目和学生前文下更偏好 ＞&#x3D;。图中展示只用当前采样 token 的更新；sequence-level 更新还会计入后续回报。概率为教学示意，假设 ＞ 与 ＞&#x3D; 各占一个 token。"></p>
+<p>先从整句目标推导梯度，再看只用当前 token 的近似，最后说明两种训练实现。</p>
+<h3 id="从整句-reverse-KL-推导-sequence-level-更新"><a href="#从整句-reverse-KL-推导-sequence-level-更新" class="headerlink" title="从整句 reverse KL 推导 sequence-level 更新"></a>从整句 reverse KL 推导 sequence-level 更新</h3><p>设教师为固定分布 $p$ ，学生为 $q_\theta$ 。这一节使用 reverse KL：它按学生的概率加权，重点惩罚学生经常生成、教师却很少生成的内容。forward KL 则按教师的概率加权，更强调覆盖教师的分布。</p>
+<p><img src="https://picx.zhimg.com/v2-94c8f2294d9e1b61e0d47c6c3d0290d5_r.jpg" alt="图 1-2｜容量受限的教学示意：同一个双峰教师，由单峰高斯学生拟合。左图的 forward KL 倾向覆盖两个峰，右图的 reverse KL 可能集中于其中一个峰。两图使用相同坐标尺度。相关解释见 Eric Jang 与 Tim Vieira。"></p>
+<p>固定输入 $x$ ，将学生生成的回答记为 $y&#x3D;(y_1,\ldots,y_T)$ ，第 $t$ 步的前缀记为 $s_t&#x3D;(x,y_{&lt;t})$ 。为方便推导，统一最大生成长度，遇到 EOS 后的贡献记为零。整句 reverse KL 目标是：</p>
+<p>$$<br>\begin{aligned} J(\theta) &amp;&#x3D;\mathrm{KL}\big(q_\theta(\cdot\mid x),|,p(\cdot\mid x)\big)\ &amp;&#x3D;\sum_y q_\theta(y\mid x) \log\frac{q_\theta(y\mid x)}{p(y\mid x)}. \end{aligned}<br>$$</p>
+<p>根据自回归分解，</p>
+<p>$$<br>\begin{aligned} q_\theta(y\mid x)&amp;&#x3D;\prod_{t&#x3D;1}^{T}q_\theta(y_t\mid s_t),\ p(y\mid x)&amp;&#x3D;\prod_{t&#x3D;1}^{T}p(y_t\mid s_t). \end{aligned}<br>$$</p>
+<p>定义每个位置的教师信号：</p>
+<p>$$<br>r_t&#x3D;\log p(y_t\mid s_t)-\log q_\theta(y_t\mid s_t).<br>$$</p>
+<p>教师给这个 token 的概率比学生高， $r_t$ 为正；反之为负。这里的信号衡量师生的概率差异。</p>
+<p>整句目标因此可以写成：</p>
+<p>$$<br>J(\theta) &#x3D;-\mathbb E_{y\sim q_\theta} \left[\sum_{t&#x3D;1}^{T}r_t\right].<br>$$</p>
+<p><strong>目标虽然拆成了逐 token 求和，梯度仍然包含跨位置的影响</strong> 。回答由学生自己采样，参数变化不仅改变当前 token 的概率，也改变后续会访问哪些前缀。</p>
+<p>对 $J$ 求导时，外面的采样概率和里面的 logprob 都要求导。再利用 $\nabla_\theta q_\theta&#x3D;q_\theta\nabla_\theta\log q_\theta$ ，可以写成采样期望：</p>
+<p>$$<br>\begin{aligned} \nabla_\theta J &amp;&#x3D;\sum_y\nabla_\theta q_\theta(y\mid x) \log\frac{q_\theta(y\mid x)}{p(y\mid x)}\ &amp;\quad+\sum_y q_\theta(y\mid x) \nabla_\theta\log q_\theta(y\mid x)\ &amp;&#x3D;\mathbb E_{y\sim q_\theta}\biggl[ \left(\log\frac{q_\theta(y\mid x)}{p(y\mid x)}+1\right)\ &amp;\hspace{5em}\cdot\nabla_\theta\log q_\theta(y\mid x) \biggr]. \end{aligned}<br>$$</p>
+<p>其中，常数 $1$ 对应的项在期望下为零：</p>
+<p>$$<br>\begin{aligned} &amp;\mathbb E_{y\sim q_\theta} [\nabla_\theta\log q_\theta(y\mid x)]\ &amp;\quad&#x3D;\sum_y\nabla_\theta q_\theta(y\mid x)\ &amp;\quad&#x3D;\nabla_\theta 1&#x3D;0. \end{aligned}<br>$$</p>
+<p>再把整句 logprob 和教师信号展开：</p>
+<p>$$<br>\begin{aligned} \nabla_\theta J &amp;&#x3D;-\mathbb E_{y\sim q_\theta}\biggl[ \sum_{t&#x3D;1}^{T}\left(\sum_{k&#x3D;1}^{T}r_k\right)\ &amp;\hspace{5em}\cdot\nabla_\theta\log q_\theta(y_t\mid s_t) \biggr]. \end{aligned}<br>$$</p>
+<p>这里还可以去掉第 $t$ 步之前的信号。对于 $k&lt;t$ ， $r_k$ 在前缀 $s_t$ 确定后已经固定，而当前动作的 logprob 梯度满足：</p>
+<p>$$<br>\begin{aligned} &amp;\mathbb E_{y_t\sim q_\theta(\cdot\mid s_t)} [\nabla_\theta\log q_\theta(y_t\mid s_t)]\ &amp;\quad&#x3D;\sum_{y_t}\nabla_\theta q_\theta(y_t\mid s_t)&#x3D;0. \end{aligned}<br>$$</p>
+<p>因此，过去的 $r_k$ 与当前 logprob 梯度相乘，期望贡献为零。最终得到：</p>
+<p>$$<br>\boxed{\begin{aligned} \nabla_\theta J &amp;&#x3D;-\mathbb E_{y\sim q_\theta}\left[ \sum_{t&#x3D;1}^{T}R_t,\nabla_\theta\log q_\theta(y_t\mid s_t) \right],\ R_t&amp;&#x3D;\sum_{k&#x3D;t}^{T}r_k. \end{aligned}}<br>$$</p>
+<p>这就是整句 reverse KL 对应的 <strong>sequence-level 策略梯度（policy gradient，PG）</strong> ：用当前及之后的教师信号构造 $R_t$ ，再用它更新第 $t$ 个 token。这里的 sequence-level 指 <strong>后续信号会影响前面的选择</strong> ；教师监督本身仍然逐 token 提供。</p>
+<p>这个推导对应 <a target="_blank" rel="noopener" href="https://arxiv.org/pdf/2306.08543v6#page=17">MiniLLM §2.2 与附录 A.2</a> 。论文保留了 $R_t-1$ 的写法；常数项的期望梯度为零，所以与上式具有相同的梯度期望。</p>
+<h3 id="为什么使用-token-level-近似"><a href="#为什么使用-token-level-近似" class="headerlink" title="为什么使用 token-level 近似"></a>为什么使用 token-level 近似</h3><p>sequence-level 用后续累积回报更新前面的选择。难点在于： <strong>我们想知道一个选择的后续表现平均怎么样，单条轨迹却只告诉我们这一次怎么样。</strong></p>
+<p>用一个简化的两步几何题例子来看。把每次决策当作一个 token，并先假设两步的概率由不同参数控制。第一步可以“列方程”或“画辅助线”，师生都各给 0.5，因此第一步的局部信号为 0。列方程之后，假设师生的下一步分布相同；画辅助线之后，则有两种连法：</p>
+<table>
+<thead>
+<tr>
+<th>第二步</th>
+<th>教师概率</th>
+<th>学生概率</th>
+<th>教师信号</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>连 AC</td>
+<td>0.9</td>
+<td>0.3</td>
+<td>约 +1.10</td>
+</tr>
+<tr>
+<td>连 BD</td>
+<td>0.1</td>
+<td>0.7</td>
+<td>约 −1.95</td>
+</tr>
+</tbody></table>
+<p><strong>先看平均应该往哪边更新。</strong> 画辅助线后，学生有 30% 的概率采到 AC、70% 的概率采到 BD，平均后续回报约为 −1.03；列方程之后则为 0。因此，在这组参数下，sequence-level 的平均梯度会减少画辅助线、增加列方程。这个判断反映当前学生沿两条路线续写时，与教师分布的匹配程度，不是在给两种几何解法判对错。</p>
+<p><strong>但只采一条轨迹时，第一步可能收到相反的更新。</strong> 假设本次选择了画辅助线，随后恰好采到 AC，后续回报就是 +1.10，更新反而会增加画辅助线的概率，与平均方向相反；若采到 BD，回报为 −1.95，才会沿平均方向降低它。一次偶然采到的高分续写，就可能让前面的选择被过度强化。</p>
+<p>这就是后续采样带来的 <strong>方差</strong> 。按当前学生采样、使用上面的完整梯度估计时，固定同一组参数反复采样，梯度估计的期望仍与真实梯度一致； <strong>无偏不保证每条样本的方向都正确</strong> 。序列越长，前面的位置通常会累积更多后续随机信号，单条轨迹的估计可能更不稳定，但不能说长度越长，统计偏差就越大。</p>
+<p><strong>token-level 的近似，是把已生成的前缀当作固定输入，只优化当前位置的师生分布差异</strong> 。按一条学生轨迹估计梯度时，就是把后续累积回报 $R_t$ 换成当前信号 $r_t$ ：</p>
+<p>$$<br>\hat g_{\mathrm{tok}} &#x3D;-\sum_{t&#x3D;1}^{T}r_t,\nabla_\theta\log q_\theta(y_t\mid s_t).<br>$$</p>
+<p>在这个例子里，第一步的局部信号为 0，token-level 不会因 AC／BD 的采样结果直接调整第一步，第二步仍然会更新。它去掉了后续采样对第一步的直接干扰，也省略了长程信息： <strong>固定这组参数，无论重复采样多少次，第一步的直接更新都是零，而完整目标的平均梯度希望减少画辅助线。</strong></p>
+<p>这个期望上的差异，就是省略长程项带来的偏差，所以它一般不是整句 reverse KL 梯度的无偏估计。真实模型共享参数，第二步的参数更新仍可能间接影响第一步。</p>
+<p><img src="https://pic3.zhimg.com/v2-3e4d6b874dd865454d9a030f207fb10e_r.jpg" alt="图 1-3｜实线表示学生采样，虚线表示用后续回报更新第一步。同一组参数下，“画辅助线”的平均回报约为 −1.03，“列方程”为 0，因此平均应下调前者；单次采到 AC 却会上调。token-level 不直接调整第一步，第二步仍会更新。概率为教学示意，假设两步参数独立、第一步师生概率均为 0.5。"></p>
+<h3 id="局部梯度怎么算：sampled-token、全词表与-Top-K"><a href="#局部梯度怎么算：sampled-token、全词表与-Top-K" class="headerlink" title="局部梯度怎么算：sampled-token、全词表与 Top-K"></a>局部梯度怎么算：sampled-token、全词表与 Top-K</h3><p>上一节讨论要不要计入后续回报。这一节固定已生成的前缀，只比较 <strong>当前位置的梯度，是用一个采样 token 估计，还是把所有候选的贡献算出来</strong> 。</p>
+<p>这里要分清两个层次： <strong>sampled-token 可以无偏估计当前位置的梯度，但 token-level 更新仍然省略了整句目标中的长程项。</strong> “局部无偏”和“对整句目标有偏”并不矛盾。</p>
+<p>仍以“画辅助线”之后的 AC／BD 为例。固定前缀和参数，学生有 30% 的概率采到 AC、70% 的概率采到 BD。</p>
+<p><strong>sampled-token：每次用一个采样结果估计梯度。</strong> 采到 AC，就用它的教师信号 +1.10 构造梯度；采到 BD，就用它的信号 −1.95 构造梯度。一次只取其中一项，但在反复独立采样时，两项出现的频率会趋近 30%／70%。</p>
+<p><strong>全词表：一次加总所有候选的梯度贡献。</strong> 在这个只有两个候选的例子里，它把 AC、BD 对应的梯度分别乘以 0.3、0.7，再相加。sampled-token 通过采样频率体现权重，全词表则显式加权，因此两者的梯度期望相同。 <strong>被平均的是梯度贡献，而不只是 +1.10、−1.95 这两个分数。</strong></p>
+<p>下面把这个关系写成公式。用 $V$ 表示完整词表，固定前缀 $s$ 后，局部 reverse KL 是：</p>
+<p>$$<br>K_\theta(s) &#x3D;\sum_{v\in V}q_\theta(v\mid s) \log\frac{q_\theta(v\mid s)}{p(v\mid s)}.<br>$$</p>
+<p>对学生参数求导，利用 $\sum_v q_\theta(v\mid s)&#x3D;1$ 消去常数项，得到：</p>
+<p>$$<br>\begin{aligned} \nabla_\theta K_\theta(s) &amp;&#x3D;\sum_{v\in V}q_\theta(v\mid s) \left(\log\frac{q_\theta(v\mid s)}{p(v\mid s)}+1\right)\ &amp;\hspace{5em}\cdot\nabla_\theta\log q_\theta(v\mid s)\ &amp;&#x3D;-\sum_{v\in V}q_\theta(v\mid s),r(v,s)\ &amp;\hspace{5em}\cdot\nabla_\theta\log q_\theta(v\mid s). \end{aligned}<br>$$</p>
+<p>其中 $r(v,s)&#x3D;\log p(v\mid s)-\log q_\theta(v\mid s)$ 。从当前学生分布采样 $y_t$ ，只取对应的一项：</p>
+<p>$$<br>\hat g_{\mathrm{sample}} &#x3D;-r(y_t,s)\nabla_\theta\log q_\theta(y_t\mid s)<br>$$</p>
+<p>按照学生分布取期望，就恢复了上面的完整求和：</p>
+<p>$$<br>\mathbb E_{y_t\sim q_\theta(\cdot\mid s)} [\hat g_{\mathrm{sample}}] &#x3D;\nabla_\theta K_\theta(s).<br>$$</p>
+<p>这里不用再额外乘一次 $q_\theta(y_t\mid s)$ ，权重已经体现在该 token 被采到的概率中。实现时， $r$ 作为固定权重使用；stop-gradient 写法在下一节展开。</p>
+<p>全词表则直接计算 $K_\theta(s)$ 并反向传播，学生的概率权重 $q_\theta$ 和 $\log q_\theta$ 都参与求导，教师分布固定。 <strong>固定前缀和参数后，它精确计算局部梯度，消除了“当前 token 恰好采到谁”的随机性。</strong> 这一项的方差降为零；整体训练仍有前缀采样、batch 选择等随机性。上面的无偏关系要求按当前学生分布采样，且不额外截断或裁剪。</p>
+<p><img src="https://picx.zhimg.com/v2-0161e4caad7846ac6de8ad9c843a20f5_r.jpg" alt="图 1-4｜同一前缀、同一组参数下，sampled-token 以 30%／70% 的概率取 AC／BD 对应的梯度，全词表直接按这个比例加权求和。图中 g(AC)、g(BD) 是采到对应 token 时的局部梯度估计；采样只用一个词的信号，也可能通过 softmax 归一化改变其他词的概率。"></p>
+<p>sampled-token 每个位置只需教师返回一个 logprob，监督数据的传输与存储很小。全词表一次用上所有候选，代价是更大的分布存储、传输和 KL 计算开销。 <strong>返回的数据少，不代表教师前向计算也能按相同比例减少。</strong></p>
+<p><strong>Top-K／Top-p：全词表太贵时，只保留一部分候选。</strong> 这里讨论的是计算 loss 时保留哪些 token；学生生成回答时是否使用 Top-p，是另一项独立设置。</p>
+<p>Top-K 保留概率最高的固定数量候选；Top-p 保留按概率从高到低累加、直到达到阈值的候选。选出集合 $S$ 后，再让教师和学生在 <strong>同一组 token</strong> 上比较。</p>
+<p>集合由谁决定，也有取舍：教师选集保留教师认可的主要候选，但可能漏掉学生经常生成、教师不认可的词；学生选集覆盖学生的主要行为，但可能漏掉教师希望学生学会的新候选。取两者的并集或补入当前采样词可以增加覆盖，代价是更大的集合。</p>
+<p>一种常见做法，是把集合内的概率重新归一化后再计算 KL。 <strong>它只比较集合内部的相对比例，会忽略集合本身占了多少概率。</strong> 看一个教学例子：按教师概率选 Top-2，保留 A、B。</p>
+<table>
+<thead>
+<tr>
+<th>候选</th>
+<th>教师概率</th>
+<th>学生概率</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>A</td>
+<td>45%</td>
+<td>5%</td>
+</tr>
+<tr>
+<td>B</td>
+<td>45%</td>
+<td>5%</td>
+</tr>
+<tr>
+<td>其他候选合计</td>
+<td>10%</td>
+<td>90%</td>
+</tr>
+</tbody></table>
+<p>只看 A、B，教师的 45%／45% 和学生的 5%／5% 都会被归一化成 50%／50%，截断 KL 为零。 <strong>但学生有 90% 的概率生成集合外的词，教师只有 10%；这个差异被截断目标忽略了。</strong></p>
+<p>对本次选定的集合 $S$ ，上述做法写成：</p>
+<p>$$<br>\begin{aligned} \bar q_\theta(v\mid s) &amp;&#x3D;\frac{q_\theta(v\mid s)}{\sum_{u\in S}q_\theta(u\mid s)},\ \bar p(v\mid s) &amp;&#x3D;\frac{p(v\mid s)}{\sum_{u\in S}p(u\mid s)},\qquad v\in S. \end{aligned}<br>$$</p>
+<p>然后优化：</p>
+<p>$$<br>K_S(s) &#x3D;\mathrm{KL}\big(\bar q_\theta(\cdot\mid s),|,\bar p(\cdot\mid s)\big).<br>$$</p>
+<p><strong>重归一化后的截断 KL 通常已经改变了局部目标。</strong> 即使保留原概率、只对集合 $S$ 求和，也会漏掉集合外的贡献。要无偏估计完整局部梯度，就要补足尾部贡献，例如加入尾部采样并按采样概率校正。补入当前采样词或扩大 Top-K，本身不足以保证无偏。</p>
+<p><img src="https://pic3.zhimg.com/v2-da8cdf017a78597ee686ad15be7e1cfe_r.jpg" alt="图 1-5｜教师 Top-2 只保留 A、B。重归一化后，师生在集合内都是 50%／50%，截断 KL 为零，却没有反映集合外 10%／90% 的概率差异。下方对照三种做法的监督数据量和局部目标；数字为教学示意。"></p>
+<h3 id="训练怎么实现：PPO-风格更新与直接分布优化"><a href="#训练怎么实现：PPO-风格更新与直接分布优化" class="headerlink" title="训练怎么实现：PPO 风格更新与直接分布优化"></a>训练怎么实现：PPO 风格更新与直接分布优化</h3><p><strong>用 PPO 风格实现 OPD，主要是为了复用成熟的 RL 基础设施和更新算法。</strong> 已有PPO的RL训练系统，例如 verl 通常已经支持学生生成回答、记录 logprob、分布式训练，以及同批数据的多轮更新。接入 OPD 时，可以让教师信号充当更新权重，沿用这些能力。</p>
+<p>先看 PPO 的策略更新 loss。记生成本批回答的学生为 $q_{\mathrm{old}}&#x3D;q_{\theta_{\mathrm{old}}}$ ，正在更新的学生为 $q_\theta$ ， $A_t$ 是每个 token 的优势值（advantage）：</p>
+<p>$$<br>\mathcal L_{\mathrm{clip}}(\theta)&#x3D;-\mathbb E_{y\sim q_{\mathrm{old}}}\sum_t\min\left(\frac{q_\theta(y_t\mid s_t)}{q_{\mathrm{old}}(y_t\mid s_t)}A_t,;\mathrm{clip}!\left(\frac{q_\theta(y_t\mid s_t)}{q_{\mathrm{old}}(y_t\mid s_t)},1-\epsilon,1+\epsilon\right)A_t\right).<br>$$</p>
+<p>其中 $q_\theta&#x2F;q_{\mathrm{old}}$ 是新旧学生的概率比， $\epsilon$ 控制裁剪幅度。PPO 通常用任务奖励和价值估计构造 $A_t$ ，再通过这个代理目标抑制过大的更新。 <a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1707.06347#page=3">PPO 论文 §3、§5</a></p>
+<p><strong>接入 OPD 时，这个策略 loss 可以保持不变，只把其中的 $A_t$ 换成教师信号：</strong></p>
+<p>$$<br>A_t&#x3D; \begin{cases} \mathrm{sg}(r_t), &amp; \text{token-level},\ \mathrm{sg}(R_t), &amp; \text{sequence-level}. \end{cases}<br>$$</p>
+<p>这里的当前信号 $r_t$ 和累计回报 $R_t$ ，都用采样时的学生 $q_{\mathrm{old}}$ 计算。 $\mathrm{sg}$ 表示 stop-gradient：权重固定，梯度从学生概率回传；也可以从累计回报中减去只依赖前缀的 baseline。</p>
+<p><strong>因此，同一个 PPO loss 既能做 token-level，也能做 sequence-level。</strong> 用 $r_t$ 只看当前位置，用 $R_t$ 就让后续信号影响前面的选择；两种情况下，概率比仍然逐 token 计算。</p>
+<p><strong>PPO 也可以使用 sampled-token 或全词表。</strong> 对局部信号，sampled-token 只用采到的词估计更新；全词表则给每个候选计算权重和概率比，分别裁剪后，按旧学生概率加权求和。</p>
+<p>后者消除了固定前缀下当前 token 的采样噪声，但需要取得和处理完整词表的概率。若还要为每个候选计算长程权重，就需要额外的分支采样或价值估计；当前位置的全词表概率不能直接提供未来回报。</p>
+<p><strong>另一条路线是直接优化分布 loss。</strong> 学生先生成回答，固定这些回答的前缀，再直接计算师生分布的差异：</p>
+<p>$$<br>\mathcal L_{\mathrm{dist}}(\theta) &#x3D;\sum_t D\big(q_\theta(\cdot\mid s_t),,p(\cdot\mid s_t)\big).<br>$$</p>
+<p>教师分布固定，学生通过当前分布直接求导，不经过 advantage 和概率比接口。 $D$ 可以是 reverse KL、forward KL、JSD，或明确的截断目标。这个 loss 本身只提供局部梯度；若要保留整句目标的长程项，还需补上相应的策略梯度。</p>
+<p>在同一固定前缀上，使用局部 reverse KL 权重且 $\theta&#x3D;\theta_{\mathrm{old}}$ 时，上述 PPO 梯度的期望与直接完整词表 reverse KL 的梯度一致。后续更新会受到旧权重和裁剪的影响，通常不再等价。</p>
+<h3 id="MiniLLM-和-GKD：方法设计与取舍"><a href="#MiniLLM-和-GKD：方法设计与取舍" class="headerlink" title="MiniLLM 和 GKD：方法设计与取舍"></a>MiniLLM 和 GKD：方法设计与取舍</h3><p><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2306.08543">《MiniLLM: On-Policy Distillation of Large Language Models》</a> · 2023-06-14<br><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2306.13649">《On-Policy Distillation of Language Models: Learning from Self-Generated Mistakes》</a> （GKD）· 2023-06-23</p>
+<p>MiniLLM 保留当前选择对后续生成的影响，GKD 直接优化固定前缀下的师生分布。下面看两篇论文具体怎么做，数值例子均用于说明机制。</p>
+<p><strong>MiniLLM</strong> ：保留长程项，再控制采样和更新的波动</p>
+<p>MiniLLM 从整句 reverse KL 出发，先做 <strong>单步分解</strong> ：当前项在固定前缀上计算全词表 reverse KL 的梯度，长程项用采样到的后续回报做策略梯度。当前信号 $r_t$ 已由前一项处理，因此后一项从下一步开始，使用 $R_{t+1}$ 。这样既减少了当前项的采样方差，也保留了“这一步会把后续生成带向哪里”的影响。 <a target="_blank" rel="noopener" href="https://arxiv.org/html/2306.08543v6#S2.SS2">论文 §2.2–2.3</a> 还用以下设计处理采样和更新中的问题。</p>
+<p><img src="https://pica.zhimg.com/v2-c0836c9633f7698224423c7f300fc262_r.jpg" alt="图 1-6｜MiniLLM 的训练流程：混合采样后，合并局部分布梯度与长程策略梯度。图中数值为教学示意。"></p>
+<p><strong>1. 教师混合采样：减少退化生成。</strong></p>
+<p>学生独自采样时，可能反复重复某句话，却仍获得较好的蒸馏分数。MiniLLM 在每个位置混合师生概率，再采样下一个 token： $\tilde p&#x3D;\alpha p+(1-\alpha)q_\theta$ 。例如，教师给 AC 的概率为 0.9，学生给 0.3，取 $\alpha&#x3D;0.2$ ，AC 的采样概率便提高到 0.42，让教师更认可的分支更容易出现。</p>
+<p><strong>2. 重要性权重近似：校正采样变化，同时控制权重波动。</strong></p>
+<p>采样改用了混合分布，目标仍以学生分布为准，因此需要概率比校正。上例中，AC 被多采了，它的单步权重就是 $0.3&#x2F;0.42\approx0.71$ ，将这部分贡献调小。论文先写出沿前缀连乘的概率比，再近似为当前一步的 $q_\theta&#x2F;\tilde p$ 。这样避免了多个比值连乘造成的剧烈波动，代价是引入偏差。</p>
+<p><strong>3. 长程回报长度归一化：减轻提早结束的倾向。</strong></p>
+<p>假设每个后续 token 的信号都是 −0.1，续写 10 个 token 的累计回报是 −1，续写 100 个则是 −10；模型可能仅因续写更长而受到更大惩罚。MiniLLM 按剩余生成长度归一化长程回报，改看平均信号，上例两者都约为 −0.1。它削弱了长度偏好，也改变了原先按总和计算的回报。</p>
+<p><strong>4. PPO 风格裁剪：抑制过度更新。</strong></p>
+<p>复用一批样本更新时，MiniLLM 对策略梯度项使用裁剪。按 <a target="_blank" rel="noopener" href="https://github.com/microsoft/LMOps/blob/main/minillm/minillm/losses.py#L53">官方实现</a> 的 _pg_loss，概率比分母是采样时固定的混合分布。例如，正向更新权重下，概率比升到 1.6、裁剪上限为 1.2，这一项就不再奖励继续提高该 token 的概率。这里限制的是 loss 中的收益，并非把模型概率强行截断。</p>
+<p>训练先用 SFT 初始化学生；蒸馏阶段还加入通用语料的语言模型 loss，以维持通用能力。 <strong>单步分解本身不改变梯度，但后续的权重近似、回报归一化和裁剪，使实际更新不再是原始整句 reverse KL 梯度的无偏估计。</strong></p>
+<p><strong>GKD</strong> ：选定训练前缀，再学习教师分布</p>
+<p>GKD（Generalized Knowledge Distillation，广义知识蒸馏）对应直接分布优化路线。纯学生自采时，先让学生生成一批回答，再固定这些回答的前缀，在每个位置比较师生的完整词表分布。先对每条回答内的 token 散度取平均，再对 batch 取平均，只更新学生；下一轮用更新后的学生重新生成回答。</p>
+<p>例如，学生生成了“画辅助线 → 连 BD”。在“画辅助线”这个前缀上，教师对 AC／BD 的概率是 $(0.9,,0.1)$ ，学生是 $(0.3,,0.7)$ 。即使这次采到了 BD，比较完整分布仍能推动学生提高 AC 的概率。 <strong>学生回答决定在哪些前缀上学，教师分布决定学什么。</strong></p>
+<p><a target="_blank" rel="noopener" href="https://arxiv.org/html/2306.13649#S3.SS1">论文 §3.1</a> 把两个选择交给训练者：</p>
+<p><strong>1. 用哪些回答训练：由 $\lambda$ 控制。</strong></p>
+<p>$$<br>\lambda&#x3D;1<br>$$</p>
+<p><strong>2. 怎样衡量分布差异：选择 forward KL、reverse KL 或 JSD。</strong></p>
+<p>学生容量不足以完整拟合教师时，forward KL 更强调覆盖教师认可的选择，reverse KL 更倾向集中在其中一些选择。JSD（Jensen–Shannon 散度）提供可调的折中。</p>
+<p><a target="_blank" rel="noopener" href="https://arxiv.org/html/2306.13649#S2">论文 §2</a> 使用广义 JSD：先把教师分布 $p$ 和学生分布 $q_\theta$ 加权平均，得到中间分布 $m_\beta$ ，再分别计算两者到它的 KL：</p>
+<p>$$<br>\begin{aligned} m_\beta &amp;&#x3D; \beta p+(1-\beta)q_\theta,\qquad 0&lt;\beta&lt;1,\ D_{\mathrm{JSD}(\beta)}(p|q_\theta) &amp;&#x3D;\beta D_{\mathrm{KL}}(p|m_\beta)\ &amp;\quad+(1-\beta)D_{\mathrm{KL}}(q_\theta|m_\beta). \end{aligned}<br>$$</p>
+<p>取 $\beta&#x3D;0.5$ ，上面的 AC／BD 分布得到 $m&#x3D;(0.6,,0.4)$ 。JSD 就是师生各自到这个中间分布的 KL 的平均；两者完全一致时，loss 为 0。中间分布不用于采样回答，JSD 也不是直接把 forward KL 和 reverse KL 加权相加。忽略整体尺度后， $\beta$ 接近 0 时，梯度行为接近 forward KL；接近 1 时，接近 reverse KL。</p>
+<p>$$<br>\lambda<br>$$</p>
+<p><strong>我的判断是：这些技巧要按问题选用，超参和实现复杂度也要算进方法成本。</strong> 我倾向于先跑通简单基线，再针对明确问题逐项加入机制，用对照实验确认收益。 <strong>如果一点提升需要反复调参才能维持，额外的试验和维护成本就可能抵消它的价值。</strong></p>
+<h3 id="基模厂商怎么用-OPD：多教师合版与小模型蒸馏"><a href="#基模厂商怎么用-OPD：多教师合版与小模型蒸馏" class="headerlink" title="基模厂商怎么用 OPD：多教师合版与小模型蒸馏"></a>基模厂商怎么用 OPD：多教师合版与小模型蒸馏</h3><p>从 MiMo、DeepSeek 和 Qwen 的报告中，可以看到基模工业界 OPD 的两种用法：把不同领域专家的能力教给同一个学生，以及把大size模型学的能力蒸馏到小size的模型中。</p>
+<p><strong>多教师合版：让同一个学生学会不同老师的专长。</strong></p>
+<p><a target="_blank" rel="noopener" href="https://arxiv.org/html/2601.02780v2#S4.SS1">MiMo-V2-Flash</a> 的流程是： <strong>SFT 打底 → 分领域训练专家 → 多教师 OPD（MOPD）合版</strong> 。数学题找数学老师，代码题找代码老师。学生自己生成回答，对应的领域老师在这些前缀上提供下一 token 的概率。所谓“合版”，就是通过这样的训练，把不同老师的专长集中到同一个学生中。</p>
+<p>MiMo 还把教师指导与结果奖励结合起来。 <a target="_blank" rel="noopener" href="https://arxiv.org/html/2601.02780v2#S4.SS4">报告 §4.4</a> 在同一个优势值里，加入当前 token 的教师信号和整条回答的结果优势，再用于策略梯度更新：</p>
+<p>$$<br>\begin{aligned} \hat A_t &amp;&#x3D;\mathrm{sg}!\left[\log\frac{p_x(y_t\mid s_t)}{q_\theta(y_t\mid s_t)}\right]\ &amp;\quad+\alpha\hat A_{\mathrm{ORM}}. \end{aligned}<br>$$</p>
+<p>其中， $p_x$ 是题目对应的领域教师， $\hat A_{\mathrm{ORM}}$ 是由结果评分算出的整条回答优势， $\alpha$ 控制后者的权重， $\mathrm{sg}$ 表示不对括号内的权重求导。例如，代码整体没过单测，某些局部 token 仍可能得到正的教师信号。两路信号共同决定更新；教师项只看当前 token，不累加后续教师回报。</p>
+<p><a target="_blank" rel="noopener" href="https://arxiv.org/html/2606.19348#S5.SS1.SSS2">DeepSeek-V4</a> 也先训练领域专家，再用 OPD 合版。它选择计算 <strong>全词表 reverse KL</strong> ，以减少当前位置的 token 采样噪声。</p>
+<p>但多个老师的完整 logits 很占空间，因此 <a target="_blank" rel="noopener" href="https://arxiv.org/html/2606.19348#S5.SS2.SSS2">报告 §5.2.2</a> 做了几项配套设计：教师权重按需加载；只缓存最后一层隐藏表示，训练时再用输出层还原 logits；用专门的算子计算 KL。这也说明，选择全词表后，还得解决教师加载、数据缓存和 KL 计算的开销。</p>
+<p><strong>小模型蒸馏：先用教师答案打底，再做 OPD。</strong></p>
+<p><a target="_blank" rel="noopener" href="https://arxiv.org/html/2505.09388#S4.SS5">Qwen3 §4.5</a> 对小模型分两步训练：先用教师在思考、非思考模式下生成的答案做 off-policy 蒸馏，让学生学会基本推理和模式切换；随后由学生自己生成回答，在这些前缀上对齐强教师的概率分布、最小化 KL。这样，各个小模型可以复用强教师已经学到的能力。</p>
+<p><a target="_blank" rel="noopener" href="https://arxiv.org/html/2505.09388#S4.SS7.SSS2">报告 Table 21</a> 还给出了训练成本对照：从同一个完成 off-policy 蒸馏的 Qwen3-8B 模型出发，分别用 RL 和 OPD 训练数学、代码能力：</p>
+<table>
+<thead>
+<tr>
+<th>后续训练路线</th>
+<th>AIME’24</th>
+<th>AIME’25</th>
+<th>LiveCodeBench v5</th>
+<th>追加 GPU 小时</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>起点：off-policy 蒸馏后</td>
+<td>55.0</td>
+<td>42.8</td>
+<td>42.0</td>
+<td>—</td>
+</tr>
+<tr>
+<td>继续做 RL</td>
+<td>67.6</td>
+<td>55.5</td>
+<td>52.9</td>
+<td>17,920</td>
+</tr>
+<tr>
+<td>改做 on-policy 蒸馏</td>
+<td>74.4</td>
+<td>65.5</td>
+<td>60.3</td>
+<td>1,800</td>
+</tr>
+</tbody></table>
+<p>在这组数学、代码实验里，OPD 用约十分之一的追加 GPU 小时，取得了更高分数。 <strong>这里比较的是已有强教师、同一起点之后的学生训练成本，教师此前的训练投入仍要单独计入。</strong></p>
+<h2 id="02-自蒸馏：让多看信息的自己当老师"><a href="#02-自蒸馏：让多看信息的自己当老师" class="headerlink" title="02. 自蒸馏：让多看信息的自己当老师"></a>02. 自蒸馏：让多看信息的自己当老师</h2><p>这篇我们来聊聊自蒸馏，同一个模型，独立做题时可能犯错，看过答案或报错后却能发现问题。自蒸馏利用的就是这份 <strong>上下文中的 context 信息差</strong> ：让多看了一份信息的自己当老师，指导只看正常输入的学生。这里的老师也可以是同一模型的冻结副本。</p>
+<p>这些额外信息只在训练时交给教师，称为 <strong>特权信息</strong> 。先看直接匹配师生分布的做法，一轮训练分三步：</p>
+<p>1、 学生只看正常输入 $x$ ，自己生成回答 $y$ 。<br>2、 教师把额外信息 $c$ 加入输入上下文，沿同一条学生回答的前缀 $y_{&lt;t}$ ，重新计算下一 token 的概率。<br>3、 用这些概率指导学生更新，梯度只通过学生分支。</p>
+<p>学生看到的是 $(x,y_{&lt;t})$ ，教师看到的是 $(x,c,y_{&lt;t})$ 。回答始终由学生自己生成；教师多看的那份信息，决定了它能提供什么指导。下面几种方法主要在这里有所不同，RLSD 还改变了教师信号的用途。</p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>教师多看了什么</th>
+<th>核心做法</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>OPSD</td>
+<td>已有的参考答案或解法</td>
+<td>让看过解法的自己回看原来的作答</td>
+</tr>
+<tr>
+<td>SDPO</td>
+<td>同题的成功尝试，或报错、失败单测等反馈</td>
+<td>把尝试后获得的信息变成逐 token 监督</td>
+</tr>
+<tr>
+<td>Cursor</td>
+<td>针对某一轮行为构造的纠偏提示</td>
+<td>在整条轨迹的 RL 之外，纠正指定行为</td>
+</tr>
+<tr>
+<td>OPCD</td>
+<td>可复用的系统提示或经验总结</td>
+<td>将上下文中的指导学进模型参数</td>
+</tr>
+<tr>
+<td>OEL</td>
+<td>从部署交互中提炼、累积的经验</td>
+<td>收集交互、提炼经验、蒸馏后再部署</td>
+</tr>
+<tr>
+<td>RLSD</td>
+<td>标准答案</td>
+<td>用教师信号调整各 token 的 RL 奖惩权重</td>
+</tr>
+</tbody></table>
+<h3 id="OPSD：把参考解法放进教师上下文"><a href="#OPSD：把参考解法放进教师上下文" class="headerlink" title="OPSD：把参考解法放进教师上下文"></a>OPSD：把参考解法放进教师上下文</h3><p><a target="_blank" rel="noopener" href="https://arxiv.org/html/2601.18734#S3.SS2">OPSD</a> 从已有的题目与答案数据出发。学生只看题目，教师额外看到标准答案或参考推理。 <strong>参考解法放进教师的输入上下文，训练则沿着学生自己生成的回答进行。</strong></p>
+<p>用一道简单方程说明。题目是“解 $2z+3&#x3D;11$ ”，参考解法写着“先得 $2z&#x3D;8$ ，再得 $z&#x3D;4$ ”。学生写到“ $2z&#x3D;8$ ，所以 $z&#x3D;$ ”时，错误地续写了 <code>8</code> 。教师多看了参考解法，就有机会在同一个前缀上更支持 <code>4</code> ，给学生提供修正信号。</p>
+<p>教师不需要再生成一遍正确解法。将“题目 + 参考解法”作为教师上下文，再接上学生原来的回答，就能通过一次前向计算得到各位置的概率。师生从同一模型初始化； <a target="_blank" rel="noopener" href="https://arxiv.org/html/2601.18734#S4.SS1">论文的训练配置</a> 固定初始教师，只更新学生。</p>
+<h3 id="SDPO：把成功尝试和环境反馈变成逐-token-监督"><a href="#SDPO：把成功尝试和环境反馈变成逐-token-监督" class="headerlink" title="SDPO：把成功尝试和环境反馈变成逐 token 监督"></a>SDPO：把成功尝试和环境反馈变成逐 token 监督</h3><p><a target="_blank" rel="noopener" href="https://arxiv.org/html/2601.20802#S2">SDPO</a> 不必预先准备完整的参考解法。它先让学生尝试，再从尝试结果中构造教师需要的额外上下文。论文使用两类信息：</p>
+<ul>
+<li><strong>同一道题的成功尝试。</strong> 比如学生生成了三份代码，一份通过单测、两份失败。把通过的那份放进教师上下文，教师再沿失败回答的前缀计算概率，指导学生。成功代码提供参考，失败回答仍是被评价的原轨迹。</li>
+<li><strong>原尝试的环境反馈。</strong> 没有成功解法可参考时，把报错、失败单测等反馈交给教师，让它回看原来的回答。</li>
+</ul>
+<p>例如，任务是“统计列表里的非负数”，学生写成：</p>
+<p>单测输入 <code>[-1, 0, 2]</code> ，预期输出 <code>2</code> ，实际输出 <code>1</code> 。教师的上下文里多了这条反馈，就可能发现学生漏算了 <code>0</code> ，在 <code>if n</code> 这个前缀上更支持接 <code>&gt;=</code> ，更不支持接 <code>&gt;</code> 。训练通过师生分布的差异，把一次单测失败转成相关位置的调整信号。</p>
+<p>论文中的下图给出了类似的边界处理例子。反馈直接交给教师，教师重新评价原回答，无须先生成一份修改后的代码。</p>
+<h3 id="Cursor：用纠偏提示改进某一轮行为"><a href="#Cursor：用纠偏提示改进某一轮行为" class="headerlink" title="Cursor：用纠偏提示改进某一轮行为"></a>Cursor：用纠偏提示改进某一轮行为</h3><p>长程 agent 可能中途调用错工具，后来又绕回来完成任务。最终结果是成功，过程中的这次错误却未必得到针对性的纠正。 <a target="_blank" rel="noopener" href="https://cursor.com/blog/composer-2-5">Cursor 在 Composer 2.5 中的做法</a> ，是 <strong>为需要改进的那一轮构造一条短提示，加入教师的局部上下文</strong> 。</p>
+<p>官方例子中，学生调用了不存在的 <code>ReadLints</code> ，收到“Tool not found”。训练时，在这次调用之前的上下文中加入提示：“当前可用工具是 <code>Read</code> 、 <code>Write</code> 、 <code>Shell</code> 和 <code>StrReplace</code> 。”带提示的模型作为教师，重新计算原工具调用各位置的概率，降低对错误工具名的支持；学生仍使用原始上下文，通过蒸馏学习这些调整。</p>
+<p>训练仍保留整条任务的 RL 目标，只在选中的那一轮追加蒸馏 loss。这样，一次没有明显影响最终成功的错误工具调用，也能得到明确监督。</p>
+<h3 id="OPCD：把提示与经验蒸进模型参数"><a href="#OPCD：把提示与经验蒸进模型参数" class="headerlink" title="OPCD：把提示与经验蒸进模型参数"></a>OPCD：把提示与经验蒸进模型参数</h3><p>前面的参考解法和反馈主要针对当前任务或某次尝试。 <strong>OPCD 关注可以反复使用的一份上下文</strong> ，例如优化过的系统提示，或从多道题中总结的经验。它希望学生学会这些指导，以后不必每次都把它们放进输入。</p>
+<p><a target="_blank" rel="noopener" href="https://arxiv.org/html/2602.12275#S3">OPCD</a> 的训练过程很直接：学生只看题目 $x$ ，生成回答；教师看“经验 $c$ + 同一道题 $x$ ”，再沿学生原回答提供概率，通过 reverse KL 指导学生。OPCD 也允许使用外部教师，本节关注教师来自同一模型或其副本的用法。</p>
+<p>经验 $c$ 可以这样准备：模型先尝试一批题，再结合“题目 + 自己的解法”提炼可复用的经验，把不同题的经验写成条目、累积起来。论文的这一提炼流程不要求额外提供标准答案。经验写好后，才进入上面的蒸馏环节。</p>
+<p>用一个简化例子说明：模型从几道求幂的个位数的题中，总结出“先找个位数的循环节，再按指数取余”。训练时，学生只看到新题“ $7^{103}$ 的个位数是什么”；教师还看到这条经验，并沿学生自己写出的推理提供指导。训练希望学生逐渐学会这个解题步骤，以后不再依赖额外的经验文本。</p>
+<h3 id="OEL：从部署后的交互中持续学习"><a href="#OEL：从部署后的交互中持续学习" class="headerlink" title="OEL：从部署后的交互中持续学习"></a>OEL：从部署后的交互中持续学习</h3><p>OPCD 解决“已有一份经验，怎么教进模型”。 <a target="_blank" rel="noopener" href="https://arxiv.org/html/2603.16856#S3">OEL</a> 把它接进部署后的学习流程：模型在用户环境中执行任务，留下操作与文本反馈；服务器从这些交互记录中提炼经验，通过 OPCD 更新模型，再重新部署。 <strong>教师多看的 context，来自模型实际经历过的交互。</strong></p>
+<p>借论文中的冰湖任务举个简化例子：模型要根据地图走到终点，走进洞就会失败。它可以从交互反馈中提炼出“规划路径时，先排除地图上有洞的格子”。这条经验随后放进教师上下文，用来指导学生在类似局面下选择下一步。</p>
+<p>服务器训练时， <strong>历史轨迹只提供起点，当前学生重新生成这一轮回答</strong> 。具体来说，取某次移动前的完整交互历史作为 $x$ ；学生只看 $x$ ，生成新的动作回答；教师额外看到经验 $c$ ，沿这条新回答提供概率。教师使用本轮训练开始前冻结的模型副本。</p>
+<p>服务器只需生成和评价这一轮回答，不必真的执行新动作、再把后续游戏跑完。因此，当前回答来自学生自己的策略，起始上下文来自历史记录；学习阶段不要求重新连接用户环境，也不需要另建奖励模型。更新后的模型重新部署，收集新交互，再提炼下一批经验。</p>
+<p>on-policy 只说明这里的回答由学生自己生成，并不保证旧能力不会退化。持续更新时，仍要单独评测旧任务。</p>
+<h3 id="RLSD：结果定奖惩，教师调权重"><a href="#RLSD：结果定奖惩，教师调权重" class="headerlink" title="RLSD：结果定奖惩，教师调权重"></a>RLSD：结果定奖惩，教师调权重</h3><p><a target="_blank" rel="noopener" href="https://arxiv.org/html/2604.03128#S4">RLSD</a> 同样让教师多看标准答案，但改变了教师的职责： <strong>结果导出的优势决定强化还是抑制，教师只调整各 token 的奖惩权重。</strong> 它不再另加一项拟合教师分布的 loss。</p>
+<p>先让学生生成一组回答，用验证器判断结果，像 GRPO 一样算出每条回答的优势值 $A$ 。教师额外看到标准答案，再沿原回答比较每个 token 在师生两边的概率，把差异转成正权重，乘到 $A$ 上。</p>
+<p>沿用前面的方程例子：学生先写对了“ $2z&#x3D;8$ ”，却接着写“ $z&#x3D;8$ ”，整题做错。若这条回答的 $A&lt;0$ ，看过标准答案“ $z&#x3D;4$ ”的教师可能更支持前一步、更不支持最后那个 <code>8</code> 。RLSD 据此让前一步少受惩罚、最后一步多受惩罚；教师不会把其中某个 token 的负优势改成正数。</p>
+<p>具体计算如下。 $P_T(y_t)$ 和 $P_S(y_t)$ 都沿同一个学生前缀计算，教师额外看到标准答案； $\operatorname{sg}$ 表示停止梯度，概率差只提供权重，不通过它反向传播：</p>
+<p>$$<br>\begin{aligned} \Delta_t&amp;&#x3D;\operatorname{sg}!\left[\log\frac{P_T(y_t)}{P_S(y_t)}\right],\ w_t&amp;&#x3D;\exp!\left[\operatorname{sign}(A),\Delta_t\right],\ \widehat A_t&amp;&#x3D;A\cdot\operatorname{clip}!\left(w_t,,1-\epsilon_w,,1+\epsilon_w\right). \end{aligned}<br>$$</p>
+<p>$A&gt;0$ 时 ， $w_t&#x3D;P_T&#x2F;P_S$ 教师相对学生越支持的 token，得到越多强化； $A&lt;0$ 时，<br>$w_t&#x3D;P_S&#x2F;P_T$ ，教师相对学生越不支持的 token，受到越多抑制。裁剪把权重限制在正区间内，避免个别 token 的权重过大。</p>
+<p>看一组示意数值。先忽略与原优势的混合，设 $\epsilon_w&#x3D;0.2$ ，权重限制在 $[0.8,1.2]$ ：</p>
+<table>
+<thead>
+<tr>
+<th>回答优势 A</th>
+<th>概率比 P_T&#x2F;P_S</th>
+<th>权重 w_t</th>
+<th>token 优势</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>+1</td>
+<td>3 倍</td>
+<td>3</td>
+<td>+1.2：多强化</td>
+</tr>
+<tr>
+<td>+1</td>
+<td>1&#x2F;3</td>
+<td>1&#x2F;3</td>
+<td>+0.8：少强化</td>
+</tr>
+<tr>
+<td>-1</td>
+<td>3 倍</td>
+<td>1&#x2F;3</td>
+<td>-0.8：少抑制</td>
+</tr>
+<tr>
+<td>-1</td>
+<td>1&#x2F;3</td>
+<td>3</td>
+<td>-1.2：多抑制</td>
+</tr>
+</tbody></table>
+<p>实际实现还把加权优势与原始 $A$ 混合，再接回 GRPO； <a target="_blank" rel="noopener" href="https://arxiv.org/html/2604.03128#S5.SS1">论文配置</a> 逐步减弱教师权重，并让教师快照定期与学生同步。若 $A&#x3D;0$ ，这种乘法加权不会凭空产生更新信号。</p>
+<p><strong>MiMo 与 RLSD 结合两种信号的方式不同：前者相加，后者相乘。</strong> <a target="_blank" rel="noopener" href="https://arxiv.org/html/2601.02780v2#S4.SS4">MiMo</a> 把教师信号与结果优势相加，再送入同一个策略梯度 loss。</p>
+<p>假设结果优势为 $-1$ ，教师信号为 $+2$ ，结果项系数为 $1$ ，合起来就是 $+1$ ，这个 token 可以得到正优势。RLSD 则用正权重乘原优势：例如 $-1\times0.8&#x3D;-0.8$ ，教师可以让它少受罚，但不能翻转符号。</p>
+<p>RLSD 这样处理，是为了限制直接模仿特权教师带来的问题，例如学生学会说“根据参考答案……”，而部署时它根本看不到参考答案。这里“结果定方向”只指 token 优势的正负；不同 token 的权重改变后，合计的参数梯度方向仍可能变化，也不能据此保证所有设置下都不会出现特权信息泄露。</p>
+<h2 id="03-黑盒蒸馏：拿不到教师概率，怎么做-OPD？"><a href="#03-黑盒蒸馏：拿不到教师概率，怎么做-OPD？" class="headerlink" title="03. 黑盒蒸馏：拿不到教师概率，怎么做 OPD？"></a>03. 黑盒蒸馏：拿不到教师概率，怎么做 OPD？</h2><p>继续，这章我们来讲黑盒蒸馏，如果教师只通过 API 返回文本，我们就无法直接计算师生的 token 概率差。用教师回答做 SFT，是常见的黑盒蒸馏；但它沿着教师答案学习，不属于这里讨论的 on-policy 路线。</p>
+<p>本章介绍的两个方法都遵循： <strong>学生生成回答 → 从教师文本构造回答级奖励 → 用 RL 更新学生</strong> 。GAD 训练一个判别器来打分；Rubric OPD 让老师先写评分标准，再按标准打分。它们保留了 on-policy 采样，但优化目标变成教师文本构造的奖励，不再是白盒的 token 分布匹配。</p>
+<h3 id="GAD：用师生回答训练评分模型"><a href="#GAD：用师生回答训练评分模型" class="headerlink" title="GAD：用师生回答训练评分模型"></a>GAD：用师生回答训练评分模型</h3><p><a target="_blank" rel="noopener" href="https://arxiv.org/html/2511.10643#S2">GAD（Generative Adversarial Distillation）</a> 先用师生回答训练一个评分模型，再用它的分数训练学生。这个评分模型叫判别器 $D_\phi$ ：输入题目 $x$ 和完整回答 $y$ ，输出一个标量分数。论文用学生模型的权重初始化判别器，加一个评分头，随后将它作为独立模型训练。</p>
+<p>判别器与学生的目标相反： <strong>判别器努力让教师回答得分更高，学生努力让自己生成的回答拿高分</strong> 。教师只提供参考文本，参与交替训练的是学生和判别器。</p>
+<p>训练前，先调用教师收集并缓存回答；用这些回答给学生做 SFT 预热，同时用师生回答对预热判别器。进入 GAD 后，每一批执行：</p>
+<p>1、 <strong>学生生成。</strong> 对题目 $x$ ，当前学生采样一组新回答。<br>2、 <strong>更新学生。</strong> 固定判别器，用它给每条学生回答打分，把分数作为 reward，用 GRPO 更新学生。<br>3、 <strong>更新判别器。</strong> 把这批学生回答与同题的教师回答配成对，按“教师回答应得更高分”的标签训练判别器。这一步只更新判别器。</p>
+<p>判别器用的是 Bradley–Terry 成对损失。对一对教师回答 $y^T$ 和学生回答 $y^S$ ，最小化：</p>
+<p>$$<br>\mathcal L_D &#x3D;-\log\sigma!\left(D_\phi(x,y^T)-D_\phi(x,y^S)\right).<br>$$</p>
+<p>$\sigma$ 是 sigmoid 函数。教师得分相对学生越高，这项损失越小；训练标签由“回答来自老师还是学生”产生，不需要另外请人标偏好。学生训练用的奖励则直接是 $D_\phi(x,y^S)$<br>，不是把上面的判别器损失反向传播穿过生成过程。</p>
+<p>例如，题目是“计算 $1+2+\cdots+100$ ，并说明理由”。教师给出了等差数列求和公式，算出 5050。学生这轮生成了两条回答：</p>
+<ul>
+<li><strong>A：</strong> “首尾配成 50 组，每组 101，所以和为 5050。”</li>
+<li><strong>B：</strong> “首尾配成 50 组，每组 101，所以 $50\times101&#x3D;5000$ 。”</li>
+</ul>
+<p>假设判别器分别给 A、B 打 <code>0.8</code> 、 <code>-0.4</code> 分，组均值就是 <code>0.2</code> 。GRPO 据此给 A 正优势、B 负优势，鼓励 A 这样的回答、抑制 B 这样的回答；随后，判别器再用教师回答与这两条新回答继续训练。这些分数只用于演示流程，真实评分由判别器学得，并没有程序在这里直接检查算术对错。</p>
+<p><strong>从学生的更新方式看，GAD 本质上仍是 RL，也有 reward hacking 的风险</strong> ：判别器分数提高了，回答质量却未必提高。例如，若判别器偏爱篇幅长、措辞像老师的回答，学生就可能靠堆字数拿高分，推理错误却没有减少。</p>
+<p>GAD 持续更新判别器，让评分器跟上学生的新行为，可以缓解对旧评分规则的利用，但不能保证消除这类漏洞。业务上仍要用独立的正确率或任务成功率检验收益，不能只看判别器分数。</p>
+<p>代价是要同时训练学生和评分模型，而且“来自老师”只是训练标签，不保证每对回答里老师都更好。教师文本可以提前缓存；需要每轮重新生成的是学生回答，这也是 GAD 的 on-policy 部分。</p>
+<h3 id="Rubric-OPD：对照师生回答制定标准，再逐项评分"><a href="#Rubric-OPD：对照师生回答制定标准，再逐项评分" class="headerlink" title="Rubric OPD：对照师生回答制定标准，再逐项评分"></a>Rubric OPD：对照师生回答制定标准，再逐项评分</h3><p>GAD 把评分规则学进判别器参数。 <a target="_blank" rel="noopener" href="https://arxiv.org/html/2605.07396#S2.SS2">Rubric OPD（ROPD）</a> 则把规则写成可读的文本：先让老师说明“这道题应该怎么评”，再用这套标准评价学生。</p>
+<p>这里有两个角色：Rubricator 制定评分项，Verifier 按评分项逐项判断，通常都由教师模型通过不同调用完成。 <strong>这套流程只训练学生；Rubricator 和 Verifier 的参数不更新，评分项则随新一批学生回答重新生成。</strong></p>
+<p><strong>1. 对照师生回答，制定评分标准</strong></p>
+<p>对同一道题，收集多份教师回答和当前学生生成的回答。多份教师回答可以展示不同的正确解法，减少评分项只认可某一种解题步骤的问题；学生回答则暴露当前容易出现的缺口。Rubricator 同时读取题目和这两组回答，生成一套带权重的评分项，称为 rubric。</p>
+<p>仍用刚才的求和题和学生 A、B，可以构造下面这份示意 rubric。教师可以用等差公式，学生也可以用首尾配对，只要方法成立：</p>
+<table>
+<thead>
+<tr>
+<th>评分项</th>
+<th>权重</th>
+<th>学生 A</th>
+<th>学生 B</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>最终结果为 5050</td>
+<td>4</td>
+<td>通过</td>
+<td>不通过</td>
+</tr>
+<tr>
+<td>求和方法合法，配对或等差公式均可</td>
+<td>3</td>
+<td>通过</td>
+<td>通过</td>
+</tr>
+<tr>
+<td>中间与最终计算一致、无算术错误</td>
+<td>2</td>
+<td>通过</td>
+<td>不通过</td>
+</tr>
+<tr>
+<td>解释配对关系或所用公式为什么成立</td>
+<td>1</td>
+<td>通过</td>
+<td>通过</td>
+</tr>
+</tbody></table>
+<p>A、B 都说清了配对思路，但 B 算错了最后一步。这套评分项把“方法是否合理”和“计算是否正确”分开判断；表中的通过与否由下一步的 Verifier 给出。</p>
+<p><strong>同一轮、同一道题的所有回答共用一套 rubric</strong> 。如果每条回答各自生成标准，宽松标准下的高分就无法与严格标准下的低分比较，后面的组内优势也失去了共同尺度。</p>
+<p><strong>2. 逐项判断，计算奖励，再更新学生</strong></p>
+<p>将同题的师生回答混排、隐藏来源后，交给 Verifier 按同一套 rubric 逐条评分。教师回答留在其中，是为了提供质量参照；隐藏来源，则是为了减少“这是老师写的，所以应该给高分”的偏差。</p>
+<p>这里按评分项判断，不像 GAD 那样预先把“教师优于学生”作为训练标签。 <a target="_blank" rel="noopener" href="https://arxiv.org/html/2605.07396#S4.SS3">论文 §4.3</a> 与 <a target="_blank" rel="noopener" href="https://github.com/Peregrine123/ROPD_official/blob/main/algo/ropd/reward_manager.py#L509">官方实现</a> 说明了这一做法。</p>
+<p>对第 $i$ 条学生回答，Verifier 判断每项是否通过，记为 $v_{i,k}\in{0,1}$ 。若第 $k$ 项权重为 $w_k&gt;0$ ，奖励就是加权通过率：</p>
+<p>$$<br>r_i&#x3D;\frac{\sum_k w_k v_{i,k}}{\sum_k w_k}.<br>$$</p>
+<p>上例中，A 四项全过，奖励是 $10&#x2F;10&#x3D;1$ ；B 只通过第二、第四项，奖励是 $4&#x2F;10&#x3D;0.4$ 。这份奖励区分了“方法合理但算错”和“完整做对”，最后仍汇总成一个回答级分数。再只用同题学生回答的奖励计算 GRPO 优势，更新学生；教师回答不参与学生的策略更新。 <a target="_blank" rel="noopener" href="https://arxiv.org/html/2605.07396#A6">完整流程见附录 F</a> 。</p>
+<p>rubric 把评分依据写了出来，便于检查老师奖励的是正确性、推理过程，还是某种表达形式。但它同样可能被钻空子：比如“提到检查结果”可能奖励一句空话，“实际完成检查且结果正确”才更接近想要的行为。Verifier 的判断也可能出错，逐项评分不等于单测验证。</p>
+<p>两种方法的取舍也由此清楚了：GAD 要训练和维护评分模型；ROPD 的开销则主要在 <a target="_blank" rel="noopener" href="https://arxiv.org/html/2605.07396#S3.SS4">持续制定标准和评分</a> 。两者的教师参考回答都可以缓存，但 ROPD 每批新回答仍需要模型调用。我会先检查奖励能否区分业务中真正的好坏回答，再比较达到同一效果所需的总成本。</p>
+<p>两条路线最终都把教师文本转成回答级奖励，因此不要求师生 tokenizer 对齐，也不需要教师 logits。但它们仍通过学生的 token 概率计算策略梯度； <strong>回答级奖励并不等于第一章从整句 reverse KL 推导出的 sequence-level 蒸馏目标</strong> 。这里是否学得好，取决于构造出的奖励能否反映值得学习的行为。</p>
+<h2 id="04-OPD-的本质与边界"><a href="#04-OPD-的本质与边界" class="headerlink" title="04. OPD 的本质与边界"></a>04. OPD 的本质与边界</h2><p>继续，这章我们来聊聊 OPD 的本质和边界。</p>
+<p>几种常见的后训练算法我们都有熟悉了：SFT 容易训推不一致，训练时跟着示范答案走，使用时却要接着自己的输出写； <a target="_blank" rel="noopener" href="https://arxiv.org/html/2406.01462">离线 DPO</a> 受限于固定偏好对，未必覆盖模型当前会犯的错；基于奖励模型的 RLHF 可能出现 reward hacking，评分涨了，真实质量却没涨；RLVR 需要可靠的结果验证，且 <a target="_blank" rel="noopener" href="https://arxiv.org/html/2402.03300#S4.SS1.SSS3">只按最终对错给分时，信号很稀疏</a> ，知道答错了，却不直接指出哪一步该改。</p>
+<p><strong>那问题来了，OPD 的弊端和短板呢？哪些场景不适合呢？</strong></p>
+<h3 id="老师很强，为什么学生还是学不好？"><a href="#老师很强，为什么学生还是学不好？" class="headerlink" title="老师很强，为什么学生还是学不好？"></a>老师很强，为什么学生还是学不好？</h3><p>假设老师独立答题很强，不代表它能教好当前这个学生。</p>
+<p>这里要分清三类问题： <strong>老师接手后做不对、训练信号鼓励了无用的行为、学生没学会正确的做法。</strong> 它们可能同时出现，但要分别检查。</p>
+<p><strong>第一类：老师自己会做，却接不好学生写到一半的过程。</strong> 要检查这一点，可以让老师接着学生已经写出的内容，把题做完。</p>
+<p>拿 <code>2 + 3 × 4</code> 举个示意例子。老师从头算能得到 14，学生却写下：“先算 <code>2 + 3 = 5</code> ，再算 <code>5 × 4</code> ……”假设老师接着完成解答时，也漏掉了前面的运算顺序错误，最后答成 20。这时出问题的是老师接手后的实际解题能力：它自己会做，却没能把学生已经走错的过程纠正过来。</p>
+<p>OPD 把训练放在学生自己会写出的内容上，学生练得更贴近实际；代价是老师要指导它自己很少写出的错误过程。老师平时答题再准，在这些情况下能不能教好，也要重新验证。</p>
+<p><strong>第二类：训练信号在鼓励，任务却没有进展。</strong> 比如，学生解题时不断重复“Wait, Wait, Wait…”。重复片段中的部分 token，教师给出的概率仍高于学生，按局部 log-ratio 就会得到正向信号。但多写这些内容，并没有帮助解题。</p>
+<p>这一类检查的是训练在鼓励什么。即使师生概率算得完全准确，正向信号也只表示老师比学生更倾向于生成这个 token，并不保证它能让任务做得更好。</p>
+<p>不过，不能只盯着最后的答案，看它有没有被罚。 <a target="_blank" rel="noopener" href="https://thinkingmachines.ai/blog/on-policy-distillation/#illustration">TML 博客</a> 的冰块案例中，老师已经提供了纠错信号，只是信号主要落在前面的错误假设上。题目问煎锅里还剩多少完整冰块，教师独立作答能给出正确答案 0；学生却忽略融化过程，算出 20。教师惩罚了引入错误假设的部分词，但最后的“20”几乎没有被罚， <strong>因为在已有的错误前缀下，20 这个数字已经很容易预测</strong> 。</p>
+<p>这个例子中，教师主要在引入错误假设的位置提供纠错信号。“20”没有被罚，本身不能证明教师教不好学生；要看学生能否利用前面的信号，减少同类错误。</p>
+<p><strong>第三类：老师的方法没错，但学生还不会执行。</strong> 举个示意例子：一道求最大值的题，老师推荐“先求导，再令导数为零”，这条路线确实能解出题。但学生连基本的求导运算都不熟练。训练后，它更容易写出“先求导”，后面的导数却仍然算错，最终也答不对。</p>
+<p>这里，老师的指导正确、有用，但 <strong>让学生更倾向于采用一种方法，不等于已经教会它执行这种方法所需的每一步</strong> 。OPD 也会监督后续的计算步骤，只是当前训练还没让学生掌握这些能力。能学到多少，还取决于学生已有的基础和训练是否充分；先补齐基础，或采用它已经掌握的解法，可能更有效。</p>
+<p><strong>怎么定位问题，最简单的方法就是看样本。</strong> 像图 4-1 那样，把学生生成的内容和逐 token 的蒸馏信号放在一起，直接看哪里得到奖励、哪里受到惩罚：错误从哪一步开始，教师有没有在关键位置给出纠错信号，重复或无效推理有没有反而得到鼓励。再对照最终答案和训练前后的同类样本，检查这些信号是否让学生少犯同样的错。</p>
+<p><strong>找到问题后，再针对性地调整。</strong> 教师在错误前缀上指导不可靠，就尝试更合适的教师，或给教师补充答案、失败反馈；教师信号与任务结果不一致，就在有可靠单测或答案验证时加入结果奖励，让任务对错参与训练；指导正确但学生仍不会执行，就先补基础，或用教师答案做 SFT 冷启动，再转入 OPD。最终看未参与训练的目标任务是否改善，不能只凭 KL 下降或训练稳定判断成功。</p>
+<h3 id="只练一道题，OPD-也能泛化？"><a href="#只练一道题，OPD-也能泛化？" class="headerlink" title="只练一道题，OPD 也能泛化？"></a>只练一道题，OPD 也能泛化？</h3><p><strong>只反复训练同一道题，模型在其他题目上的表现也能提高。</strong> Thinking Machines Lab 和 Rethinking OPD II 都观察到了这个现象。固定训练题目：学生每轮仍会生成新的回答，再根据教师的逐 token 信号更新参数。具体的</p>
+<p><a target="_blank" rel="noopener" href="https://thinkingmachines.ai/blog/on-policy-distillation/#distillation-can-effectively-reuse-training-data-for-data-efficiency">Thinking Machines Lab 的单题实验</a> 先把 Qwen3-8B-Base 用 RL 训练成教师，再让原始基模向它学习。固定一道题，训练 20 步，每步随机生成 256 条回答，学生在 AIME’24 上的表现就接近教师。</p>
+<p><a target="_blank" rel="noopener" href="https://arxiv.org/html/2609.04172#S3.SS2">Rethinking OPD II</a> ： <strong>学生始终没有解对那道困难的训练题，其他评测题的表现却仍然提高了。</strong> 学习收益显然不必等到学生掌握这道题的正确答案后才出现。</p>
+<p>用一个简化的示意例子理解这个过程。训练题始终是 <code>12 × 13</code> ，学生一次直接写结果，一次拆成 <code>12 × (10 + 3)</code> ，另一次拆分正确，却把后面的计算写成 <code>120 + 26</code> 。虽然题目没变，学生遇到的中间步骤已经不同。教师根据每个位置之前的内容，提供下一 token 的概率。例如，在写错计算结果的位置，若教师给错误 token 的概率低于学生，局部信号就会推动学生降低这个 token 的生成概率。整条回答即使答错，也仍然能从这些位置学习。</p>
+<p><strong>从学习的角度，OPD 直接调整的是这些前缀上的续写分布。</strong> 如果这些更新改善了其他题目也会用到的计算或推导行为，就可能产生题外收益。这是理解泛化的一种解释，但两篇实验还没有确定学生具体学到了哪种通用规则，不能直接把效果归因于“学会了检查”或“掌握了某种推理模式”。</p>
+<p><a target="_blank" rel="noopener" href="https://arxiv.org/html/2609.04172#S4">Rethinking OPD II 的状态分析</a> 为这个解释补充了证据：作者用教师的隐藏表示对生成前缀聚类，发现一道题产生的轨迹，就覆盖了全数据训练所访问状态簇的 71.5%；增加到 16 道语义不同的题，覆盖率达到 98.9%，效果也接近全数据训练。这提示我们，新增题目的价值，要看它能否带来已有训练较少涉及的生成过程。</p>
+<p>从这个角度来说，就很爽了， <strong>因为对已有基础的学生，迁移教师的部分后训练收益，可能只需要很少的题目。</strong> 教师已经付出了学习和探索的成本，蒸馏阶段可以 <a target="_blank" rel="noopener" href="https://thinkingmachines.ai/blog/on-policy-distillation/#rl-searches-in-the-space-of-semantic-strategies">直接利用这些成果</a> 。落到具体的应用上，我们可以先用少量有代表性的输入验证迁移，再根据未见任务中的失败类型补数据，不需要太多的数据。</p>
+<h2 id="写在最后"><a href="#写在最后" class="headerlink" title="写在最后"></a>写在最后</h2><p>OPD 很迷人：在前面的白盒实验里，学生围绕一个输入反复采样，也能在其他任务上进步。对应用团队来说，可以先用少量代表性输入验证收益，再围绕真实失败补充训练。拿不到教师概率时，把教师文本转成奖励的黑盒路线也值得尝试。</p>
+<p>我也看好自蒸馏与环境反馈的结合：把答案、失败单测和交互反馈放进教师上下文，让多看了信息的自己指导学生，再把更新后的学生放回应用中检验。这样，运行中暴露的问题就有机会成为下一轮训练的素材。这会不会成为走向 RSI 的一条路径？</p>
+<p>但 OPD 的边界也很明确。纯白盒蒸馏直接优化的是师生分布匹配，并不直接以任务是否完成为目标。学生练的是自己真实会生成的内容，老师却可能要面对自己很少写出的错误过程，指导未必可靠。 <strong>训练更贴近学生，不代表教师的指导就更可靠；学得更像老师，也不代表任务就做得更好。</strong> 无论用教师概率还是从教师文本构造奖励，最终都要回到真实任务上验证。</p>
+<p>天下没有免费的午餐啊。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://gaoguodong03.github.io/gdBlog">GuoDong</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://gaoguodong03.github.io/gdBlog/2026/11/02/%E4%BB%8E%E7%99%BD%E7%9B%92%E8%92%B8%E9%A6%8F%E3%80%81%E9%BB%91%E7%9B%92%E8%92%B8%E9%A6%8F%EF%BC%8C%E5%86%8D%E5%88%B0%E8%87%AA%E8%92%B8%E9%A6%8F%EF%BC%81%E6%B7%B1%E5%BA%A6%E7%90%86%E8%A7%A3-OPD-%E8%AE%AD%E7%BB%83%E7%9A%84%E6%9C%AC%E8%B4%A8/">https://gaoguodong03.github.io/gdBlog/2026/11/02/%E4%BB%8E%E7%99%BD%E7%9B%92%E8%92%B8%E9%A6%8F%E3%80%81%E9%BB%91%E7%9B%92%E8%92%B8%E9%A6%8F%EF%BC%8C%E5%86%8D%E5%88%B0%E8%87%AA%E8%92%B8%E9%A6%8F%EF%BC%81%E6%B7%B1%E5%BA%A6%E7%90%86%E8%A7%A3-OPD-%E8%AE%AD%E7%BB%83%E7%9A%84%E6%9C%AC%E8%B4%A8/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://gaoguodong03.github.io/gdBlog" target="_blank">果冻小配方</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/gdBlog/tags/Agent/">Agent</a></div><div class="post-share"><div class="social-share" data-image="/gdBlog/./img/logoLLM.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="/gdBlog/pluginsSrc/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="/gdBlog/pluginsSrc/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related full-width" href="/gdBlog/2026/10/30/%E4%B8%BA%E4%BB%80%E4%B9%88%E5%AD%A6%E4%B9%A0Agentic-AI%E7%9A%84%E7%AC%AC%E4%B8%80%E6%AD%A5%E6%98%AF%E5%BF%98%E8%AE%B0%E6%89%80%E6%9C%89%E6%A1%86%E6%9E%B6%EF%BC%9F/" title="为什么学习Agentic AI的第一步是忘记所有框架？"><img class="cover" src="/gdBlog/./img/logoLLM.png" onerror="onerror=null;src='/gdBlog/img/404.jpg'" alt="cover of next post"><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">为什么学习Agentic AI的第一步是忘记所有框架？</div></div><div class="info-2"><div class="info-item-1">我在推广Agentic AI的时候经常被问到：“为什么你的所有教程里从来没有看到对Autogen、LangGraph、SmolAgents或者&lt;插入任何流行的Agentic AI框架&gt;的介绍？” 或者“我应该学习哪个框架来入门Agentic AI？” 这篇文章想解释一下为什么我觉得在这个Agentic AI飞速发展的特殊时期，用什么框架并不重要，我们甚至应该避免从框架开始入门Agentic AI。 为什么我们需要技术框架&#x2F;库在具体讨论这个问题之前，我们先要理解在其他软件工程领域为什么需要一个框架（framework）或者库（library）。这里面主要有三个层面的好处： 最基本、最底层的好处是，它提供的库函数可以省很多事。举个例子，C语言的数学库提供了开平方根的函数sqrt。对于这种基本功能，我们就不用自己再去实现一个牛顿迭代法了。 当我们可以用库函数实现越来越高层的功能时，框架的第二个好处就显现出来了：提供适当的抽象。这可以让我们从更符合人类直觉和商业逻辑的角度进行思考。举个例子，很多GUI的库提供了对话框这个类。我们在用这个类写代码的时候就不用费心思考，...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/gdBlog/2026/01/13/AGI-NEXT-%E5%B3%B0%E4%BC%9A/" title="AGI-NEXT 峰会"><img class="cover" src="/gdBlog/./img/logoLLM.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-01-13</div><div class="info-item-2">AGI-NEXT 峰会</div></div><div class="info-2"><div class="info-item-1">Q1: 为什么说Chat时代已经结束？ 经过一年的观察，唐杰认为单纯做Chat已经不是在真正解决问题。他原本预判大模型会替代搜索，但现实是谷歌反而用AI把自己的搜索革命了。而2025年初DeepSeek的出现，在他看来彻底终结了Chat范式的竞争。 “可能对研究界、产业界，甚至对很多人都是’横空出世’。”唐杰说，“在DeepSeek这种范式下，Chat时代基本上算是解决了。我们做得再好，也许跟DeepSeek差不多，或许在上面再个性化一点、变成有情感的Chat。但总的来讲，这个范式基本到头了，剩下更多是工程和技术问题。” 这个判断促使智谱做出战略转向。团队内部争论了很多个晚上，最终决定把所有精力放在Coding和Agent上。2025年7月，智谱发布4.5版本，把Coding、Agentic、Reasoning能力整合在一起。 但真实世界的反馈很快给了他们一记重击。 用户拿着模型去编”植物大战僵尸”，结果编不出来。”真实编程环境下有大量问题需要解决。”唐杰说。团队通过RLVR（可验证强化学习）配合编程环境作为反馈，才把效果提升上去。这个经历让他意识到：跑分是跑分，真正让能力进入主...</div></div></div></a><a class="pagination-related" href="/gdBlog/2026/05/30/AI-%E6%97%B6%E4%BB%A3%E7%9A%84%E6%96%B0%E5%AE%A0%E5%B2%97%E4%BD%8D%EF%BC%9AForward-Deployed-Engineer-%E5%88%B0%E5%BA%95%E6%98%AF%E4%BB%80%E4%B9%88/" title="AI 时代的新宠岗位：Forward Deployed Engineer 到底是什么"><img class="cover" src="/gdBlog/./img/fde-cover-baoyu.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-30</div><div class="info-item-2">AI 时代的新宠岗位：Forward Deployed Engineer 到底是什么</div></div><div class="info-2"><div class="info-item-1">原文：Forward Deployed Engineer：AI 时代的新宠岗位，到底干什么？ 作者：宝玉 最近读到宝玉老师写的这篇关于 Forward Deployed Engineer 的文章，感觉它讲的并不只是一个新岗位，而是 AI 行业正在发生的一次很重要的重心转移：  过去大家最关心的是模型能力：谁的模型更强，谁的榜单更高，谁的上下文更长。 但现在越来越关键的问题变成了：谁能把 AI 真正部署进业务现场，并且产生可衡量的价值。  Forward Deployed Engineer，通常缩写为 FDE，直译过来可以叫“前线部署工程师”。这个名字听起来有点军工味，因为它确实继承了一种很“前线”的工作方式：工程师不只坐在办公室里写代码，而是直接进入客户现场，理解业务流程、拆解真实问题、写代码、接系统、调模型、做交付。 如果说传统软件工程师更多是在产品内部构建能力，那么 FDE 更像是把能力送到客户真实战场的人。 为什么这个岗位突然重要起来了？AI 公司现在遇到的一个核心问题是：模型很强，但企业不知道怎么用。 很多企业买了大模型 API，或者采购了一个 AI 平台，但真正落到业务...</div></div></div></a><a class="pagination-related" href="/gdBlog/2026/10/29/Agent-%E7%9A%84%E6%8C%81%E7%BB%AD%E8%BF%9B%E5%8C%96-%E2%80%94-%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3-AI-Agent/" title="Agent 的持续进化 — 深入理解 AI Agent"><img class="cover" src="/gdBlog/./img/logoAIAgent.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-10-29</div><div class="info-item-2">Agent 的持续进化 — 深入理解 AI Agent</div></div><div class="info-2"><div class="info-item-1">今天的 Agent 面临一个鲜明的能力悖论：它可以零样本解决从未见过的复杂任务，却可能在处理了一万次相似任务之后，第二天仍然犯下第一天的错误。模型上岗之后，能否像新员工一样从日常工作中不断长进？ 能否自主从经验中学习 （所谓 持续学习 ，continual learning），正在成为 Agent 从“会完成任务”走向“能够可靠工作”的关键能力，也是下一代模型的核心研究课题。今天的 “持续学习” 概念与早年 “学了新任务就忘掉旧任务” 的持续学习研究不是同一个问题，遗忘只是其中一个子问题，更难的是没有人告诉模型，今天这一天的经历里哪些是做对的，哪些是做错的。就目前而言，模型本身的持续学习能力仍远远不够。 原因在于，部署后的模型并不会因为一次推理自动改变参数。第二章讨论的上下文学习、状态维护和压缩，能让 Agent 在 当前任务内 适应；但上下文结束后，这种变化不会自然进入下一次任务。把对话存进记忆也不等于学会了新的行为：原始轨迹可能很长，其中既有有效策略，也有偶然成功、错误归因和不可信输入。 这里有一个容易混淆的区别： 保存经历不等于从经历中学习 。把一百条轨迹放进长上下文或向量...</div></div></div></a><a class="pagination-related" href="/gdBlog/2026/10/22/Docker%E5%92%8C%E4%BC%A0%E7%BB%9F%E8%99%9A%E6%8B%9F%E6%9C%BA%E6%9C%89%E4%BB%80%E4%B9%88%E5%8C%BA%E5%88%AB%EF%BC%9F/" title="Docker和传统虚拟机有什么区别？"><img class="cover" src="/gdBlog/./img/logoDeepsearch.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-10-22</div><div class="info-item-2">Docker和传统虚拟机有什么区别？</div></div><div class="info-2"><div class="info-item-1">我有一个程序员朋友，他每年情人节都要送女朋友一台服务器。 他说：“谁不想在过节当天收到一台 4核8g 的服务器呢？” “万一对方不要，我还能留着自己用。” 给他一次过节的机会，他能把 浪漫 玩的明明白白。所以今年情人节，他自己一个人过。太痛了，是那种 布洛芬都不知道他哪里痛 的痛。 虽然人跑了，但起码还有服务器陪着他，但屏幕前依然单身的你呢？ 你连服务器都没有 。那么问题就来了，你买过服务器吗？看着云厂商各种产品是不是有点懵。你知道 ecs，vps，docker 容器 是什么吗？它们有啥区别呢？ 我们今天来聊聊这个话题。 物理服务器是什么？我的柜子里有一台大学时候用的废弃电脑，自带 cpu、 内存等硬件和操作系统，根据一些教程视频，是可以做成服务器的。 像这样一台看得见摸得着的机器，其实就是云厂商页面里提到的 物理服务器 或 物理机 。不同厂商叫法不同，有的厂商叫它 独立服务器 。 跟家里电脑不一样的是，云厂商的机器性能更好，核数更高，还有专业的机房和空调伺候着。那既然这样，是不是就不需要买云厂商的服务器呢？ 糊涂啊，一台家用电脑跑起来 50 瓦，一年下来电费都好几百，还得花精力...</div></div></div></a><a class="pagination-related" href="/gdBlog/2026/10/22/Docker-%E5%92%8C-k8s-%E4%B9%8B%E9%97%B4%E6%98%AF%E4%BB%80%E4%B9%88%E5%85%B3%E7%B3%BB%EF%BC%9F/" title="Docker  和 k8s 之间是什么关系？"><img class="cover" src="/gdBlog/./img/logoLLM.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-10-22</div><div class="info-item-2">Docker  和 k8s 之间是什么关系？</div></div><div class="info-2"><div class="info-item-1">作为一个程序员，如果你想安装一个 vim 编辑下文本，在不同环境里你得执行不同的命令。在 ubuntu，你需要执行 apt-get install vim ，在 centos 里，你需要执行 yum install vim. 装个小软件尚且如此，要是你想将自己写的代码部署到各个不同操作系统的服务器上，那依赖的软件和配置就更多了，需要针对每个环境单独写一套部署脚本。难受，太难受了。 那么问题就来了，有没有更好的解决方案？当然有， 没有什么是加一层中间层不能解决的，如果有，那就再加一层 ，这次我们要加的中间层是 Docker 。 Docker是代码和操作系统之间的中间层 哦不，准确来说是 Docker容器 。 容器技术 Docker 是什么？我们经常能听到程序员说”这个程序在我环境里明明是好的啊，怎么到你这就不行了呢”？注意这里的关键词， 程序 和 环境 。程序是跑在操作系统上的，而操作系统上又装了各种不同版本的依赖库和配置，这些被程序所依赖的信息，我们统称为” 环境 “。 程序和环境 程序依赖环境，环境不同，程序就可能跑不起来。如果我们能将环境和程序一起打包，给到对方运行，那问题不...</div></div></div></a><a class="pagination-related" href="/gdBlog/2026/06/05/GUI-Agent-%E6%9E%B6%E6%9E%84%E5%85%A5%E9%97%A8%EF%BC%9A%E4%BB%8E%E7%95%8C%E9%9D%A2%E6%84%9F%E7%9F%A5%E5%88%B0%E8%87%AA%E4%B8%BB%E6%93%8D%E4%BD%9C/" title="GUI Agent 架构入门：从界面感知到自主操作"><img class="cover" src="/gdBlog/./img/gui-agent-architecture-cover.svg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-06-05</div><div class="info-item-2">GUI Agent 架构入门：从界面感知到自主操作</div></div><div class="info-2"><div class="info-item-1">过去我们聊 Agent，很多时候聊的是“文本世界里的 Agent”。 它读一段用户输入，拆解任务，调用搜索、数据库、代码执行器、文件系统、MCP 工具，最后把结果组织成一段文本。这个方向已经很熟悉了：ReAct、Plan-and-Execute、Reflection、多 Agent、Memory、Tool Use，这些范式本质上都围绕一个问题展开：大模型如何在文本和工具之间形成更可靠的行动链。 但 GUI Agent 不一样。 GUI Agent 面对的不是结构清晰的 API，而是一个图形用户界面。它看到的是浏览器窗口、按钮、输入框、弹窗、菜单、表格、滚动条、文件选择器、验证码、系统通知、加载动画，以及各种“人类一眼就懂、机器不一定能懂”的界面暗示。 也就是说，GUI Agent 的任务不是“回答问题”，而是“使用软件”。 比如：  打开一个网页后台，登录，搜索订单，导出报表； 在浏览器里查资料，把内容复制到文档里； 在手机 App 里完成订票、下单、修改设置； 在桌面系统中打开文件、重命名、压缩、上传； 在一个没有 API 的旧系统里，通过界面把流程跑完。  这类任务真正困难的...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/gdBlog/img/touxiang.jpg" onerror="this.onerror=null;this.src='/gdBlog/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">GuoDong</div><div class="author-info-description">碎碎念念 岁岁年年</div><div class="site-data"><a href="/gdBlog/archives/"><div class="headline">文章</div><div class="length-num">79</div></a><a href="/gdBlog/tags/"><div class="headline">标签</div><div class="length-num">52</div></a><a href="/gdBlog/categories/"><div class="headline">分类</div><div class="length-num">8</div></a></div><div class="card-info-social-icons"><a class="social-icon" href="https://www.bilibili.com/" target="_blank" title="bilibili"><i class="fab fa-bilibili" style="color: #24292e;"></i></a><a class="social-icon" href="https://github.com/gaoguodong03" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="https://leetcode.cn/studyplan/top-100-liked/" target="_blank" title="LeetCode"><i class="fab fa-comments" style="color: #24292e;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">好事马上发生</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#01-%E7%99%BD%E7%9B%92-OPD%EF%BC%9A%E4%BB%8E%E8%AE%AD%E7%BB%83%E5%8E%9F%E7%90%86%E5%88%B0%E5%B7%A5%E4%B8%9A%E5%AE%9E%E8%B7%B5"><span class="toc-number">2.</span> <span class="toc-text">01. 白盒 OPD：从训练原理到工业实践</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%8E%E6%95%B4%E5%8F%A5-reverse-KL-%E6%8E%A8%E5%AF%BC-sequence-level-%E6%9B%B4%E6%96%B0"><span class="toc-number">2.1.</span> <span class="toc-text">从整句 reverse KL 推导 sequence-level 更新</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BD%BF%E7%94%A8-token-level-%E8%BF%91%E4%BC%BC"><span class="toc-number">2.2.</span> <span class="toc-text">为什么使用 token-level 近似</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B1%80%E9%83%A8%E6%A2%AF%E5%BA%A6%E6%80%8E%E4%B9%88%E7%AE%97%EF%BC%9Asampled-token%E3%80%81%E5%85%A8%E8%AF%8D%E8%A1%A8%E4%B8%8E-Top-K"><span class="toc-number">2.3.</span> <span class="toc-text">局部梯度怎么算：sampled-token、全词表与 Top-K</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AE%AD%E7%BB%83%E6%80%8E%E4%B9%88%E5%AE%9E%E7%8E%B0%EF%BC%9APPO-%E9%A3%8E%E6%A0%BC%E6%9B%B4%E6%96%B0%E4%B8%8E%E7%9B%B4%E6%8E%A5%E5%88%86%E5%B8%83%E4%BC%98%E5%8C%96"><span class="toc-number">2.4.</span> <span class="toc-text">训练怎么实现：PPO 风格更新与直接分布优化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#MiniLLM-%E5%92%8C-GKD%EF%BC%9A%E6%96%B9%E6%B3%95%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%8F%96%E8%88%8D"><span class="toc-number">2.5.</span> <span class="toc-text">MiniLLM 和 GKD：方法设计与取舍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E6%A8%A1%E5%8E%82%E5%95%86%E6%80%8E%E4%B9%88%E7%94%A8-OPD%EF%BC%9A%E5%A4%9A%E6%95%99%E5%B8%88%E5%90%88%E7%89%88%E4%B8%8E%E5%B0%8F%E6%A8%A1%E5%9E%8B%E8%92%B8%E9%A6%8F"><span class="toc-number">2.6.</span> <span class="toc-text">基模厂商怎么用 OPD：多教师合版与小模型蒸馏</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#02-%E8%87%AA%E8%92%B8%E9%A6%8F%EF%BC%9A%E8%AE%A9%E5%A4%9A%E7%9C%8B%E4%BF%A1%E6%81%AF%E7%9A%84%E8%87%AA%E5%B7%B1%E5%BD%93%E8%80%81%E5%B8%88"><span class="toc-number">3.</span> <span class="toc-text">02. 自蒸馏：让多看信息的自己当老师</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#OPSD%EF%BC%9A%E6%8A%8A%E5%8F%82%E8%80%83%E8%A7%A3%E6%B3%95%E6%94%BE%E8%BF%9B%E6%95%99%E5%B8%88%E4%B8%8A%E4%B8%8B%E6%96%87"><span class="toc-number">3.1.</span> <span class="toc-text">OPSD：把参考解法放进教师上下文</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SDPO%EF%BC%9A%E6%8A%8A%E6%88%90%E5%8A%9F%E5%B0%9D%E8%AF%95%E5%92%8C%E7%8E%AF%E5%A2%83%E5%8F%8D%E9%A6%88%E5%8F%98%E6%88%90%E9%80%90-token-%E7%9B%91%E7%9D%A3"><span class="toc-number">3.2.</span> <span class="toc-text">SDPO：把成功尝试和环境反馈变成逐 token 监督</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Cursor%EF%BC%9A%E7%94%A8%E7%BA%A0%E5%81%8F%E6%8F%90%E7%A4%BA%E6%94%B9%E8%BF%9B%E6%9F%90%E4%B8%80%E8%BD%AE%E8%A1%8C%E4%B8%BA"><span class="toc-number">3.3.</span> <span class="toc-text">Cursor：用纠偏提示改进某一轮行为</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#OPCD%EF%BC%9A%E6%8A%8A%E6%8F%90%E7%A4%BA%E4%B8%8E%E7%BB%8F%E9%AA%8C%E8%92%B8%E8%BF%9B%E6%A8%A1%E5%9E%8B%E5%8F%82%E6%95%B0"><span class="toc-number">3.4.</span> <span class="toc-text">OPCD：把提示与经验蒸进模型参数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#OEL%EF%BC%9A%E4%BB%8E%E9%83%A8%E7%BD%B2%E5%90%8E%E7%9A%84%E4%BA%A4%E4%BA%92%E4%B8%AD%E6%8C%81%E7%BB%AD%E5%AD%A6%E4%B9%A0"><span class="toc-number">3.5.</span> <span class="toc-text">OEL：从部署后的交互中持续学习</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#RLSD%EF%BC%9A%E7%BB%93%E6%9E%9C%E5%AE%9A%E5%A5%96%E6%83%A9%EF%BC%8C%E6%95%99%E5%B8%88%E8%B0%83%E6%9D%83%E9%87%8D"><span class="toc-number">3.6.</span> <span class="toc-text">RLSD：结果定奖惩，教师调权重</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#03-%E9%BB%91%E7%9B%92%E8%92%B8%E9%A6%8F%EF%BC%9A%E6%8B%BF%E4%B8%8D%E5%88%B0%E6%95%99%E5%B8%88%E6%A6%82%E7%8E%87%EF%BC%8C%E6%80%8E%E4%B9%88%E5%81%9A-OPD%EF%BC%9F"><span class="toc-number">4.</span> <span class="toc-text">03. 黑盒蒸馏：拿不到教师概率，怎么做 OPD？</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#GAD%EF%BC%9A%E7%94%A8%E5%B8%88%E7%94%9F%E5%9B%9E%E7%AD%94%E8%AE%AD%E7%BB%83%E8%AF%84%E5%88%86%E6%A8%A1%E5%9E%8B"><span class="toc-number">4.1.</span> <span class="toc-text">GAD：用师生回答训练评分模型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Rubric-OPD%EF%BC%9A%E5%AF%B9%E7%85%A7%E5%B8%88%E7%94%9F%E5%9B%9E%E7%AD%94%E5%88%B6%E5%AE%9A%E6%A0%87%E5%87%86%EF%BC%8C%E5%86%8D%E9%80%90%E9%A1%B9%E8%AF%84%E5%88%86"><span class="toc-number">4.2.</span> <span class="toc-text">Rubric OPD：对照师生回答制定标准，再逐项评分</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#04-OPD-%E7%9A%84%E6%9C%AC%E8%B4%A8%E4%B8%8E%E8%BE%B9%E7%95%8C"><span class="toc-number">5.</span> <span class="toc-text">04. OPD 的本质与边界</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%80%81%E5%B8%88%E5%BE%88%E5%BC%BA%EF%BC%8C%E4%B8%BA%E4%BB%80%E4%B9%88%E5%AD%A6%E7%94%9F%E8%BF%98%E6%98%AF%E5%AD%A6%E4%B8%8D%E5%A5%BD%EF%BC%9F"><span class="toc-number">5.1.</span> <span class="toc-text">老师很强，为什么学生还是学不好？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%AA%E7%BB%83%E4%B8%80%E9%81%93%E9%A2%98%EF%BC%8COPD-%E4%B9%9F%E8%83%BD%E6%B3%9B%E5%8C%96%EF%BC%9F"><span class="toc-number">5.2.</span> <span class="toc-text">只练一道题，OPD 也能泛化？</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%86%99%E5%9C%A8%E6%9C%80%E5%90%8E"><span class="toc-number">6.</span> <span class="toc-text">写在最后</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/gdBlog/2025/11/01/RAG/" title="RAG">RAG</a><time datetime="2026-11-02T06:27:11.614Z" title="更新于 2026-11-02 14:27:11">2026-11-02</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/gdBlog/2026/11/02/%E4%BB%8E%E7%99%BD%E7%9B%92%E8%92%B8%E9%A6%8F%E3%80%81%E9%BB%91%E7%9B%92%E8%92%B8%E9%A6%8F%EF%BC%8C%E5%86%8D%E5%88%B0%E8%87%AA%E8%92%B8%E9%A6%8F%EF%BC%81%E6%B7%B1%E5%BA%A6%E7%90%86%E8%A7%A3-OPD-%E8%AE%AD%E7%BB%83%E7%9A%84%E6%9C%AC%E8%B4%A8/" title="从白盒蒸馏、黑盒蒸馏，再到自蒸馏！深度理解 OPD 训练的本质">从白盒蒸馏、黑盒蒸馏，再到自蒸馏！深度理解 OPD 训练的本质</a><time datetime="2026-11-02T03:05:09.529Z" title="更新于 2026-11-02 11:05:09">2026-11-02</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/gdBlog/2026/10/30/%E4%B8%BA%E4%BB%80%E4%B9%88%E5%AD%A6%E4%B9%A0Agentic-AI%E7%9A%84%E7%AC%AC%E4%B8%80%E6%AD%A5%E6%98%AF%E5%BF%98%E8%AE%B0%E6%89%80%E6%9C%89%E6%A1%86%E6%9E%B6%EF%BC%9F/" title="为什么学习Agentic AI的第一步是忘记所有框架？">为什么学习Agentic AI的第一步是忘记所有框架？</a><time datetime="2026-10-30T12:39:12.128Z" title="更新于 2026-10-30 20:39:12">2026-10-30</time></div></div></div></div></div></div></main><footer id="footer" style="background: transparent;"><div class="footer-other"><div class="footer-copyright"></div><div class="footer_custom_text"><style>
+  .footer {
+    text-align: center;
+    position: relative;
+  }
+  .footer p {
+    margin: 0.5rem 0;
+    line-height: 1;
+  }
+  .copyright {
+    font-size: 1.1rem; 
+    color: #000000;
+    font-weight: 400;
+  }
+  .tagline {
+    font-size: 0.8rem;
+    color: #333333;
+    font-style: italic;
+    font-weight: 500;
+  }
+  .visitor-count {
+    font-size: 0.75rem;
+    color: rgba(0, 0, 0, 0.7);
+    font-weight: 300;
+  }
+  #visitorCount {
+    font-weight: bold;
+  }
+</style>
+<div class="footer">
+  <p class="copyright">© 2025 果冻小配方 - 所有权利保留</p>
+  <p class="tagline">> 碎碎念念 岁岁年年 <</p>
+  <p class="visitor-count">访问量: <span id="visitorCount">1024</span> | 你是第 <span id="dailyVisitor">1</span> 位今日访客</p>
+</div>
+<script>
+  // 确保DOM加载完成后执行
+  document.addEventListener('DOMContentLoaded', function() {
+    // 模拟访问量增长
+    function updateVisitorCount() {
+      const countElement = document.getElementById('visitorCount');
+      let count = parseInt(localStorage.getItem('totalVisitors'), 10) || 1024;
+      count += 1;
+      countElement.textContent = count;
+      localStorage.setItem('totalVisitors', String(count));
+      const today = new Date().toDateString();
+      const dailyData = JSON.parse(localStorage.getItem('dailyVisitors') || '{"date":"", "count":0}');
+      if (dailyData.date !== today) {
+        dailyData.date = today;
+        dailyData.count = 0;
+      }
+      dailyData.count += 1;
+      document.getElementById('dailyVisitor').textContent = dailyData.count;
+      localStorage.setItem('dailyVisitors', JSON.stringify(dailyData));
+    }
+    updateVisitorCount();
+  });
+</script>
+</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/gdBlog/js/utils.js"></script><script src="/gdBlog/js/main.js"></script><div class="js-pjax"></div><script src="/config/js/happy-title.js" async></script><script src="/config/js/foot.js" async></script></div><!-- hexo injector body_end start --><script data-pjax>
+    function butterfly_categories_card_injector_config(){
+      var parent_div_git = document.getElementById('recent-posts');
+      var item_html = '<style>li.categoryBar-list-item{width:32.3%;}.categoryBar-list{max-height: 950px;overflow:auto;}.categoryBar-list::-webkit-scrollbar{width:0!important}@media screen and (max-width: 650px){.categoryBar-list{max-height: 800px;}}</style><div class="recent-post-item" style="height:auto;width:100%;padding:0px;"><div id="categoryBar"><ul class="categoryBar-list"><li class="categoryBar-list-item" style="background:url(/img/logo.jpg);"> <a class="categoryBar-list-link" href="categories/Hello-Agents/">Hello-Agents</a><span class="categoryBar-list-count">8</span><span class="categoryBar-list-descr">果冻的航海日记</span></li><li class="categoryBar-list-item" style="background:url(/img/logo.jpg);"> <a class="categoryBar-list-link" href="categories/果冻的科普专区/">果冻的科普专区</a><span class="categoryBar-list-count">15</span><span class="categoryBar-list-descr">Hexo</span></li><li class="categoryBar-list-item" style="background:url(/img/logo.jpg);"> <a class="categoryBar-list-link" href="categories/果冻的理论学习/">果冻的理论学习</a><span class="categoryBar-list-count">17</span><span class="categoryBar-list-descr">果冻的奇妙小工具</span></li><li class="categoryBar-list-item" style="background:url(/img/logo.jpg);"> <a class="categoryBar-list-link" href="categories/果冻的航海日志/">果冻的航海日志</a><span class="categoryBar-list-count">10</span><span class="categoryBar-list-descr">果冻的日记本</span></li><li class="categoryBar-list-item" style="background:url(undefined);"> <a class="categoryBar-list-link" href="categories/果冻的奇妙小工具/">果冻的奇妙小工具</a><span class="categoryBar-list-count">8</span><span class="categoryBar-list-descr"></span></li><li class="categoryBar-list-item" style="background:url(undefined);"> <a class="categoryBar-list-link" href="categories/道不可言言而非也/">道不可言言而非也</a><span class="categoryBar-list-count">1</span><span class="categoryBar-list-descr"></span></li><li class="categoryBar-list-item" style="background:url(undefined);"> <a class="categoryBar-list-link" href="categories/Hexo/">Hexo</a><span class="categoryBar-list-count">1</span><span class="categoryBar-list-descr"></span></li><li class="categoryBar-list-item" style="background:url(undefined);"> <a class="categoryBar-list-link" href="categories/果冻的LeetCode刷题/">果冻的LeetCode刷题</a><span class="categoryBar-list-count">5</span><span class="categoryBar-list-descr"></span></li></ul></div></div>';
+      console.log('已挂载butterfly_categories_card')
+      parent_div_git.insertAdjacentHTML("afterbegin",item_html)
+      }
+    if( document.getElementById('recent-posts') && (location.pathname ==='/categories/'|| '/categories/' ==='all')){
+    butterfly_categories_card_injector_config()
+    }
+  </script><script data-pjax>
+  function butterfly_swiper_injector_config(){
+    var parent_div_git = document.getElementById('recent-posts');
+    var item_html = '<div class="recent-post-item" style="height: auto;width: 100%"><div class="blog-slider swiper-container-fade swiper-container-horizontal" id="swiper_container"><div class="blog-slider__wrp swiper-wrapper" style="transition-duration: 0ms;"></div><div class="blog-slider__pagination swiper-pagination-clickable swiper-pagination-bullets"></div></div></div>';
+    console.log('已挂载butterfly_swiper')
+    parent_div_git.insertAdjacentHTML("afterbegin",item_html)
+    }
+  var elist = 'undefined'.split(',');
+  var cpage = location.pathname;
+  var epage = '/';
+  var flag = 0;
+
+  for (var i=0;i<elist.length;i++){
+    if (cpage.includes(elist[i])){
+      flag++;
+    }
+  }
+
+  if ((epage ==='all')&&(flag == 0)){
+    butterfly_swiper_injector_config();
+  }
+  else if (epage === cpage){
+    butterfly_swiper_injector_config();
+  }
+  </script><script defer src="https://npm.elemecdn.com/hexo-butterfly-swiper/lib/swiper.min.js"></script><script defer data-pjax src="https://npm.elemecdn.com/hexo-butterfly-swiper/lib/swiper_init.js"></script><div class="js-pjax"><script async="async">var arr = document.getElementsByClassName('recent-post-item');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__zoomIn');
+    arr[i].setAttribute('data-wow-duration', '300ms');
+    arr[i].setAttribute('data-wow-delay', '0ms');
+    arr[i].setAttribute('data-wow-offset', '0');
+    arr[i].setAttribute('data-wow-iteration', '1');
+  }</script><script async="async">var arr = document.getElementsByClassName('card-widget');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__zoomIn');
+    arr[i].setAttribute('data-wow-duration', '');
+    arr[i].setAttribute('data-wow-delay', '');
+    arr[i].setAttribute('data-wow-offset', '');
+    arr[i].setAttribute('data-wow-iteration', '');
+  }</script></div><script defer src="https://npm.elemecdn.com/hexo-butterfly-wowjs/lib/wow.min.js"></script><script defer src="https://npm.elemecdn.com/hexo-butterfly-wowjs/lib/wow_init.js"></script><!-- hexo injector body_end end --></body></html>

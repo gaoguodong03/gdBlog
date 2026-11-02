@@ -1,0 +1,315 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>为什么AI只会说正确的废话，以及怎么把它逼出舒适区 | 果冻小配方</title><meta name="author" content="GuoDong"><meta name="copyright" content="GuoDong"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="三周前，OpenAI发了一篇关于Harness Engineering的博文。我和社区里一个很厉害的朋友老王各自让自己的Agent做了一份深度调研。我们特意用了同档次的LLM（Claude Opus 4.6 vs GPT-5.4），同一个调研skill，同一个搜索工具Tavily，同一个agentic后端OpenCode，甚至同样的prompt，唯一不同的是两个Agent背后的context：我的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="为什么AI只会说正确的废话，以及怎么把它逼出舒适区">
+<meta property="og:url" content="https://gaoguodong03.github.io/gdBlog/2026/10/30/%E4%B8%BA%E4%BB%80%E4%B9%88AI%E5%8F%AA%E4%BC%9A%E8%AF%B4%E6%AD%A3%E7%A1%AE%E7%9A%84%E5%BA%9F%E8%AF%9D%EF%BC%8C%E4%BB%A5%E5%8F%8A%E6%80%8E%E4%B9%88%E6%8A%8A%E5%AE%83%E9%80%BC%E5%87%BA%E8%88%92%E9%80%82%E5%8C%BA/index.html">
+<meta property="og:site_name" content="果冻小配方">
+<meta property="og:description" content="三周前，OpenAI发了一篇关于Harness Engineering的博文。我和社区里一个很厉害的朋友老王各自让自己的Agent做了一份深度调研。我们特意用了同档次的LLM（Claude Opus 4.6 vs GPT-5.4），同一个调研skill，同一个搜索工具Tavily，同一个agentic后端OpenCode，甚至同样的prompt，唯一不同的是两个Agent背后的context：我的">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://gaoguodong03.github.io/gdBlog/img/logoLLM.png">
+<meta property="article:published_time" content="2026-10-30T04:37:53.384Z">
+<meta property="article:modified_time" content="2026-10-30T05:05:09.103Z">
+<meta property="article:author" content="GuoDong">
+<meta property="article:tag" content="Agent">
+<meta property="article:tag" content="Codex">
+<meta property="article:tag" content="Memory">
+<meta property="article:tag" content="github">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://gaoguodong03.github.io/gdBlog/img/logoLLM.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "为什么AI只会说正确的废话，以及怎么把它逼出舒适区",
+  "url": "https://gaoguodong03.github.io/gdBlog/2026/10/30/%E4%B8%BA%E4%BB%80%E4%B9%88AI%E5%8F%AA%E4%BC%9A%E8%AF%B4%E6%AD%A3%E7%A1%AE%E7%9A%84%E5%BA%9F%E8%AF%9D%EF%BC%8C%E4%BB%A5%E5%8F%8A%E6%80%8E%E4%B9%88%E6%8A%8A%E5%AE%83%E9%80%BC%E5%87%BA%E8%88%92%E9%80%82%E5%8C%BA/",
+  "image": "https://gaoguodong03.github.io/gdBlog/img/logoLLM.png",
+  "datePublished": "2026-10-30T04:37:53.384Z",
+  "dateModified": "2026-10-30T05:05:09.103Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "GuoDong",
+      "url": "https://gaoguodong03.github.io/gdBlog"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/gdBlog/img/logo.jpg"><link rel="canonical" href="https://gaoguodong03.github.io/gdBlog/2026/10/30/%E4%B8%BA%E4%BB%80%E4%B9%88AI%E5%8F%AA%E4%BC%9A%E8%AF%B4%E6%AD%A3%E7%A1%AE%E7%9A%84%E5%BA%9F%E8%AF%9D%EF%BC%8C%E4%BB%A5%E5%8F%8A%E6%80%8E%E4%B9%88%E6%8A%8A%E5%AE%83%E9%80%BC%E5%87%BA%E8%88%92%E9%80%82%E5%8C%BA/index.html"><link rel="preconnect"/><link rel="stylesheet" href="/gdBlog/css/index.css"><link rel="stylesheet" href="/gdBlog/pluginsSrc/@fortawesome/fontawesome-free/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/gdBlog/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: '/gdBlog/pluginsSrc/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '为什么AI只会说正确的废话，以及怎么把它逼出舒适区',
+  isHighlightShrink: true,
+  isToc: true,
+  pageType: 'post'
+}</script><style>#article-container.post-content h1:before, h2:before, h3:before, h4:before, h5:before, h6:before { -webkit-animation: avatar_turn_around 1s linear infinite; -moz-animation: avatar_turn_around 1s linear infinite; -o-animation: avatar_turn_around 1s linear infinite; -ms-animation: avatar_turn_around 1s linear infinite; animation: avatar_turn_around 1s linear infinite; }</style><!-- hexo injector head_end start --><link rel="stylesheet" href="/gdBlog/./css/categorybar.css"><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-swiper/lib/swiper.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-swiper/lib/swiperstyle.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-wowjs/lib/animate.min.css" media="print" onload="this.media='screen'"><!-- hexo injector head_end end --><meta name="generator" content="Hexo 8.0.0"></head><body><div id="web_bg" style="background-image: url(/gdBlog/img/bg1.jpg);"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/gdBlog/img/touxiang.jpg" onerror="this.onerror=null;this.src='/gdBlog/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/gdBlog/archives/"><div class="headline">文章</div><div class="length-num">79</div></a><a href="/gdBlog/tags/"><div class="headline">标签</div><div class="length-num">52</div></a><a href="/gdBlog/categories/"><div class="headline">分类</div><div class="length-num">8</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/gdBlog/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/link/"><i class="fa-fw fas fa-link"></i><span> 书签</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/gdBlog/./img/logoLLM.png);"><nav id="nav"><!-- 左侧博客信息区域--><span id="blog-info"><a class="nav-site-title" href="/gdBlog/"><img class="site-icon" src="/gdBlog/img/logo.jpg" alt="Logo"><span class="site-name">果冻小配方</span></a><a class="nav-page-title" href="/gdBlog/"><span class="site-name">为什么AI只会说正确的废话，以及怎么把它逼出舒适区</span></a></span><!-- 新增的导航菜单容器（居中布局关键）--><div id="nav-menus-container"><!-- 菜单主体部分--><div id="menus"><!-- 搜索按钮--><!-- 菜单项--><div class="menus_items"><div class="menus_item"><a class="site-page" href="/gdBlog/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/link/"><i class="fa-fw fas fa-link"></i><span> 书签</span></a></div></div></div><!-- 移动端汉堡菜单按钮（保持原位置）--><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">为什么AI只会说正确的废话，以及怎么把它逼出舒适区</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-10-30T04:37:53.384Z" title="发表于 2026-10-30 12:37:53">2026-10-30</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-10-30T05:05:09.103Z" title="更新于 2026-10-30 13:05:09">2026-10-30</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">总字数:</span><span class="word-count">3.8k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>11分钟</span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><p>三周前，OpenAI发了一篇关于Harness Engineering的博文。我和社区里一个很厉害的朋友老王各自让自己的Agent做了一份深度调研。我们特意用了同档次的LLM（Claude Opus 4.6 vs GPT-5.4），同一个调研skill，同一个搜索工具Tavily，同一个agentic后端OpenCode，甚至同样的prompt，唯一不同的是两个Agent背后的context：我的Agent接入了我过去一年积累的判断框架和认知体系，老王的Agent没有。结果两边的AI给出了风格完全不同的分析。拿OpenAI和Cursor在harness架构上的收敛来举例：</p>
+<blockquote>
+<p><strong>第一种报告（行动建议部分）：</strong> 先做知识底座，再做更强agent。给仓库建立清晰的AGENTS.md目录索引；把产品规则、架构规则、执行计划、质量标准写进repo；用CI检查文档freshness和cross-link completeness。</p>
+<p><strong>第二种报告（同一话题的分析）：</strong> 完美主义是吞吐量的敌人。OpenAI采用最小阻塞合并、后续修复的策略。Cursor发现要求100%正确性会导致系统停滞，接受小而稳定的错误率反而更高效。两者都接受了「纠错比等待便宜」的权衡。</p>
+</blockquote>
+<p>差异在哪？第一种给了一份checklist：正确、安全、换任何人来问AI都能得到差不多的东西。第二种给了一个insight：跨两个不同来源提炼出一个有立场的判断（完美主义是敌人），并归纳出底层权衡（纠错比等待便宜）。一个是搬运工，一个是分析师。两篇完整报告可以在这里对比： <a target="_blank" rel="noopener" href="https://challenwang.com/essays/harness-engineering-survey-20260313.html">第一种报告</a> 和 <a target="_blank" rel="noopener" href="https://yage.ai/share/harness-engineering-survey-20260312.html">第二种报告</a> 。</p>
+<p>如果你回忆一下自己用AI做分析性工作的经验，大多数AI的产出其实都像第一种报告：找不出明显的错误，但读完之后没有任何启发。属于正确的废话。第二种极其少见。这种普遍的平庸来自一个LLM训练的底层原因。</p>
+<h2 id="LLM的Consensus天花板"><a href="#LLM的Consensus天花板" class="headerlink" title="LLM的Consensus天花板"></a>LLM的Consensus天花板</h2><p>这个原因是：LLM被训练的方式就决定了它的默认输出是consensus（共识）。</p>
+<blockquote>
+<p>LLM训练的本质是next token prediction，它的意思是：每一步输出概率最高的token。概率最高意味着最多人会认同，也就是consensus。RLHF在这个基础上更进了一步：安全对齐专门惩罚有争议的、带有强烈立场的输出，鼓励平衡、全面、没有明显偏向的回答。两层机制叠加，LLM的默认行为就是回归均值。</p>
+</blockquote>
+<p>这个默认行为导致了一个相当严重的缺陷。比如过去两年认知方向最火的产品是Deep Research，但仔细看它做的事情：自动化的高频搜索，多文档综合，扩大信息覆盖面。这其实和都Deep没有关系，充其量是Wide Research。换言之，Deep Research是一个非常有误导性的名字。它解决的问题是 <strong>信息</strong> 不对称：你以前不知道的，现在知道了。但是真正的深度来自另一个维度，来自 <strong>认知</strong> 不对称。面对同样一份行业报告，一个从业二十年的老兵和一个刚入行的新手看到的东西完全不一样。老兵的优势在于他有一套经过多年试错沉淀下来的认知系统，知道哪些数据是噪音，哪些异常值预示着趋势。小白没有这个滤镜，就算拿到10倍厚的报告也没办法做出同样质量的决策。</p>
+<p>这就是为什么你很少听到有人说「用了AI之后我有了以前从来没有过的深刻判断」。AI可以把一个小白提升到大众平均水平，因为它的训练数据就是大众平均水平的压缩。但对于已经在平均水平之上的人，AI的consensus输出对他的判断几乎没有增量。深刻的定义本来就是非共识，而非共识恰好是LLM被训练去规避的方向。</p>
+<p>但是，这个gap意味着一种浪费，一个机会。AI只能输出consensus的话，你就没法把真正的thinking委托给它。不说AGI之类的长远前景，就看日常应用，它能当秘书帮你整理信息，但是当不了顾问&#x2F;教练，帮你做判断。 <a target="_blank" rel="noopener" href="https://yage.ai/ai-management.html">之前的AI管理系列文章</a> 里讨论过这个区别，但那时还没有找到系统性的突破口。</p>
+<p>那突破口在哪？</p>
+<h2 id="AI已经从CPU-Bound走向Memory-Bound"><a href="#AI已经从CPU-Bound走向Memory-Bound" class="headerlink" title="AI已经从CPU Bound走向Memory Bound"></a>AI已经从CPU Bound走向Memory Bound</h2><p>面对AI说正确的废话，大家的直觉是去优化模型：换更好更贵的模型、改更复杂的prompt、加更完备的工具，Multi-Agent、Harness全给它整上。这些做法都在优化同一个维度：模型的智能。</p>
+<p>但是开头的实验已经告诉我们答案了。两边的模型智能几乎一样，工具一样，prompt一样。唯一不同的是context：第二种报告背后有一年积累的判断框架，第一种没有。结果一个输出checklist，一个输出insight。</p>
+<p>变量只有一个，结论很显然：（在模型智能跨过一道坎以后）决定产出性质的是context，而不是模型的智能。其实这种转变在计算机历史上发生过：CPU快到一定程度之后，继续升级CPU就没有意义了，主要的提升都来自内存架构。而LLM现在到了同样的拐点。</p>
+<p>这个判断是反直觉的。这是因为一说起AI，大家第一反应就是模型。我们经常看到模型升级了，却从来没看到过context升级了这种说法。但这个不对称本身就揭示了一个更深刻的趋势。每次模型升级，智能就更便宜一点，你用的模型别人也能用。但你的context是只属于你的，模型升级不会让它贬值。所以持续投入在一个不断贬值的维度（模型智能）上，收益递减；投入在一个不贬值的维度（个人context）上，收益累积。</p>
+<p>既然瓶颈在context，那要突破consensus天花板，就需要用足够密度的个人认知上下文压过训练时的consensus prior。几句话的system prompt做不到这件事。你的品味、你对优先级的直觉、你在某个领域反复验证过的判断框架，这些东西是高维的，散落在过去无数次决策和反馈里，几句话根本说不清楚，而需要一套系统来采集和精炼。</p>
+<h2 id="怎么把LLM从Consensus的舒适区域里面逼出来"><a href="#怎么把LLM从Consensus的舒适区域里面逼出来" class="headerlink" title="怎么把LLM从Consensus的舒适区域里面逼出来"></a>怎么把LLM从Consensus的舒适区域里面逼出来</h2><p>为了实现这个目标，我花了一年时间，逐渐构建了一整个系统，发展为三个互相支撑的要素。每一个要素都在回应一个具体的问题。</p>
+<h3 id="大量积累"><a href="#大量积累" class="headerlink" title="大量积累"></a>大量积累</h3><p>第一个问题是：你的认知框架到底是什么？</p>
+<p>这个问题看起来简单，实际上非常困难。厉害的人通常说不清楚自己哪里厉害，就算能说上来，往往也是错的。很多他觉得「没什么大不了」的肌肉记忆一样判断，恰恰是他最独特的地方。这部分一定要一个第三方才能捕捉到。</p>
+<p>所以捕捉Context的起点是采集客观的行为数据，而不是单单靠自己写prompt。我持续了一年相关实验，包括 <a target="_blank" rel="noopener" href="https://yage.ai/life-api.html">录音转写</a> 、会议记录、 <a target="_blank" rel="noopener" href="https://github.com/grapeot/wechat_db_parser/">微信对话导出</a> 、和AI的每次对话、每次纠正甚至发飙，都 <a target="_blank" rel="noopener" href="https://yage.ai/stop-using-chatgpt.html">积累成了本地文件</a> 。这些是我们在真实决策场景下展现出来的判断逻辑。</p>
+<p>注意，我们自己很难从里面提取模式，因为我们太接近它了。这往往需要一个旁观者来看，AI在这件事上是个合适的旁观者。因此，我把所有数据放在同一个文件夹里，AI打开就能看到所有内容，对任何项目做cross-reference。这是context density的基础。</p>
+<h3 id="分层提炼"><a href="#分层提炼" class="headerlink" title="分层提炼"></a>分层提炼</h3><p>第二个问题是：原始数据里那么多噪声，怎么把信号找出来？</p>
+<p>你今天做的某个决策可能是因为没睡好，可能当时信息不全，也可能就是随机选的。如果把原始数据直接给AI（比如 <a target="_blank" rel="noopener" href="https://mem0.ai/">Mem0</a> 的做法），AI面对的解读空间太大了。一个具体事件可能体现了很多不同的原则，有些决策甚至是arbitrary的。因此，我们需要一个精炼过程。</p>
+<p>这里我用了一个非常简单的筛选标准：稳定性。一个判断如果是跨场景、跨时间反复出现并保持一致的，它大概率是我们认知结构的一部分。不稳定的是情境反应，稳定的才是我自己。</p>
+<p><a target="_blank" rel="noopener" href="https://yage.ai/openclaw.html">受OpenClaw启发</a> ，这个精炼分为三层。L1 Observer每天扫描文件变动，提取有意义的观察，写个流水账。L2 Reflector每周合并重复、清理过期信息、识别跨项目模式，负责把信号和噪声分离。L3 Axiom从稳定模式中蒸馏决策原则，只保留真正代表你的东西。经过了一年的积累和几周的精炼，目前我的系统里积累了44条axiom，覆盖我的技术选择、沟通风格、商业判断等等主观偏好。</p>
+<p>这里我们和Mem0等等流行记忆系统的核心区别在于蒸馏的深度。Mem0蒸馏到事实层就停了：「你偏好TypeScript」「你住在上海」。但是我们的系统继续往上走，蒸馏到判断原则层：「评估技术方案时，你怎么权衡可维护性和性能，优先级排序是什么」。事实告诉AI你是谁，判断原则告诉AI你怎么想。让AI产出从consensus变成non-consensus，需要的是后者。</p>
+<h3 id="按需加载"><a href="#按需加载" class="headerlink" title="按需加载"></a>按需加载</h3><p>第三个问题是：这么多context，怎么给到AI？</p>
+<p>全部塞进去是不行的。Context window有限，而且无关信息会稀释有效信号。一个写代码的任务带入所有的商业判断原则没有意义，一个做调研的任务也不需要加载代码架构偏好。</p>
+<p>解决方案是现成的skill系统：每个skill是一个针对特定任务类型的context子集，包含这类任务最相关的axiom，判断标准，和常用工具。做调研时加载调研的分析框架，写代码时加载架构原则和审阅偏好。这和CPU的内存层级也是类似的：L1 <a target="_blank" rel="noopener" href="http://cache是agents.md/">cache是AGENTs.md</a> ，L2对应skill库的索引，告诉AI如果需要什么信息的话往哪找，L3则对应具体的skill文件。按需加载，渐进披露，每层只在需要的时候被调用。</p>
+<h3 id="循环"><a href="#循环" class="headerlink" title="循环"></a>循环</h3><p>三个要素运行起来之后，一件有意思的事情发生了：知识产品开始涌现，而每个产品在消费context的同时也在产生新的context。</p>
+<p><a target="_blank" rel="noopener" href="https://daily.yage.ai/">鸭哥AI手记</a> 是基于这个上下文系统写的每日AI行业简报，每一期都在消费axiom和skill，同时产出新的观察进入observation库。具体的 <a target="_blank" rel="noopener" href="https://www.superlinear.academy/c/news/">领域调研报告</a> 是带判断标准的深度分析，每篇报告在生产过程中同时也在更新相关领域的认知框架。这两个系列的报告质量都很高，被大家广泛订阅和转发。这证明了循环可以在足够高的context density下自然形成，在持续运行中不断保持活力。</p>
+<p>这个系统的本质是把你的bias注入AI。有品味的bias是深度的来源，但bias也可能是质量不高的偏见。不过把bias显性化这个过程本身就很有意义。在没有这个系统之前，你的bias散落在决策里，你意识不到它的形态，甚至存在。经过采集、精炼、蒸馏之后，你能看到自己面对某类问题时倾向于优先考虑什么、倾向于忽略什么。这种自我认知的进步，单独就有价值。</p>
+<p>回到开头的实验。老王的AI输出consensus，因为它能看到的context几乎是空的，训练时的prior没有被任何个人认知覆盖。我的AI输出有判断力的分析，因为它有一年积累的判断框架在背后。同一个模型，context density不同，产出的性质就不同。</p>
+<h3 id="开源的参考实现"><a href="#开源的参考实现" class="headerlink" title="开源的参考实现"></a>开源的参考实现</h3><p>但是注意，这个系统需要时间积累，需要一定的技术能力，需要持续维护的意愿。但换一个角度理解这个成本：「改一下system prompt就让AI瞬间懂你」或者「换一个更好的模型就够了」，这些捷径从原理上就走不通。Consensus prior太强，几句话压不过去，换模型只是换了一个consensus的来源。对于一个这么重要的问题，it deserves a system。从源头采集、分层精炼、按需加载、循环更新，每一步都有它的理由。并不简单，但特别有帮助。</p>
+<p>我们把这个系统的完整结构开源了： <a target="_blank" rel="noopener" href="https://github.com/grapeot/context-infrastructure">github.com&#x2F;grapeot&#x2F;context-infrastructure</a> 。这个repo是一个参考实现，包含了我们实际在用的44条axiom、核心skill文件、三层记忆系统的代码、以及文章里提到的所有组件。</p>
+<p>需要说清楚的是：这个repo的主要价值是让你看到一个运行了一年的系统长什么样，而非让你克隆下来就能直接用。你可以打开它跟AI对话，问「这个观点鸭哥会怎么看」，立刻体验到有context和没有context的差异。但要想让AI真正变成你自己的，没有捷径。你需要从头开始采集你的行为数据，设置你自己的计划任务，让系统从你的决策历史中蒸馏出属于你的判断原则。别人的skills是别人的视角，参考可以，替代不行。</p>
+<h2 id="偏见与硅基大脑"><a href="#偏见与硅基大脑" class="headerlink" title="偏见与硅基大脑"></a>偏见与硅基大脑</h2><p>总之，AI变得更聪明，并不自动让它变得更深刻。更聪明的consensus依然是consensus。突破天花板的路径只有一条：注入非共识的视角。</p>
+<p>每个人都有自己的非共识视角。你的判断标准，你的审美偏好，你从失败中提炼出的教训，你对什么重要什么次要的直觉。这些东西在AI的训练数据里不存在，永远不会被任何版本的模型自动学到，因为它们只属于你。</p>
+<p>硅基大脑的绝对客观最终只能抵达聪明的平庸，能将其重塑的，唯有你积累数十年、充满偏见与品味的人类灵魂。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://gaoguodong03.github.io/gdBlog">GuoDong</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://gaoguodong03.github.io/gdBlog/2026/10/30/%E4%B8%BA%E4%BB%80%E4%B9%88AI%E5%8F%AA%E4%BC%9A%E8%AF%B4%E6%AD%A3%E7%A1%AE%E7%9A%84%E5%BA%9F%E8%AF%9D%EF%BC%8C%E4%BB%A5%E5%8F%8A%E6%80%8E%E4%B9%88%E6%8A%8A%E5%AE%83%E9%80%BC%E5%87%BA%E8%88%92%E9%80%82%E5%8C%BA/">https://gaoguodong03.github.io/gdBlog/2026/10/30/%E4%B8%BA%E4%BB%80%E4%B9%88AI%E5%8F%AA%E4%BC%9A%E8%AF%B4%E6%AD%A3%E7%A1%AE%E7%9A%84%E5%BA%9F%E8%AF%9D%EF%BC%8C%E4%BB%A5%E5%8F%8A%E6%80%8E%E4%B9%88%E6%8A%8A%E5%AE%83%E9%80%BC%E5%87%BA%E8%88%92%E9%80%82%E5%8C%BA/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://gaoguodong03.github.io/gdBlog" target="_blank">果冻小配方</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/gdBlog/tags/Agent/">Agent</a><a class="post-meta__tags" href="/gdBlog/tags/Codex/">Codex</a><a class="post-meta__tags" href="/gdBlog/tags/Memory/">Memory</a><a class="post-meta__tags" href="/gdBlog/tags/github/">github</a></div><div class="post-share"><div class="social-share" data-image="/gdBlog/./img/logoLLM.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="/gdBlog/pluginsSrc/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="/gdBlog/pluginsSrc/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/gdBlog/2026/10/30/%E9%80%9A%E8%BF%87Jev%EF%BC%8C%E8%BE%A8%E6%B8%85AI%E6%96%B0%E6%8A%80%E6%9C%AF%E7%9A%84%E5%8F%99%E4%BA%8B%E9%99%B7%E9%98%B1%EF%BC%9A%E8%B0%81%E6%9B%BF%E4%BD%A0%E5%86%B3%E5%AE%9A%E4%BA%86%E4%BB%80%E4%B9%88%E5%8F%AB%E2%80%9C%E5%8E%89%E5%AE%B3%E2%80%9D%EF%BC%9F/" title="通过Jev，辨清AI新技术的叙事陷阱：谁替你决定了什么叫“厉害”？"><img class="cover" src="/gdBlog/./img/logoLLM.png" onerror="onerror=null;src='/gdBlog/img/404.jpg'" alt="cover of previous post"><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">通过Jev，辨清AI新技术的叙事陷阱：谁替你决定了什么叫“厉害”？</div></div><div class="info-2"><div class="info-item-1">TL;DR 新技术常通过“叙事框架”，先让你接受怎样才算“厉害”，再证明自己厉害。 我们还会沿着它的叙事“脑补”，用光滑的技术假设，想象一个不会到来的未来。这就是反复出现的 叙事陷阱 。 要跳出叙事陷阱，需要五步： 1. 理解技术、2. 明确边界、3. 拿回评价标准、 4. 找到真正合理的比较对象 （对Jev来说，是本地小模型直读logits并归一化、或者上一代的Bert模型；而不是自回归LLM）、5. 判断它强调的问题值不值得投入。我们会用Jev的案例展开这五层判断。 技术博主功课大多停留在前两层，反而让一个不完整的叙事更有说服力和传播力。 故事本来就符合大众期待，博主又读过原文、做过实验，于是热度和专业信誉相互强化。走到后几层再说“不必追”的人，反而容易被误认为连前两层都没做过。 过去两年我们的技术判断，验证了五步判断是通用的： 为什么我们当时建议不必追LangChain、MCP、OpenClaw，又为什么早早看好Claude Code、Skills。把当时的判断依据和后来的发展放在一起看，这五层就更容易理解，也更容易用到下一项新技术上。 我们也发现，教学中省掉了一部分形成判...</div></div></div></a><a class="pagination-related" href="/gdBlog/2026/10/30/%E3%80%90%E7%BF%BB%E8%AF%91%E3%80%91%E5%9B%A2%E9%98%9F%E5%A6%82%E4%BD%95%E8%BF%9B%E8%A1%8C%E4%BB%A3%E7%A0%81%E5%AE%A1%E6%9F%A5/" title="【翻译】团队如何进行代码审查"><img class="cover" src="/gdBlog/./img/logoClaude.png" onerror="onerror=null;src='/gdBlog/img/404.jpg'" alt="cover of next post"><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">【翻译】团队如何进行代码审查</div></div><div class="info-2"><div class="info-item-1">How the Claude Code team does code reviewClaude Code 团队如何进行代码审查How do you review code at the volume agents produce it? On the Claude Code team, once we had high coverage and deep reviews, we started optimizing for the minimum amount of human review time that doesn’t raise reverts or incidents.如何审查代理生成的大量代码？在 Claude Code 团队，一旦我们实现了高覆盖率和深度审查，我们就开始优化，力求在不引发回滚或事件的前提下，最大限度地减少人工审查时间。 We’ve said before that Claude writes about 90 percent of Claude Code’s own code. So how do we review code at the vol...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/gdBlog/2026/01/13/AGI-NEXT-%E5%B3%B0%E4%BC%9A/" title="AGI-NEXT 峰会"><img class="cover" src="/gdBlog/./img/logoLLM.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-01-13</div><div class="info-item-2">AGI-NEXT 峰会</div></div><div class="info-2"><div class="info-item-1">Q1: 为什么说Chat时代已经结束？ 经过一年的观察，唐杰认为单纯做Chat已经不是在真正解决问题。他原本预判大模型会替代搜索，但现实是谷歌反而用AI把自己的搜索革命了。而2025年初DeepSeek的出现，在他看来彻底终结了Chat范式的竞争。 “可能对研究界、产业界，甚至对很多人都是’横空出世’。”唐杰说，“在DeepSeek这种范式下，Chat时代基本上算是解决了。我们做得再好，也许跟DeepSeek差不多，或许在上面再个性化一点、变成有情感的Chat。但总的来讲，这个范式基本到头了，剩下更多是工程和技术问题。” 这个判断促使智谱做出战略转向。团队内部争论了很多个晚上，最终决定把所有精力放在Coding和Agent上。2025年7月，智谱发布4.5版本，把Coding、Agentic、Reasoning能力整合在一起。 但真实世界的反馈很快给了他们一记重击。 用户拿着模型去编”植物大战僵尸”，结果编不出来。”真实编程环境下有大量问题需要解决。”唐杰说。团队通过RLVR（可验证强化学习）配合编程环境作为反馈，才把效果提升上去。这个经历让他意识到：跑分是跑分，真正让能力进入主...</div></div></div></a><a class="pagination-related" href="/gdBlog/2026/05/30/AI-%E6%97%B6%E4%BB%A3%E7%9A%84%E6%96%B0%E5%AE%A0%E5%B2%97%E4%BD%8D%EF%BC%9AForward-Deployed-Engineer-%E5%88%B0%E5%BA%95%E6%98%AF%E4%BB%80%E4%B9%88/" title="AI 时代的新宠岗位：Forward Deployed Engineer 到底是什么"><img class="cover" src="/gdBlog/./img/fde-cover-baoyu.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-30</div><div class="info-item-2">AI 时代的新宠岗位：Forward Deployed Engineer 到底是什么</div></div><div class="info-2"><div class="info-item-1">原文：Forward Deployed Engineer：AI 时代的新宠岗位，到底干什么？ 作者：宝玉 最近读到宝玉老师写的这篇关于 Forward Deployed Engineer 的文章，感觉它讲的并不只是一个新岗位，而是 AI 行业正在发生的一次很重要的重心转移：  过去大家最关心的是模型能力：谁的模型更强，谁的榜单更高，谁的上下文更长。 但现在越来越关键的问题变成了：谁能把 AI 真正部署进业务现场，并且产生可衡量的价值。  Forward Deployed Engineer，通常缩写为 FDE，直译过来可以叫“前线部署工程师”。这个名字听起来有点军工味，因为它确实继承了一种很“前线”的工作方式：工程师不只坐在办公室里写代码，而是直接进入客户现场，理解业务流程、拆解真实问题、写代码、接系统、调模型、做交付。 如果说传统软件工程师更多是在产品内部构建能力，那么 FDE 更像是把能力送到客户真实战场的人。 为什么这个岗位突然重要起来了？AI 公司现在遇到的一个核心问题是：模型很强，但企业不知道怎么用。 很多企业买了大模型 API，或者采购了一个 AI 平台，但真正落到业务...</div></div></div></a><a class="pagination-related" href="/gdBlog/2026/10/29/Agent-%E7%9A%84%E6%8C%81%E7%BB%AD%E8%BF%9B%E5%8C%96-%E2%80%94-%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3-AI-Agent/" title="Agent 的持续进化 — 深入理解 AI Agent"><img class="cover" src="/gdBlog/./img/logoAIAgent.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-10-29</div><div class="info-item-2">Agent 的持续进化 — 深入理解 AI Agent</div></div><div class="info-2"><div class="info-item-1">今天的 Agent 面临一个鲜明的能力悖论：它可以零样本解决从未见过的复杂任务，却可能在处理了一万次相似任务之后，第二天仍然犯下第一天的错误。模型上岗之后，能否像新员工一样从日常工作中不断长进？ 能否自主从经验中学习 （所谓 持续学习 ，continual learning），正在成为 Agent 从“会完成任务”走向“能够可靠工作”的关键能力，也是下一代模型的核心研究课题。今天的 “持续学习” 概念与早年 “学了新任务就忘掉旧任务” 的持续学习研究不是同一个问题，遗忘只是其中一个子问题，更难的是没有人告诉模型，今天这一天的经历里哪些是做对的，哪些是做错的。就目前而言，模型本身的持续学习能力仍远远不够。 原因在于，部署后的模型并不会因为一次推理自动改变参数。第二章讨论的上下文学习、状态维护和压缩，能让 Agent 在 当前任务内 适应；但上下文结束后，这种变化不会自然进入下一次任务。把对话存进记忆也不等于学会了新的行为：原始轨迹可能很长，其中既有有效策略，也有偶然成功、错误归因和不可信输入。 这里有一个容易混淆的区别： 保存经历不等于从经历中学习 。把一百条轨迹放进长上下文或向量...</div></div></div></a><a class="pagination-related" href="/gdBlog/2026/10/22/Docker%E5%92%8C%E4%BC%A0%E7%BB%9F%E8%99%9A%E6%8B%9F%E6%9C%BA%E6%9C%89%E4%BB%80%E4%B9%88%E5%8C%BA%E5%88%AB%EF%BC%9F/" title="Docker和传统虚拟机有什么区别？"><img class="cover" src="/gdBlog/./img/logoDeepsearch.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-10-22</div><div class="info-item-2">Docker和传统虚拟机有什么区别？</div></div><div class="info-2"><div class="info-item-1">我有一个程序员朋友，他每年情人节都要送女朋友一台服务器。 他说：“谁不想在过节当天收到一台 4核8g 的服务器呢？” “万一对方不要，我还能留着自己用。” 给他一次过节的机会，他能把 浪漫 玩的明明白白。所以今年情人节，他自己一个人过。太痛了，是那种 布洛芬都不知道他哪里痛 的痛。 虽然人跑了，但起码还有服务器陪着他，但屏幕前依然单身的你呢？ 你连服务器都没有 。那么问题就来了，你买过服务器吗？看着云厂商各种产品是不是有点懵。你知道 ecs，vps，docker 容器 是什么吗？它们有啥区别呢？ 我们今天来聊聊这个话题。 物理服务器是什么？我的柜子里有一台大学时候用的废弃电脑，自带 cpu、 内存等硬件和操作系统，根据一些教程视频，是可以做成服务器的。 像这样一台看得见摸得着的机器，其实就是云厂商页面里提到的 物理服务器 或 物理机 。不同厂商叫法不同，有的厂商叫它 独立服务器 。 跟家里电脑不一样的是，云厂商的机器性能更好，核数更高，还有专业的机房和空调伺候着。那既然这样，是不是就不需要买云厂商的服务器呢？ 糊涂啊，一台家用电脑跑起来 50 瓦，一年下来电费都好几百，还得花精力...</div></div></div></a><a class="pagination-related" href="/gdBlog/2026/10/22/Docker-%E5%92%8C-k8s-%E4%B9%8B%E9%97%B4%E6%98%AF%E4%BB%80%E4%B9%88%E5%85%B3%E7%B3%BB%EF%BC%9F/" title="Docker  和 k8s 之间是什么关系？"><img class="cover" src="/gdBlog/./img/logoLLM.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-10-22</div><div class="info-item-2">Docker  和 k8s 之间是什么关系？</div></div><div class="info-2"><div class="info-item-1">作为一个程序员，如果你想安装一个 vim 编辑下文本，在不同环境里你得执行不同的命令。在 ubuntu，你需要执行 apt-get install vim ，在 centos 里，你需要执行 yum install vim. 装个小软件尚且如此，要是你想将自己写的代码部署到各个不同操作系统的服务器上，那依赖的软件和配置就更多了，需要针对每个环境单独写一套部署脚本。难受，太难受了。 那么问题就来了，有没有更好的解决方案？当然有， 没有什么是加一层中间层不能解决的，如果有，那就再加一层 ，这次我们要加的中间层是 Docker 。 Docker是代码和操作系统之间的中间层 哦不，准确来说是 Docker容器 。 容器技术 Docker 是什么？我们经常能听到程序员说”这个程序在我环境里明明是好的啊，怎么到你这就不行了呢”？注意这里的关键词， 程序 和 环境 。程序是跑在操作系统上的，而操作系统上又装了各种不同版本的依赖库和配置，这些被程序所依赖的信息，我们统称为” 环境 “。 程序和环境 程序依赖环境，环境不同，程序就可能跑不起来。如果我们能将环境和程序一起打包，给到对方运行，那问题不...</div></div></div></a><a class="pagination-related" href="/gdBlog/2026/06/05/GUI-Agent-%E6%9E%B6%E6%9E%84%E5%85%A5%E9%97%A8%EF%BC%9A%E4%BB%8E%E7%95%8C%E9%9D%A2%E6%84%9F%E7%9F%A5%E5%88%B0%E8%87%AA%E4%B8%BB%E6%93%8D%E4%BD%9C/" title="GUI Agent 架构入门：从界面感知到自主操作"><img class="cover" src="/gdBlog/./img/gui-agent-architecture-cover.svg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-06-05</div><div class="info-item-2">GUI Agent 架构入门：从界面感知到自主操作</div></div><div class="info-2"><div class="info-item-1">过去我们聊 Agent，很多时候聊的是“文本世界里的 Agent”。 它读一段用户输入，拆解任务，调用搜索、数据库、代码执行器、文件系统、MCP 工具，最后把结果组织成一段文本。这个方向已经很熟悉了：ReAct、Plan-and-Execute、Reflection、多 Agent、Memory、Tool Use，这些范式本质上都围绕一个问题展开：大模型如何在文本和工具之间形成更可靠的行动链。 但 GUI Agent 不一样。 GUI Agent 面对的不是结构清晰的 API，而是一个图形用户界面。它看到的是浏览器窗口、按钮、输入框、弹窗、菜单、表格、滚动条、文件选择器、验证码、系统通知、加载动画，以及各种“人类一眼就懂、机器不一定能懂”的界面暗示。 也就是说，GUI Agent 的任务不是“回答问题”，而是“使用软件”。 比如：  打开一个网页后台，登录，搜索订单，导出报表； 在浏览器里查资料，把内容复制到文档里； 在手机 App 里完成订票、下单、修改设置； 在桌面系统中打开文件、重命名、压缩、上传； 在一个没有 API 的旧系统里，通过界面把流程跑完。  这类任务真正困难的...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/gdBlog/img/touxiang.jpg" onerror="this.onerror=null;this.src='/gdBlog/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">GuoDong</div><div class="author-info-description">碎碎念念 岁岁年年</div><div class="site-data"><a href="/gdBlog/archives/"><div class="headline">文章</div><div class="length-num">79</div></a><a href="/gdBlog/tags/"><div class="headline">标签</div><div class="length-num">52</div></a><a href="/gdBlog/categories/"><div class="headline">分类</div><div class="length-num">8</div></a></div><div class="card-info-social-icons"><a class="social-icon" href="https://www.bilibili.com/" target="_blank" title="bilibili"><i class="fab fa-bilibili" style="color: #24292e;"></i></a><a class="social-icon" href="https://github.com/gaoguodong03" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="https://leetcode.cn/studyplan/top-100-liked/" target="_blank" title="LeetCode"><i class="fab fa-comments" style="color: #24292e;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">好事马上发生</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#LLM%E7%9A%84Consensus%E5%A4%A9%E8%8A%B1%E6%9D%BF"><span class="toc-number">1.</span> <span class="toc-text">LLM的Consensus天花板</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#AI%E5%B7%B2%E7%BB%8F%E4%BB%8ECPU-Bound%E8%B5%B0%E5%90%91Memory-Bound"><span class="toc-number">2.</span> <span class="toc-text">AI已经从CPU Bound走向Memory Bound</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%8E%E4%B9%88%E6%8A%8ALLM%E4%BB%8EConsensus%E7%9A%84%E8%88%92%E9%80%82%E5%8C%BA%E5%9F%9F%E9%87%8C%E9%9D%A2%E9%80%BC%E5%87%BA%E6%9D%A5"><span class="toc-number">3.</span> <span class="toc-text">怎么把LLM从Consensus的舒适区域里面逼出来</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A4%A7%E9%87%8F%E7%A7%AF%E7%B4%AF"><span class="toc-number">3.1.</span> <span class="toc-text">大量积累</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%86%E5%B1%82%E6%8F%90%E7%82%BC"><span class="toc-number">3.2.</span> <span class="toc-text">分层提炼</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8C%89%E9%9C%80%E5%8A%A0%E8%BD%BD"><span class="toc-number">3.3.</span> <span class="toc-text">按需加载</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BE%AA%E7%8E%AF"><span class="toc-number">3.4.</span> <span class="toc-text">循环</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BC%80%E6%BA%90%E7%9A%84%E5%8F%82%E8%80%83%E5%AE%9E%E7%8E%B0"><span class="toc-number">3.5.</span> <span class="toc-text">开源的参考实现</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%81%8F%E8%A7%81%E4%B8%8E%E7%A1%85%E5%9F%BA%E5%A4%A7%E8%84%91"><span class="toc-number">4.</span> <span class="toc-text">偏见与硅基大脑</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/gdBlog/2025/11/01/RAG/" title="RAG">RAG</a><time datetime="2026-11-02T06:27:11.614Z" title="更新于 2026-11-02 14:27:11">2026-11-02</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/gdBlog/2026/11/02/%E4%BB%8E%E7%99%BD%E7%9B%92%E8%92%B8%E9%A6%8F%E3%80%81%E9%BB%91%E7%9B%92%E8%92%B8%E9%A6%8F%EF%BC%8C%E5%86%8D%E5%88%B0%E8%87%AA%E8%92%B8%E9%A6%8F%EF%BC%81%E6%B7%B1%E5%BA%A6%E7%90%86%E8%A7%A3-OPD-%E8%AE%AD%E7%BB%83%E7%9A%84%E6%9C%AC%E8%B4%A8/" title="从白盒蒸馏、黑盒蒸馏，再到自蒸馏！深度理解 OPD 训练的本质">从白盒蒸馏、黑盒蒸馏，再到自蒸馏！深度理解 OPD 训练的本质</a><time datetime="2026-11-02T03:05:09.529Z" title="更新于 2026-11-02 11:05:09">2026-11-02</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/gdBlog/2026/10/30/%E4%B8%BA%E4%BB%80%E4%B9%88%E5%AD%A6%E4%B9%A0Agentic-AI%E7%9A%84%E7%AC%AC%E4%B8%80%E6%AD%A5%E6%98%AF%E5%BF%98%E8%AE%B0%E6%89%80%E6%9C%89%E6%A1%86%E6%9E%B6%EF%BC%9F/" title="为什么学习Agentic AI的第一步是忘记所有框架？">为什么学习Agentic AI的第一步是忘记所有框架？</a><time datetime="2026-10-30T12:39:12.128Z" title="更新于 2026-10-30 20:39:12">2026-10-30</time></div></div></div></div></div></div></main><footer id="footer" style="background: transparent;"><div class="footer-other"><div class="footer-copyright"></div><div class="footer_custom_text"><style>
+  .footer {
+    text-align: center;
+    position: relative;
+  }
+  .footer p {
+    margin: 0.5rem 0;
+    line-height: 1;
+  }
+  .copyright {
+    font-size: 1.1rem; 
+    color: #000000;
+    font-weight: 400;
+  }
+  .tagline {
+    font-size: 0.8rem;
+    color: #333333;
+    font-style: italic;
+    font-weight: 500;
+  }
+  .visitor-count {
+    font-size: 0.75rem;
+    color: rgba(0, 0, 0, 0.7);
+    font-weight: 300;
+  }
+  #visitorCount {
+    font-weight: bold;
+  }
+</style>
+<div class="footer">
+  <p class="copyright">© 2025 果冻小配方 - 所有权利保留</p>
+  <p class="tagline">> 碎碎念念 岁岁年年 <</p>
+  <p class="visitor-count">访问量: <span id="visitorCount">1024</span> | 你是第 <span id="dailyVisitor">1</span> 位今日访客</p>
+</div>
+<script>
+  // 确保DOM加载完成后执行
+  document.addEventListener('DOMContentLoaded', function() {
+    // 模拟访问量增长
+    function updateVisitorCount() {
+      const countElement = document.getElementById('visitorCount');
+      let count = parseInt(localStorage.getItem('totalVisitors'), 10) || 1024;
+      count += 1;
+      countElement.textContent = count;
+      localStorage.setItem('totalVisitors', String(count));
+      const today = new Date().toDateString();
+      const dailyData = JSON.parse(localStorage.getItem('dailyVisitors') || '{"date":"", "count":0}');
+      if (dailyData.date !== today) {
+        dailyData.date = today;
+        dailyData.count = 0;
+      }
+      dailyData.count += 1;
+      document.getElementById('dailyVisitor').textContent = dailyData.count;
+      localStorage.setItem('dailyVisitors', JSON.stringify(dailyData));
+    }
+    updateVisitorCount();
+  });
+</script>
+</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/gdBlog/js/utils.js"></script><script src="/gdBlog/js/main.js"></script><div class="js-pjax"></div><script src="/config/js/happy-title.js" async></script><script src="/config/js/foot.js" async></script></div><!-- hexo injector body_end start --><script data-pjax>
+    function butterfly_categories_card_injector_config(){
+      var parent_div_git = document.getElementById('recent-posts');
+      var item_html = '<style>li.categoryBar-list-item{width:32.3%;}.categoryBar-list{max-height: 950px;overflow:auto;}.categoryBar-list::-webkit-scrollbar{width:0!important}@media screen and (max-width: 650px){.categoryBar-list{max-height: 800px;}}</style><div class="recent-post-item" style="height:auto;width:100%;padding:0px;"><div id="categoryBar"><ul class="categoryBar-list"><li class="categoryBar-list-item" style="background:url(/img/logo.jpg);"> <a class="categoryBar-list-link" href="categories/Hello-Agents/">Hello-Agents</a><span class="categoryBar-list-count">8</span><span class="categoryBar-list-descr">果冻的航海日记</span></li><li class="categoryBar-list-item" style="background:url(/img/logo.jpg);"> <a class="categoryBar-list-link" href="categories/果冻的科普专区/">果冻的科普专区</a><span class="categoryBar-list-count">15</span><span class="categoryBar-list-descr">Hexo</span></li><li class="categoryBar-list-item" style="background:url(/img/logo.jpg);"> <a class="categoryBar-list-link" href="categories/果冻的理论学习/">果冻的理论学习</a><span class="categoryBar-list-count">17</span><span class="categoryBar-list-descr">果冻的奇妙小工具</span></li><li class="categoryBar-list-item" style="background:url(/img/logo.jpg);"> <a class="categoryBar-list-link" href="categories/果冻的航海日志/">果冻的航海日志</a><span class="categoryBar-list-count">10</span><span class="categoryBar-list-descr">果冻的日记本</span></li><li class="categoryBar-list-item" style="background:url(undefined);"> <a class="categoryBar-list-link" href="categories/果冻的奇妙小工具/">果冻的奇妙小工具</a><span class="categoryBar-list-count">8</span><span class="categoryBar-list-descr"></span></li><li class="categoryBar-list-item" style="background:url(undefined);"> <a class="categoryBar-list-link" href="categories/道不可言言而非也/">道不可言言而非也</a><span class="categoryBar-list-count">1</span><span class="categoryBar-list-descr"></span></li><li class="categoryBar-list-item" style="background:url(undefined);"> <a class="categoryBar-list-link" href="categories/Hexo/">Hexo</a><span class="categoryBar-list-count">1</span><span class="categoryBar-list-descr"></span></li><li class="categoryBar-list-item" style="background:url(undefined);"> <a class="categoryBar-list-link" href="categories/果冻的LeetCode刷题/">果冻的LeetCode刷题</a><span class="categoryBar-list-count">5</span><span class="categoryBar-list-descr"></span></li></ul></div></div>';
+      console.log('已挂载butterfly_categories_card')
+      parent_div_git.insertAdjacentHTML("afterbegin",item_html)
+      }
+    if( document.getElementById('recent-posts') && (location.pathname ==='/categories/'|| '/categories/' ==='all')){
+    butterfly_categories_card_injector_config()
+    }
+  </script><script data-pjax>
+  function butterfly_swiper_injector_config(){
+    var parent_div_git = document.getElementById('recent-posts');
+    var item_html = '<div class="recent-post-item" style="height: auto;width: 100%"><div class="blog-slider swiper-container-fade swiper-container-horizontal" id="swiper_container"><div class="blog-slider__wrp swiper-wrapper" style="transition-duration: 0ms;"></div><div class="blog-slider__pagination swiper-pagination-clickable swiper-pagination-bullets"></div></div></div>';
+    console.log('已挂载butterfly_swiper')
+    parent_div_git.insertAdjacentHTML("afterbegin",item_html)
+    }
+  var elist = 'undefined'.split(',');
+  var cpage = location.pathname;
+  var epage = '/';
+  var flag = 0;
+
+  for (var i=0;i<elist.length;i++){
+    if (cpage.includes(elist[i])){
+      flag++;
+    }
+  }
+
+  if ((epage ==='all')&&(flag == 0)){
+    butterfly_swiper_injector_config();
+  }
+  else if (epage === cpage){
+    butterfly_swiper_injector_config();
+  }
+  </script><script defer src="https://npm.elemecdn.com/hexo-butterfly-swiper/lib/swiper.min.js"></script><script defer data-pjax src="https://npm.elemecdn.com/hexo-butterfly-swiper/lib/swiper_init.js"></script><div class="js-pjax"><script async="async">var arr = document.getElementsByClassName('recent-post-item');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__zoomIn');
+    arr[i].setAttribute('data-wow-duration', '300ms');
+    arr[i].setAttribute('data-wow-delay', '0ms');
+    arr[i].setAttribute('data-wow-offset', '0');
+    arr[i].setAttribute('data-wow-iteration', '1');
+  }</script><script async="async">var arr = document.getElementsByClassName('card-widget');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__zoomIn');
+    arr[i].setAttribute('data-wow-duration', '');
+    arr[i].setAttribute('data-wow-delay', '');
+    arr[i].setAttribute('data-wow-offset', '');
+    arr[i].setAttribute('data-wow-iteration', '');
+  }</script></div><script defer src="https://npm.elemecdn.com/hexo-butterfly-wowjs/lib/wow.min.js"></script><script defer src="https://npm.elemecdn.com/hexo-butterfly-wowjs/lib/wow_init.js"></script><!-- hexo injector body_end end --></body></html>
