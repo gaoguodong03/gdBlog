@@ -1,13 +1,13 @@
-<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>随手传 | 果冻小配方</title><meta name="author" content="GuoDong"><meta name="copyright" content="GuoDong"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="正在连接随手传…        邮箱          密码          登录                         刷新记录       退出                 新内容                                取消编辑         保存                 记录      还没有记录。在上方保存一条内容就会出现在这里。">
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>随手传 | 果冻小配方</title><meta name="author" content="GuoDong"><meta name="copyright" content="GuoDong"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="正在连接随手传…        邮箱          密码          密码提示 suGD     登录                         刷新记录       退出                 新内容                                取消编辑         保存                                 上">
 <meta property="og:type" content="website">
 <meta property="og:title" content="随手传">
 <meta property="og:url" content="https://gaoguodong03.github.io/gdBlog/transfer/index.html">
 <meta property="og:site_name" content="果冻小配方">
-<meta property="og:description" content="正在连接随手传…        邮箱          密码          登录                         刷新记录       退出                 新内容                                取消编辑         保存                 记录      还没有记录。在上方保存一条内容就会出现在这里。">
+<meta property="og:description" content="正在连接随手传…        邮箱          密码          密码提示 suGD     登录                         刷新记录       退出                 新内容                                取消编辑         保存                                 上">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://gaoguodong03.github.io/gdBlog/img/touxiang.jpg">
-<meta property="article:published_time" content="2026-11-25T01:16:03.867Z">
-<meta property="article:modified_time" content="2026-11-25T01:16:03.867Z">
+<meta property="article:published_time" content="2026-11-25T01:48:59.744Z">
+<meta property="article:modified_time" content="2026-11-25T01:48:59.744Z">
 <meta property="article:author" content="GuoDong">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://gaoguodong03.github.io/gdBlog/img/touxiang.jpg"><script type="application/ld+json"></script><link rel="shortcut icon" href="/gdBlog/img/logo.jpg"><link rel="canonical" href="https://gaoguodong03.github.io/gdBlog/transfer/index.html"><link rel="preconnect"/><link rel="stylesheet" href="/gdBlog/css/index.css"><link rel="stylesheet" href="/gdBlog/pluginsSrc/@fortawesome/fontawesome-free/css/all.min.css"><script>
@@ -151,7 +151,8 @@
     <label for="transfer-email">邮箱</label>
     <input id="transfer-email" name="email" type="email" value="2987371922@qq.mail" autocomplete="username" required>
     <label for="transfer-password">密码</label>
-    <input id="transfer-password" name="password" type="password" autocomplete="current-password" required>
+    <input id="transfer-password" name="password" type="password" autocomplete="current-password" aria-describedby="transfer-password-hint" required>
+    <div id="transfer-password-hint" class="transfer-hint">密码提示 <code>suGD</code></div>
     <button class="transfer-save" type="submit">登录</button>
   </form>
   <section id="transfer-workspace" aria-label="随手传" hidden>
@@ -169,8 +170,23 @@
         <button class="transfer-save" type="submit">保存</button>
       </div>
     </form>
+    <form id="transfer-file-form" class="transfer-composer transfer-file-panel">
+      <div class="transfer-file-header">
+        <label for="transfer-file">上传文件</label>
+        <span id="transfer-file-limit" class="transfer-hint">每个文件最多 40 MB</span>
+      </div>
+      <div class="transfer-quota">
+        <span id="transfer-quota-text" role="status">正在读取文件额度…</span>
+        <meter id="transfer-quota-meter" min="0" max="1000000000" value="0" aria-label="1 GB 文件额度已用" hidden></meter>
+      </div>
+      <div class="transfer-toolbar transfer-file-toolbar">
+        <input id="transfer-file" type="file" aria-describedby="transfer-file-limit" required>
+        <button class="transfer-save" type="submit">上传</button>
+      </div>
+      <div id="transfer-file-status" class="transfer-hint" role="status"></div>
+    </form>
     <div class="transfer-list-heading">记录 <span id="transfer-count"></span></div>
-    <p id="transfer-empty" hidden>还没有记录。在上方保存一条内容就会出现在这里。</p>
+    <p id="transfer-empty" hidden>还没有记录。保存文字或上传文件后会显示在这里。</p>
     <ul id="transfer-list" aria-label="随手传记录"></ul>
   </section>
   <template id="transfer-entry">
@@ -180,6 +196,7 @@
         <div class="transfer-actions">
           <button type="button" data-action="edit">编辑</button>
           <button type="button" data-action="copy">复制</button>
+          <button type="button" data-action="download" hidden>下载</button>
           <button type="button" data-action="delete">删除</button>
         </div>
       </div>
@@ -188,6 +205,7 @@
   </template>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.2/dist/umd/supabase.js" integrity="sha384-A97u3Qnt9GZHURO9YJZRe7VQgGUeFzcv6I1oIGnUTxQrCxnpQMwR0/G8F2zt9abZ" crossorigin="anonymous" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/tus-js-client@4.3.1/dist/tus.min.js" integrity="sha384-UlHjK3F7TCQCEUpnoa1ohMbP2oaWB3Aypv4gMo511vaZ86uUZ0Zv7UzZ0J1zRUT1" crossorigin="anonymous" defer></script>
 <script src="./transfer.js" defer></script>
 
 </div></div></main><footer id="footer" style="background: transparent;"><div class="footer-other"><div class="footer-copyright"></div><div class="footer_custom_text"><style>

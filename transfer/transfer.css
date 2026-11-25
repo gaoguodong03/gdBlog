@@ -38,6 +38,63 @@
   background: var(--transfer-paper);
 }
 
+.transfer-hint {
+  color: var(--transfer-ink);
+  font-size: 13px;
+}
+
+#transfer-password-hint {
+  margin: -3px 0 12px;
+}
+
+.transfer-file-panel {
+  margin-top: 12px;
+}
+
+.transfer-file-header,
+.transfer-quota {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+}
+
+.transfer-quota {
+  margin-top: 4px;
+  font-size: 13px;
+}
+
+.transfer-quota meter {
+  width: min(160px, 100%);
+}
+
+.transfer-file-toolbar {
+  margin-top: 9px;
+}
+
+#transfer-file {
+  flex: 1 1 240px;
+  min-width: 0;
+  margin: 0;
+  padding: 7px;
+  font-size: 14px;
+}
+
+#transfer-file::file-selector-button {
+  margin-right: 8px;
+  padding: 4px 8px;
+  border: 0;
+  border-radius: 5px;
+  background: var(--transfer-paper);
+  color: var(--transfer-ink);
+  cursor: pointer;
+}
+
+#transfer-file-status:not(:empty) {
+  margin-top: 6px;
+}
+
 .transfer label,
 .transfer-list-heading {
   display: block;
