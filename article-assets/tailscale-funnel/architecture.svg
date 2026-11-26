@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 460" role="img" aria-labelledby="title desc">
+  <title id="title">内网服务如何接入公网</title>
+  <desc id="desc">四九的实际访问路径由浏览器经过 Tailscale 公网中继和 miniPC 上的 Tailscale 节点到达四九。1Panel 管理应用部署。对于 K8s 应用，集群外的节点可以通过 Ingress 入口访问集群里的 Service 和 Pod。</desc>
+  <defs>
+    <pattern id="grid" width="28" height="28" patternUnits="userSpaceOnUse">
+      <path d="M28 0H0V28" fill="none" stroke="#26344a" stroke-width=".6"/>
+    </pattern>
+    <marker id="traffic" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0 0 10 5 0 10Z" fill="#67e8f9"/>
+    </marker>
+    <marker id="admin" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0 0 10 5 0 10Z" fill="#c4b5fd"/>
+    </marker>
+    <style>
+      text { font-family: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif; fill: #f1f5f9; }
+      .title { font-size: 28px; font-weight: 700; }
+      .heading { font-size: 18px; font-weight: 700; }
+      .name { font-size: 18px; font-weight: 650; text-anchor: middle; }
+      .detail { font-size: 14px; fill: #c5d2e3; text-anchor: middle; }
+      .region { font-size: 14px; font-weight: 650; fill: #fcd34d; }
+      .panel { fill: #101e30; stroke: #475569; }
+      .boundary { fill: #1e293b; fill-opacity: .75; stroke: #9a7839; stroke-dasharray: 6 5; }
+      .node { stroke-width: 1.4; }
+      .edge { fill: #103444; stroke: #22d3ee; }
+      .app { fill: #10382f; stroke: #34d399; }
+      .ops { fill: #2b2447; stroke: #a78bfa; }
+      .traffic { fill: none; stroke: #67e8f9; stroke-width: 2; marker-end: url(#traffic); }
+      .admin { fill: none; stroke: #c4b5fd; stroke-width: 2; stroke-dasharray: 5 4; marker-end: url(#admin); }
+    </style>
+  </defs>
+
+  <rect width="840" height="460" rx="16" fill="#0f172a"/>
+  <rect width="840" height="460" rx="16" fill="url(#grid)"/>
+  <text class="title" x="30" y="54">内网服务如何接入公网</text>
+
+  <rect class="panel" x="30" y="75" width="780" height="202" rx="12"/>
+  <text class="heading" x="48" y="107">四九的实际部署</text>
+  <rect class="boundary" x="403" y="91" width="387" height="168" rx="10"/>
+  <text class="region" x="421" y="114">内网 miniPC</text>
+
+  <path class="traffic" d="M183 158H221"/>
+  <path class="traffic" d="M365 158H423"/>
+  <path class="traffic" d="M576 158H637"/>
+  <path class="admin" d="M576 220H704V191"/>
+
+  <rect class="node edge" x="48" y="128" width="135" height="60" rx="8"/>
+  <rect class="node edge" x="223" y="128" width="142" height="60" rx="8"/>
+  <rect class="node edge" x="425" y="128" width="151" height="60" rx="8"/>
+  <rect class="node app" x="639" y="128" width="130" height="60" rx="8"/>
+  <rect class="node ops" x="425" y="198" width="151" height="46" rx="8"/>
+
+  <text class="name" x="115.5" y="153">访客浏览器</text>
+  <text class="detail" x="115.5" y="174">HTTPS · .ts.net</text>
+  <text class="name" x="294" y="153">Funnel 公网中继</text>
+  <text class="detail" x="294" y="174">Tailscale 提供</text>
+  <text class="name" x="500.5" y="153">Tailscale 节点</text>
+  <text class="detail" x="500.5" y="174">st49-public</text>
+  <text class="name" x="704" y="153">四九 Web 服务</text>
+  <text class="detail" x="704" y="174">Compose · 8100</text>
+  <text class="name" x="500.5" y="227">1Panel</text>
+  <text class="detail" x="638" y="240">管理部署</text>
+
+  <rect class="panel" x="30" y="293" width="780" height="137" rx="12"/>
+  <text class="heading" x="48" y="324">应用部署在 K8s 时</text>
+  <rect class="boundary" x="222" y="307" width="568" height="105" rx="10"/>
+  <text class="region" x="240" y="331">K8s 集群</text>
+
+  <path class="traffic" d="M197 370H237"/>
+  <path class="traffic" d="M389 370H430"/>
+  <path class="traffic" d="M584 370H625"/>
+
+  <rect class="node edge" x="48" y="340" width="149" height="60" rx="8"/>
+  <rect class="node app" x="239" y="340" width="150" height="60" rx="8"/>
+  <rect class="node app" x="432" y="340" width="152" height="60" rx="8"/>
+  <rect class="node app" x="627" y="340" width="148" height="60" rx="8"/>
+
+  <text class="name" x="122.5" y="365">Tailscale 节点</text>
+  <text class="detail" x="122.5" y="386">从集群外接入</text>
+  <text class="name" x="314" y="365">Ingress 入口</text>
+  <text class="detail" x="314" y="386">按域名、路径转发</text>
+  <text class="name" x="508" y="365">Service</text>
+  <text class="detail" x="508" y="386">应用的稳定入口</text>
+  <text class="name" x="701" y="365">应用 Pod</text>
+  <text class="detail" x="701" y="386">运行应用容器</text>
+</svg>

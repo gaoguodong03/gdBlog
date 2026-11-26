@@ -1,0 +1,286 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>怎么让内网服务支持外网访问？以 Tailscale Funnel 为例 | 果冻小配方</title><meta name="author" content="GuoDong"><meta name="copyright" content="GuoDong"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="我把「书童四九」部署在一台 miniPC 上。在内网打开应用的 8100 端口，就能看到登录页。可要是想让朋友在家里也打开这个页面，该去哪里配？是去 1Panel 加个网站，还是在服务里加个设置？如果服务跑在 K8s 里，又该在哪一层接入？ 这次我用的是 Tailscale Funnel。四九仍然跑在 miniPC 上，朋友在普通浏览器里打开一个 HTTPS 地址，请求经 Tailscale 转回">
+<meta property="og:type" content="article">
+<meta property="og:title" content="怎么让内网服务支持外网访问？以 Tailscale Funnel 为例">
+<meta property="og:url" content="https://gaoguodong03.github.io/gdBlog/2026/11/25/%E6%80%8E%E4%B9%88%E8%AE%A9%E5%86%85%E7%BD%91%E6%9C%8D%E5%8A%A1%E6%94%AF%E6%8C%81%E5%A4%96%E7%BD%91%E8%AE%BF%E9%97%AE%EF%BC%9F%E4%BB%A5-Tailscale-Funnel-%E4%B8%BA%E4%BE%8B/index.html">
+<meta property="og:site_name" content="果冻小配方">
+<meta property="og:description" content="我把「书童四九」部署在一台 miniPC 上。在内网打开应用的 8100 端口，就能看到登录页。可要是想让朋友在家里也打开这个页面，该去哪里配？是去 1Panel 加个网站，还是在服务里加个设置？如果服务跑在 K8s 里，又该在哪一层接入？ 这次我用的是 Tailscale Funnel。四九仍然跑在 miniPC 上，朋友在普通浏览器里打开一个 HTTPS 地址，请求经 Tailscale 转回">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://gaoguodong03.github.io/gdBlog/img/logoInfra.jpg">
+<meta property="article:published_time" content="2026-11-25T00:00:00.000Z">
+<meta property="article:modified_time" content="2026-11-25T09:36:00.182Z">
+<meta property="article:author" content="GuoDong">
+<meta property="article:tag" content="Kubernetes">
+<meta property="article:tag" content="Tailscale">
+<meta property="article:tag" content="公网访问">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://gaoguodong03.github.io/gdBlog/img/logoInfra.jpg"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "怎么让内网服务支持外网访问？以 Tailscale Funnel 为例",
+  "url": "https://gaoguodong03.github.io/gdBlog/2026/11/25/%E6%80%8E%E4%B9%88%E8%AE%A9%E5%86%85%E7%BD%91%E6%9C%8D%E5%8A%A1%E6%94%AF%E6%8C%81%E5%A4%96%E7%BD%91%E8%AE%BF%E9%97%AE%EF%BC%9F%E4%BB%A5-Tailscale-Funnel-%E4%B8%BA%E4%BE%8B/",
+  "image": "https://gaoguodong03.github.io/gdBlog/img/logoInfra.jpg",
+  "datePublished": "2026-11-25T00:00:00.000Z",
+  "dateModified": "2026-11-25T09:36:00.182Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "GuoDong",
+      "url": "https://gaoguodong03.github.io/gdBlog"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/gdBlog/img/logo.jpg"><link rel="canonical" href="https://gaoguodong03.github.io/gdBlog/2026/11/25/%E6%80%8E%E4%B9%88%E8%AE%A9%E5%86%85%E7%BD%91%E6%9C%8D%E5%8A%A1%E6%94%AF%E6%8C%81%E5%A4%96%E7%BD%91%E8%AE%BF%E9%97%AE%EF%BC%9F%E4%BB%A5-Tailscale-Funnel-%E4%B8%BA%E4%BE%8B/index.html"><link rel="preconnect"/><link rel="stylesheet" href="/gdBlog/css/index.css"><link rel="stylesheet" href="/gdBlog/pluginsSrc/@fortawesome/fontawesome-free/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/gdBlog/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: '/gdBlog/pluginsSrc/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '怎么让内网服务支持外网访问？以 Tailscale Funnel 为例',
+  isHighlightShrink: true,
+  isToc: true,
+  pageType: 'post'
+}</script><style>#article-container.post-content h1:before, h2:before, h3:before, h4:before, h5:before, h6:before { -webkit-animation: avatar_turn_around 1s linear infinite; -moz-animation: avatar_turn_around 1s linear infinite; -o-animation: avatar_turn_around 1s linear infinite; -ms-animation: avatar_turn_around 1s linear infinite; animation: avatar_turn_around 1s linear infinite; }</style><!-- hexo injector head_end start --><link rel="stylesheet" href="/gdBlog/./css/categorybar.css"><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-swiper/lib/swiper.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-swiper/lib/swiperstyle.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-wowjs/lib/animate.min.css" media="print" onload="this.media='screen'"><!-- hexo injector head_end end --><meta name="generator" content="Hexo 8.0.0"></head><body><div id="web_bg" style="background-image: url(/gdBlog/img/bg1.jpg);"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/gdBlog/img/touxiang.jpg" onerror="this.onerror=null;this.src='/gdBlog/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/gdBlog/archives/"><div class="headline">文章</div><div class="length-num">86</div></a><a href="/gdBlog/tags/"><div class="headline">标签</div><div class="length-num">66</div></a><a href="/gdBlog/categories/"><div class="headline">分类</div><div class="length-num">8</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/gdBlog/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/link/"><i class="fa-fw fas fa-link"></i><span> 书签</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/transfer/"><i class="fa-fw fas fa-paper-plane"></i><span> 随手传</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/gdBlog/./img/logoInfra.jpg);"><nav id="nav"><!-- 左侧博客信息区域--><span id="blog-info"><a class="nav-site-title" href="/gdBlog/"><img class="site-icon" src="/gdBlog/img/logo.jpg" alt="Logo"><span class="site-name">果冻小配方</span></a><a class="nav-page-title" href="/gdBlog/"><span class="site-name">怎么让内网服务支持外网访问？以 Tailscale Funnel 为例</span></a></span><!-- 新增的导航菜单容器（居中布局关键）--><div id="nav-menus-container"><!-- 菜单主体部分--><div id="menus"><!-- 搜索按钮--><!-- 菜单项--><div class="menus_items"><div class="menus_item"><a class="site-page" href="/gdBlog/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/link/"><i class="fa-fw fas fa-link"></i><span> 书签</span></a></div><div class="menus_item"><a class="site-page" href="/gdBlog/transfer/"><i class="fa-fw fas fa-paper-plane"></i><span> 随手传</span></a></div></div></div><!-- 移动端汉堡菜单按钮（保持原位置）--><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">怎么让内网服务支持外网访问？以 Tailscale Funnel 为例</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-11-25T00:00:00.000Z" title="发表于 2026-11-25 08:00:00">2026-11-25</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-11-25T09:36:00.182Z" title="更新于 2026-11-25 17:36:00">2026-11-25</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/gdBlog/categories/%E6%9E%9C%E5%86%BB%E7%9A%84%E7%A7%91%E6%99%AE%E4%B8%93%E5%8C%BA/">果冻的科普专区</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">总字数:</span><span class="word-count">1k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>3分钟</span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><p>我把「书童四九」部署在一台 miniPC 上。在内网打开应用的 <code>8100</code> 端口，就能看到登录页。可要是想让朋友在家里也打开这个页面，该去哪里配？是去 1Panel 加个网站，还是在服务里加个设置？如果服务跑在 K8s 里，又该在哪一层接入？</p>
+<p>这次我用的是 <strong>Tailscale Funnel</strong>。四九仍然跑在 miniPC 上，朋友在普通浏览器里打开一个 HTTPS 地址，请求经 Tailscale 转回 miniPC，再交给四九。</p>
+<h2 id="一张图看清请求怎么走"><a href="#一张图看清请求怎么走" class="headerlink" title="一张图看清请求怎么走"></a>一张图看清请求怎么走</h2><p><img src="/gdBlog/article-assets/tailscale-funnel/architecture.svg" alt="公网访问架构图。访客经 Funnel 公网中继和 miniPC 上的 Tailscale 节点访问四九。1Panel 管理应用部署。应用跑在 K8s 时，节点可以通过 Ingress 入口和 Service 访问应用 Pod。"></p>
+<p><strong>服务</strong>就是用户最终要访问的应用。四九负责显示登录页、验证账号和处理聊天请求。它以容器运行，Docker Compose 在 miniPC 上把应用入口映射到了 <code>8100</code> 端口。</p>
+<p><strong>1Panel</strong> 是服务器的管理后台。管理员登录 1Panel，可以部署和重启容器、查看日志。图上实线是访客打开四九时走的路径，虚线是管理员通过 1Panel 管理应用部署的关系。<a target="_blank" rel="noopener" href="https://github.com/1Panel-dev/1Panel">1Panel 项目</a></p>
+<p><strong>K8s</strong> 是 Kubernetes 的简称，负责部署和管理集群里的容器应用。应用跑在 Pod 里，名为 <code>Service</code> 的 K8s 资源给这些 Pod 提供稳定的访问入口。四九这次采用的是 1Panel 管理的 Docker Compose 部署。图里的 K8s 接法适用于应用已经部署在集群里的情况。<a target="_blank" rel="noopener" href="https://kubernetes.io/zh-cn/docs/concepts/services-networking/service/">Kubernetes Service 文档</a></p>
+<h2 id="Tailscale-怎么把请求送进内网？"><a href="#Tailscale-怎么把请求送进内网？" class="headerlink" title="Tailscale 怎么把请求送进内网？"></a>Tailscale 怎么把请求送进内网？</h2><p>Tailscale 可以把设备接入同一个私有网络，叫 <strong>tailnet</strong>。如果访问者都是自己人，可以让他们的设备加入 tailnet，再通过 <strong>Tailscale Serve</strong> 把应用共享给有权限的设备。这适合自己远程访问，或者给小团队使用。<a target="_blank" rel="noopener" href="https://tailscale.com/docs/features/tailscale-serve">Tailscale Serve 文档</a></p>
+<p>我希望朋友只用浏览器就能打开四九，于是用了 <strong>Funnel</strong>。访问者打开 <code>https://设备名.网络名.ts.net</code>，浏览器先连到 Tailscale 的公网中继。中继把连接送给 miniPC 上的 Tailscale 节点，再由节点把请求交给配置好的应用地址。这条链路可以在家用宽带没有公网 IP 的情况下工作，也省去了在路由器上给四九配置入站端口映射的步骤。Funnel 使用 Tailscale 提供的 <code>.ts.net</code> 域名。<a target="_blank" rel="noopener" href="https://tailscale.com/docs/features/tailscale-funnel">Tailscale Funnel 文档</a></p>
+<h2 id="真正要配的是这四个地方"><a href="#真正要配的是这四个地方" class="headerlink" title="真正要配的是这四个地方"></a>真正要配的是这四个地方</h2><ol>
+<li><strong>在服务所在环境里部署应用。</strong> 四九跑在 miniPC 的 Docker Compose 里，先确认 miniPC 上的 Funnel 节点能够访问四九的 <code>8100</code> 端口。这才是公网入口后面要接的应用地址。</li>
+<li><strong>在能访问应用的机器上布置 Tailscale 节点。</strong> 我把四九专用节点 <code>st49-public</code> 放在同一台 miniPC 上，并设置随主机启动。节点也可以放在另一台机器上，前提是它能访问应用入口。</li>
+<li><strong>在 Tailscale 管理后台确认权限，再回到节点开启 Funnel。</strong> 先让节点加入自己的 tailnet，确认 MagicDNS 和 HTTPS 证书可用，再用访问策略允许这台设备使用 Funnel。四九用设备标签把权限授给专用节点。节点出现在设备列表，表示它已经入网。接着在节点上启用 Funnel，指向第一步确认的应用地址，生成的 <code>.ts.net</code> 地址才会接到四九。<a target="_blank" rel="noopener" href="https://tailscale.com/docs/features/tailscale-funnel#prerequisites">Funnel 的前提和访问策略</a></li>
+<li><strong>在应用里定好访问规则，再从外网验证。</strong> 四九允许访客打开登录页，聊天由四九账号控制，登记新账号由管理员处理。上线时，从外网确认 HTTPS 登录页能打开，也验证了自助注册提交会被拒绝。</li>
+</ol>
+<p>如果应用部署在 <strong>K8s</strong>，要改的是 Funnel 的转发目标。比如把 Tailscale 节点放在集群外，通过节点可访问的 Ingress 入口接入。Ingress 控制器接到请求后，根据域名和路径把请求交给对应的 Kubernetes <code>Service</code>，再由 <code>Service</code> 把流量送到应用 Pod。这样 Pod 重建后，Funnel 依然可以使用同一个入口。<a target="_blank" rel="noopener" href="https://kubernetes.io/zh-cn/docs/concepts/services-networking/ingress/">Kubernetes Ingress 文档</a></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://gaoguodong03.github.io/gdBlog">GuoDong</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://gaoguodong03.github.io/gdBlog/2026/11/25/%E6%80%8E%E4%B9%88%E8%AE%A9%E5%86%85%E7%BD%91%E6%9C%8D%E5%8A%A1%E6%94%AF%E6%8C%81%E5%A4%96%E7%BD%91%E8%AE%BF%E9%97%AE%EF%BC%9F%E4%BB%A5-Tailscale-Funnel-%E4%B8%BA%E4%BE%8B/">https://gaoguodong03.github.io/gdBlog/2026/11/25/%E6%80%8E%E4%B9%88%E8%AE%A9%E5%86%85%E7%BD%91%E6%9C%8D%E5%8A%A1%E6%94%AF%E6%8C%81%E5%A4%96%E7%BD%91%E8%AE%BF%E9%97%AE%EF%BC%9F%E4%BB%A5-Tailscale-Funnel-%E4%B8%BA%E4%BE%8B/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://gaoguodong03.github.io/gdBlog" target="_blank">果冻小配方</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/gdBlog/tags/Tailscale/">Tailscale</a><a class="post-meta__tags" href="/gdBlog/tags/%E5%85%AC%E7%BD%91%E8%AE%BF%E9%97%AE/">公网访问</a><a class="post-meta__tags" href="/gdBlog/tags/Kubernetes/">Kubernetes</a></div><div class="post-share"><div class="social-share" data-image="/gdBlog/./img/logoInfra.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="/gdBlog/pluginsSrc/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="/gdBlog/pluginsSrc/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/gdBlog/2026/11/26/%E7%BB%84%E4%BC%9A%E6%B1%87%E6%8A%A5%EF%BC%9A%E5%B7%A5%E5%85%B7%E8%B7%AF%E7%94%B1%E5%AE%9E%E9%AA%8C%E6%96%B9%E6%B3%95%E4%B8%8E%E7%BB%93%E6%9E%9C/" title="组会汇报：工具路由实验——方法与结果"><img class="cover" src="/gdBlog/./img/logoSkill.png" onerror="onerror=null;src='/gdBlog/img/404.jpg'" alt="cover of previous post"><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">组会汇报：工具路由实验——方法与结果</div></div><div class="info-2"><div class="info-item-1">本次汇报展示工具路由实验中的中间状态设计、真实请求数据上的方法流程，以及不同方案的准确率比较。    .ppt-deck { width: min(100%, 1120px); margin: 2rem auto; border: 1px solid var(--style-border, rgba(60, 60, 67, 0.18)); border-radius: 16px; overflow: hidden; background: var(--card-bg, #fff); box-shadow: 0 14px 34px rgba(27, 31, 35, 0.12); }   .ppt-deck__bar { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 0.8rem 1rem; color: var(--font-color, #24292f); background: var(--card-bg, #fff); font-size: 0.9...</div></div></div></a><a class="pagination-related" href="/gdBlog/2026/11/25/%E5%89%8D%E7%AB%AF%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96%E5%85%A5%E9%97%A8%EF%BC%9ALCP%E3%80%81INP-%E5%92%8C-CLS/" title="前端性能优化入门：LCP、INP 和 CLS"><img class="cover" src="/gdBlog/./img/logoInfra.jpg" onerror="onerror=null;src='/gdBlog/img/404.jpg'" alt="cover of next post"><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">前端性能优化入门：LCP、INP 和 CLS</div></div><div class="info-2"><div class="info-item-1">你用手机打开一个商品页。页面框架很快就出来了，商品主图却等了几秒才显示。好不容易能看了，点一下「切换规格」，按钮半天没反应。再往下滑，顶部突然插进一条优惠横幅，刚要点的按钮被挤走了。 这三个问题都可以用一句「网页有点卡」来形容，但它们分别发生在加载、交互和布局三个环节。Google 的 Core Web Vitals（核心网页指标）用 LCP、INP 和 CLS 来衡量这三种体验。我们就拿这个商品页，看看三个指标各在测什么，遇到问题应该从哪儿查起。      指标 用户感受到的问题 良好 较差    LCP（Largest Contentful Paint，最大内容绘制） 首屏主要内容迟迟没出现 ≤ 2.5 秒 &gt; 4 秒   INP（Interaction to Next Paint，交互到下一次绘制） 点了以后迟迟没有画面反馈 ≤ 200 毫秒 &gt; 500 毫秒   CLS（Cumulative Layout Shift，累积布局偏移） 正在看或准备点的内容突然移位 ≤ 0.1 &gt; 0.25   线上评估时，每个指标都看真实访问的第 75 百分位（P75），...</div></div></div></a></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/gdBlog/img/touxiang.jpg" onerror="this.onerror=null;this.src='/gdBlog/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">GuoDong</div><div class="author-info-description">碎碎念念 岁岁年年</div><div class="site-data"><a href="/gdBlog/archives/"><div class="headline">文章</div><div class="length-num">86</div></a><a href="/gdBlog/tags/"><div class="headline">标签</div><div class="length-num">66</div></a><a href="/gdBlog/categories/"><div class="headline">分类</div><div class="length-num">8</div></a></div><div class="card-info-social-icons"><a class="social-icon" href="https://www.bilibili.com/" target="_blank" title="bilibili"><i class="fab fa-bilibili" style="color: #24292e;"></i></a><a class="social-icon" href="https://github.com/gaoguodong03" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="https://leetcode.cn/studyplan/top-100-liked/" target="_blank" title="LeetCode"><i class="fab fa-comments" style="color: #24292e;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">好事马上发生</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E5%BC%A0%E5%9B%BE%E7%9C%8B%E6%B8%85%E8%AF%B7%E6%B1%82%E6%80%8E%E4%B9%88%E8%B5%B0"><span class="toc-number">1.</span> <span class="toc-text">一张图看清请求怎么走</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Tailscale-%E6%80%8E%E4%B9%88%E6%8A%8A%E8%AF%B7%E6%B1%82%E9%80%81%E8%BF%9B%E5%86%85%E7%BD%91%EF%BC%9F"><span class="toc-number">2.</span> <span class="toc-text">Tailscale 怎么把请求送进内网？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%9C%9F%E6%AD%A3%E8%A6%81%E9%85%8D%E7%9A%84%E6%98%AF%E8%BF%99%E5%9B%9B%E4%B8%AA%E5%9C%B0%E6%96%B9"><span class="toc-number">3.</span> <span class="toc-text">真正要配的是这四个地方</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/gdBlog/2026/10/18/%E7%BB%84%E4%BC%9A%E6%B1%87%E6%8A%A5%EF%BC%9A%E5%A4%A7%E9%80%89%E6%8B%A9%E9%9B%86%E5%B7%A5%E5%85%B7%E8%B7%AF%E7%94%B1/" title="组会汇报：大选择集工具路由——BERT 微调与集合交互">组会汇报：大选择集工具路由——BERT 微调与集合交互</a><time datetime="2026-11-26T06:29:05.203Z" title="更新于 2026-11-26 14:29:05">2026-11-26</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/gdBlog/2026/11/26/%E7%BB%84%E4%BC%9A%E6%B1%87%E6%8A%A5%EF%BC%9A%E5%B7%A5%E5%85%B7%E8%B7%AF%E7%94%B1%E5%AE%9E%E9%AA%8C%E6%96%B9%E6%B3%95%E4%B8%8E%E7%BB%93%E6%9E%9C/" title="组会汇报：工具路由实验——方法与结果">组会汇报：工具路由实验——方法与结果</a><time datetime="2026-11-26T06:29:05.203Z" title="更新于 2026-11-26 14:29:05">2026-11-26</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/gdBlog/2026/11/09/%E7%BB%84%E4%BC%9A%E6%B1%87%E6%8A%A5%EF%BC%9A%E6%BD%9C%E9%9A%90%E9%80%9A%E4%BF%A1%E8%AE%BA%E6%96%87%E6%A1%86%E6%9E%B6%E4%B8%8E%E6%9C%AC%E5%91%A8%E5%AE%9E%E9%AA%8C/" title="组会汇报：潜隐通信——论文框架与本周实验">组会汇报：潜隐通信——论文框架与本周实验</a><time datetime="2026-11-26T06:29:05.203Z" title="更新于 2026-11-26 14:29:05">2026-11-26</time></div></div></div></div></div></div></main><footer id="footer" style="background: transparent;"><div class="footer-other"><div class="footer-copyright"></div><div class="footer_custom_text"><style>
+  .footer {
+    text-align: center;
+    position: relative;
+  }
+  .footer p {
+    margin: 0.5rem 0;
+    line-height: 1;
+  }
+  .copyright {
+    font-size: 1.1rem; 
+    color: #000000;
+    font-weight: 400;
+  }
+  .tagline {
+    font-size: 0.8rem;
+    color: #333333;
+    font-style: italic;
+    font-weight: 500;
+  }
+  .visitor-count {
+    font-size: 0.75rem;
+    color: rgba(0, 0, 0, 0.7);
+    font-weight: 300;
+  }
+  #visitorCount {
+    font-weight: bold;
+  }
+</style>
+<div class="footer">
+  <p class="copyright">© 2025 果冻小配方 - 所有权利保留</p>
+  <p class="tagline">> 碎碎念念 岁岁年年 <</p>
+  <p class="visitor-count">访问量: <span id="visitorCount">1024</span> | 你是第 <span id="dailyVisitor">1</span> 位今日访客</p>
+</div>
+<script>
+  // 确保DOM加载完成后执行
+  document.addEventListener('DOMContentLoaded', function() {
+    // 模拟访问量增长
+    function updateVisitorCount() {
+      const countElement = document.getElementById('visitorCount');
+      let count = parseInt(localStorage.getItem('totalVisitors'), 10) || 1024;
+      count += 1;
+      countElement.textContent = count;
+      localStorage.setItem('totalVisitors', String(count));
+      const today = new Date().toDateString();
+      const dailyData = JSON.parse(localStorage.getItem('dailyVisitors') || '{"date":"", "count":0}');
+      if (dailyData.date !== today) {
+        dailyData.date = today;
+        dailyData.count = 0;
+      }
+      dailyData.count += 1;
+      document.getElementById('dailyVisitor').textContent = dailyData.count;
+      localStorage.setItem('dailyVisitors', JSON.stringify(dailyData));
+    }
+    updateVisitorCount();
+  });
+</script>
+</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/gdBlog/js/utils.js"></script><script src="/gdBlog/js/main.js"></script><div class="js-pjax"></div><script src="/config/js/happy-title.js" async></script><script src="/config/js/foot.js" async></script></div><!-- hexo injector body_end start --><script data-pjax>
+    function butterfly_categories_card_injector_config(){
+      var parent_div_git = document.getElementById('recent-posts');
+      var item_html = '<style>li.categoryBar-list-item{width:32.3%;}.categoryBar-list{max-height: 950px;overflow:auto;}.categoryBar-list::-webkit-scrollbar{width:0!important}@media screen and (max-width: 650px){.categoryBar-list{max-height: 800px;}}</style><div class="recent-post-item" style="height:auto;width:100%;padding:0px;"><div id="categoryBar"><ul class="categoryBar-list"><li class="categoryBar-list-item" style="background:url(/img/logo.jpg);"> <a class="categoryBar-list-link" href="categories/Hello-Agents/">Hello-Agents</a><span class="categoryBar-list-count">8</span><span class="categoryBar-list-descr">果冻的航海日记</span></li><li class="categoryBar-list-item" style="background:url(/img/logo.jpg);"> <a class="categoryBar-list-link" href="categories/果冻的科普专区/">果冻的科普专区</a><span class="categoryBar-list-count">18</span><span class="categoryBar-list-descr">Hexo</span></li><li class="categoryBar-list-item" style="background:url(/img/logo.jpg);"> <a class="categoryBar-list-link" href="categories/果冻的理论学习/">果冻的理论学习</a><span class="categoryBar-list-count">17</span><span class="categoryBar-list-descr">果冻的奇妙小工具</span></li><li class="categoryBar-list-item" style="background:url(/img/logo.jpg);"> <a class="categoryBar-list-link" href="categories/果冻的航海日志/">果冻的航海日志</a><span class="categoryBar-list-count">14</span><span class="categoryBar-list-descr">果冻的日记本</span></li><li class="categoryBar-list-item" style="background:url(undefined);"> <a class="categoryBar-list-link" href="categories/果冻的奇妙小工具/">果冻的奇妙小工具</a><span class="categoryBar-list-count">8</span><span class="categoryBar-list-descr"></span></li><li class="categoryBar-list-item" style="background:url(undefined);"> <a class="categoryBar-list-link" href="categories/道不可言言而非也/">道不可言言而非也</a><span class="categoryBar-list-count">1</span><span class="categoryBar-list-descr"></span></li><li class="categoryBar-list-item" style="background:url(undefined);"> <a class="categoryBar-list-link" href="categories/Hexo/">Hexo</a><span class="categoryBar-list-count">1</span><span class="categoryBar-list-descr"></span></li><li class="categoryBar-list-item" style="background:url(undefined);"> <a class="categoryBar-list-link" href="categories/果冻的LeetCode刷题/">果冻的LeetCode刷题</a><span class="categoryBar-list-count">5</span><span class="categoryBar-list-descr"></span></li></ul></div></div>';
+      console.log('已挂载butterfly_categories_card')
+      parent_div_git.insertAdjacentHTML("afterbegin",item_html)
+      }
+    if( document.getElementById('recent-posts') && (location.pathname ==='/categories/'|| '/categories/' ==='all')){
+    butterfly_categories_card_injector_config()
+    }
+  </script><script data-pjax>
+  function butterfly_swiper_injector_config(){
+    var parent_div_git = document.getElementById('recent-posts');
+    var item_html = '<div class="recent-post-item" style="height: auto;width: 100%"><div class="blog-slider swiper-container-fade swiper-container-horizontal" id="swiper_container"><div class="blog-slider__wrp swiper-wrapper" style="transition-duration: 0ms;"></div><div class="blog-slider__pagination swiper-pagination-clickable swiper-pagination-bullets"></div></div></div>';
+    console.log('已挂载butterfly_swiper')
+    parent_div_git.insertAdjacentHTML("afterbegin",item_html)
+    }
+  var elist = 'undefined'.split(',');
+  var cpage = location.pathname;
+  var epage = '/';
+  var flag = 0;
+
+  for (var i=0;i<elist.length;i++){
+    if (cpage.includes(elist[i])){
+      flag++;
+    }
+  }
+
+  if ((epage ==='all')&&(flag == 0)){
+    butterfly_swiper_injector_config();
+  }
+  else if (epage === cpage){
+    butterfly_swiper_injector_config();
+  }
+  </script><script defer src="https://npm.elemecdn.com/hexo-butterfly-swiper/lib/swiper.min.js"></script><script defer data-pjax src="https://npm.elemecdn.com/hexo-butterfly-swiper/lib/swiper_init.js"></script><div class="js-pjax"><script async="async">var arr = document.getElementsByClassName('recent-post-item');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__zoomIn');
+    arr[i].setAttribute('data-wow-duration', '300ms');
+    arr[i].setAttribute('data-wow-delay', '0ms');
+    arr[i].setAttribute('data-wow-offset', '0');
+    arr[i].setAttribute('data-wow-iteration', '1');
+  }</script><script async="async">var arr = document.getElementsByClassName('card-widget');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__zoomIn');
+    arr[i].setAttribute('data-wow-duration', '');
+    arr[i].setAttribute('data-wow-delay', '');
+    arr[i].setAttribute('data-wow-offset', '');
+    arr[i].setAttribute('data-wow-iteration', '');
+  }</script></div><script defer src="https://npm.elemecdn.com/hexo-butterfly-wowjs/lib/wow.min.js"></script><script defer src="https://npm.elemecdn.com/hexo-butterfly-wowjs/lib/wow_init.js"></script><!-- hexo injector body_end end --></body></html>

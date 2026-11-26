@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>潜隐通信：论文框架与本周实验</title>
+  <style>
+    :root{--bg:#f3eee6;--panel:#f8f4ed;--soft:#eae2d7;--line:#d8cdbf;--ink:#302d28;--muted:#796f62;--accent:#a85e42;--accent-soft:#ead7c8;--scale:1}
+    *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif}
+    #stage{width:1600px;height:900px;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) scale(var(--scale));transform-origin:center}.slide{position:absolute;inset:0;padding:28px 48px 48px;display:none;flex-direction:column;gap:15px;background:var(--bg)}.slide.active{display:flex}
+    .eyebrow,footer{display:flex;justify-content:space-between;color:var(--muted);font:12px ui-monospace,SFMono-Regular,monospace;letter-spacing:1px}.eyebrow{padding-bottom:9px;border-bottom:1px solid var(--line)}footer{margin-top:auto;padding-top:8px;border-top:1px solid var(--line);letter-spacing:0;font-family:inherit;font-size:12px}a{color:var(--accent);text-decoration-thickness:1px;text-underline-offset:3px}
+    header{display:flex;flex-direction:column;gap:6px}h1{font-size:34px;line-height:1.28;letter-spacing:-.6px;margin:0;font-weight:680}h3{font-size:21px;line-height:1.35;margin:0;color:#514236}p{margin:0;font-size:17px;line-height:1.55}.sub{font-size:16px;color:var(--muted)}.content{display:flex;flex:1;min-height:0;flex-direction:column;gap:15px}.grid{display:grid;gap:17px;min-height:0;flex:1}.two{grid-template-columns:1fr 1fr}.split{grid-template-columns:1.12fr .88fr}.panel{background:var(--panel);border:1px solid var(--line);border-radius:7px;padding:18px 21px;display:flex;flex-direction:column;gap:11px;min-width:0}.panel p{font-size:16px}.tagline{display:flex;gap:7px;flex-wrap:wrap}.tagline span{padding:5px 8px;border-radius:3px;background:var(--soft);color:#654d3d;font:13px ui-monospace,SFMono-Regular,monospace}
+    .flow{display:flex;align-items:stretch;gap:8px}.node{flex:1;min-width:0;padding:14px 13px;border:1px solid #d7c5b3;border-radius:5px;background:#eee5da;display:flex;flex-direction:column;gap:6px}.node strong{font-size:16px;color:#694c37;line-height:1.25}.node span{font-size:13px;line-height:1.45;color:#746353}.node.accent{background:var(--accent-soft)}.arrow{align-self:center;font-size:24px;color:#ab8060}.intro-flow{display:flex;flex-direction:column;align-items:stretch;gap:5px;width:76%;margin:0 auto}.intro-flow .node{flex:none;padding:10px 14px}.intro-flow .latent-node{padding:18px 16px;text-align:center}.intro-flow .latent-node strong{font-size:25px}.intro-flow .latent-node span{font-size:15px}.handoff-flow{gap:5px}.handoff-flow .node{padding:7px 8px;gap:3px}.handoff-flow .node strong{font-size:14px}.handoff-flow .node span{font-size:12px;line-height:1.25}.handoff-flow .arrow{font-size:18px}.rail{display:flex;flex-direction:column;gap:10px}.rail .flow .node{padding:13px}.vflow{display:flex;flex-direction:column;gap:5px}.vflow .node{flex:none;padding:9px 13px}.vflow.compact{gap:2px}.vflow.compact .node{padding:5px 11px;gap:2px}.vflow.compact .node strong{font-size:14px;line-height:1.15}.vflow.compact .node span{font-size:12px;line-height:1.2}.vflow.compact .down-arrow{height:12px;line-height:12px;font-size:17px}.node-row{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.node-row.three{grid-template-columns:repeat(3,1fr)}.down-arrow{height:17px;line-height:17px;text-align:center;font-size:20px;color:#ab8060}.layer-title{font:12px ui-monospace,SFMono-Regular,monospace;letter-spacing:.7px;color:var(--muted);margin-top:2px}.layer-rule{height:1px;background:var(--line);margin:3px 0}.legend{font-size:14px;color:var(--muted);padding-top:2px}.c2c-summary{margin:0;padding-top:10px;border-top:1px solid var(--line);font-size:13px!important;line-height:1.45!important;color:#5b5045}.callout{padding:13px 17px;border-left:4px solid #b27756;border-radius:4px;background:var(--accent-soft);font-size:16px;line-height:1.55}.callout b{color:#714c34;margin-right:12px}
+    table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:15px;line-height:1.4}th,td{padding:8px 9px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line);overflow-wrap:anywhere}th{color:#5c4839;background:var(--soft);font-weight:650}tr:last-child td{border-bottom:0}td:first-child{font-weight:620;color:#594837}.method{font:15px/1.55 ui-monospace,SFMono-Regular,Menlo,monospace;margin:0;padding:12px 14px;background:#eee6db;border-left:3px solid #c3977b;border-radius:4px;color:#534336;white-space:pre-wrap}.stat{font-size:29px;font-weight:700;color:var(--accent);line-height:1}.statlabel{font-size:14px;color:var(--muted)}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.statbox{border-top:2px solid #c3977b;padding-top:9px}.small{font-size:14px;color:var(--muted);line-height:1.5}
+    #controls{position:fixed;right:20px;bottom:18px;display:flex;gap:8px;align-items:center;z-index:3}button{font:inherit;background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:7px 10px;color:var(--ink);cursor:pointer}button:hover{border-color:var(--accent)}#current{font:13px ui-monospace,SFMono-Regular,monospace;color:var(--muted)}
+  </style>
+<style>.local-reference{color:inherit;text-decoration:none;cursor:default}.local-reference::after{content:"（本地资料）";font-size:.82em;opacity:.68}</style></head>
+<body>
+<main id="stage">
+  <article class="slide" data-title="潜隐通信：本周阅读与本地验证">
+    <div class="eyebrow"><span>AGENT-TO-AGENT / LATENT COMMUNICATION</span><span>本周研究汇报 · 2026.11.09</span></div>
+    <header><h1>潜隐通信：本周阅读与本地验证</h1><p class="sub">关注模型之间如何传递、融合与使用连续内部状态</p></header>
+    <div class="content">
+      <div class="grid split">
+        <div class="panel"><h3>本周问题</h3><p>Sender A 处理信息后，Receiver B 能否不经长文本，而是利用连续表示继续完成任务？</p><div class="intro-flow"><div class="node"><strong>Sender A</strong><span>读取私有资料或完成前序处理</span></div><div class="down-arrow">↓</div><div class="node accent latent-node"><strong>Latent Interface</strong><span>hidden state 或 KV cache<br>连续内部状态的传递接口</span></div><div class="down-arrow">↓</div><div class="node"><strong>Receiver B</strong><span>接收表示并生成最终答案</span></div></div><p class="small">本页只聚焦 Sender A 到 Receiver B 的状态传递；不同论文会在接口对象、位置与使用方式上采用不同设计。</p></div>
+        <div class="panel"><h3>本周工作</h3><table><tbody><tr><td>01</td><td><b>Beyond Tokens</b><br>用 WHAT、WHICH、HOW 定位潜隐通信接口</td></tr><tr><td>02</td><td><b>C2C</b><br>Cache-to-Cache 跨模型 KV 对齐与融合</td></tr><tr><td>03</td><td><b>LatentMAS</b><br>潜隐推理与共享 KV 工作记忆</td></tr><tr><td>04</td><td><b>LatCom</b><br>多 sender latent trajectory 的固定槽压缩</td></tr><tr><td>05</td><td><b>Local validation</b><br>直接注入、表示对齐与 8-slot 压缩</td></tr></tbody></table></div>
+      </div>
+      <div class="callout"><b>汇报范围</b>三篇方法论文的接口与作者报告结果，以及本地传递和压缩的验证结果。</div>
+    </div>
+    <footer><span><span class="local-reference" title="本地资料未随博客发布">Beyond Tokens</span> · <span class="local-reference" title="本地资料未随博客发布">C2C</span> · <span class="local-reference" title="本地资料未随博客发布">LatentMAS</span> · <span class="local-reference" title="本地资料未随博客发布">LatCom</span></span><span>01 / 06</span></footer>
+  </article>
+
+  <article class="slide" data-title="综述地图：定位潜隐通信接口">
+    <div class="eyebrow"><span>BEYOND TOKENS / THREE-AXIS MAP</span><span>本周研究汇报 · 2026.11.09</span></div>
+    <header><h1>综述地图：定位潜隐通信接口</h1><p class="sub">同一种“传向量”方法，可能在传递对象、接口位置与接收方式上完全不同</p></header>
+    <div class="content">
+      <div class="grid" style="grid-template-columns:repeat(3,1fr)">
+        <div class="panel"><h3>WHAT · 传递对象</h3><p><b>Embedding</b> 是输入端向量。<br><b>Hidden state</b> 是某层计算后的状态。<br><b>KV cache</b> 是所有注意力层保存的工作记忆。</p><p class="small">决定通信载荷到底代表文本、局部状态，还是完整注意力上下文。</p></div>
+        <div class="panel"><h3>WHICH · 接口位置</h3><p><b>从哪里取</b>：最后层 hidden，还是每层 KV。<br><b>写到哪里</b>：B 的输入端，还是 B 的每层 cache。<br><b>如何对齐</b>：同骨干直接对应，异构模型需要翻译。</p><p class="small">维度相同不等于语义可读，取出层和注入层必须同时说明。</p></div>
+        <div class="panel"><h3>HOW · Receiver 使用方式</h3><p><b>Prefix injection</b>：把 slots 放入 B 输入序列。<br><b>Cache fusion</b>：将 A 的信息写入 B 的 KV。<br><b>Attention read</b>：B 按当前位置查询外部 memory。</p><p class="small">决定 B 是重读摘要，还是在内部工作记忆层直接继续计算。</p></div>
+      </div>
+      <div class="panel"><h3>代表方法在三轴中的位置</h3><table><thead><tr><th>方法</th><th>WHAT</th><th>WHICH</th><th>HOW</th></tr></thead><tbody><tr><td>文本通信</td><td>离散 token</td><td>文本与 tokenizer</td><td>B 重新编码消息</td></tr><tr><td>C2C</td><td>A、B 的 KV cache</td><td>token、层与空间映射</td><td>fuser 更新 B 的 KV</td></tr><tr><td>LatentMAS</td><td>全层 KV 与 latent steps</td><td>共享骨干的对应层</td><td>角色间工作记忆交接</td></tr><tr><td>LatCom</td><td>多 sender latent trajectories</td><td>压成 receiver-readable slots</td><td>slots 作为 B 的连续前缀</td></tr><tr><td>本地对齐</td><td>A 的 layer-32 hidden</td><td>hidden → input embedding</td><td>连续输入位置</td></tr></tbody></table></div>
+    </div>
+    <footer><span><span class="local-reference" title="本地资料未随博客发布">Beyond Tokens · §4</span> · 方法细节见本地核验笔记</span><span>02 / 06</span></footer>
+  </article>
+
+  <article class="slide" data-title="C2C：Cache-to-Cache Fusion">
+    <div class="eyebrow"><span>C2C / CACHE-TO-CACHE FUSION</span><span>本周研究汇报 · 2026.11.09</span></div>
+    <header><h1>C2C：Cache-to-Cache Fusion</h1><p class="sub">Tianyu Fu 等 · 以可训练 fuser 将 source cache 融入 receiver cache</p></header>
+    <div class="content">
+      <div class="grid split">
+        <div class="panel"><h3>流程</h3><div class="vflow"><div class="layer-title">01 · 并行预填充</div><div class="node-row"><div class="node"><strong>源模型</strong><span>对输入 X 预填充 · 生成源 KV 缓存</span></div><div class="node"><strong>接收模型</strong><span>对输入 X 预填充 · 生成接收端 KV 缓存</span></div></div><div class="down-arrow">↓</div><div class="node"><strong>词元与层对齐</strong><span>匹配 tokenizer 位置与 Transformer 层</span></div><div class="down-arrow">↓</div><div class="node accent"><strong>缓存融合器</strong><span>投影、注意力头调制与层门控</span></div><div class="down-arrow">↓</div><div class="node"><strong>接收模型解码</strong><span>基于更新后的 KV 缓存生成答案</span></div></div><pre class="method">KV_B' = KV_B + F(KV_A, KV_B)</pre><p class="c2c-summary">C2C 的设定是两个不同模型都对同一输入做预填充，因此各自得到一份 KV cache。接着，它先做词元和层级对齐，再通过一个可训练的缓存融合器，同时读取源模型和接收模型的 KV，把融合结果写回接收模型的工作记忆，最后由接收模型继续解码。</p><p class="c2c-summary">它的重点不在于训练整个模型，而是冻结两端模型，只训练这个 fuser。可以把它理解为：学习一个跨模型的状态翻译和融合接口。</p></div>
+        <div class="panel"><h3>论文方法与结果</h3><p><b>Trainable part</b>：冻结 source、receiver，只训练 fuser；用 receiver 的 next-token loss 监督。</p><p><b>数据</b>：OpenHermes 2.5 前 50 万条样本，训练 1 epoch。</p><table><thead><tr><th>任务</th><th>B alone</th><th>Text T2T</th><th>C2C</th></tr></thead><tbody><tr><td>MMLU-Redux</td><td>35.53</td><td>41.03</td><td><b>42.92</b></td></tr><tr><td>OpenBook</td><td>39.20</td><td>44.00</td><td><b>52.60</b></td></tr><tr><td>ARC-C</td><td>41.04</td><td>49.48</td><td><b>54.52</b></td></tr><tr><td>C-Eval</td><td>32.04</td><td>35.88</td><td><b>41.77</b></td></tr></tbody></table><p class="small"><b>结果说明</b>：C2C 在四项任务上均优于文本 T2T，准确率多出 <b>1.89–8.60</b> 个百分点。这说明直接融合 Agent 的 KV 工作记忆，比先还原为文本再让接收端重新编码，能更充分地保留并利用前序计算中的信息。</p></div>
+      </div>
+    </div>
+    <footer><span><span class="local-reference" title="本地资料未随博客发布">C2C · §3.3 / Table 4</span> · 数字为作者报告，未本地复现</span><span>03 / 06</span></footer>
+  </article>
+
+  <article class="slide" data-title="LatentMAS：Latent Reasoning 与 KV Handoff">
+    <div class="eyebrow"><span>LATENTMAS / LATENT REASONING AND KV HANDOFF</span><span>本周研究汇报 · 2026.11.09</span></div>
+    <header><h1>LatentMAS：Latent Reasoning 与 KV Handoff</h1><p class="sub">Jiaru Zou 等 · 同一模型骨干在不同角色之间传递完整工作记忆</p></header>
+    <div class="content">
+      <div class="grid split">
+        <div class="panel"><h3>流程</h3><div class="vflow compact"><div class="layer-title">01 · 跨 Agent KV 交接</div><div class="flow handoff-flow"><div class="node"><strong>规划者</strong><span>读取任务 · latent 推理</span></div><div class="arrow">→</div><div class="node"><strong>审查者</strong><span>接收全层 KV · 继续推理</span></div><div class="arrow">→</div><div class="node"><strong>修订者</strong><span>接收累积 KV · 修订状态</span></div><div class="arrow">→</div><div class="node accent"><strong>求解者</strong><span>接收工作记忆 · 生成答案</span></div></div><div class="layer-rule"></div><div class="layer-title">02 · Agent 内部 latent 推理步</div><div class="node"><strong>最后一层隐状态</strong><span>当前连续状态</span></div><div class="down-arrow">↓</div><div class="node"><strong>对齐 Wₐ</strong><span>映射回输入 embedding 空间</span></div><div class="down-arrow">↓</div><div class="node"><strong>下一 latent 推理步</strong><span>继续前向计算 · 增加新的 KV</span></div></div><p class="legend">上半部分是角色间的全层 KV 交接；下半部分是单个角色内部生成 latent thought 的循环。</p></div>
+        <div class="panel"><h3>论文方法与结果</h3><p><b>Core idea</b>：中间角色不把推理 decode 成文本，而是直接交接 KV 工作记忆。</p><p><b>Alignment</b>：Wₐ 由 embedding 权重计算，模型不通过任务监督训练。</p><table><thead><tr><th>Qwen3</th><th>Single</th><th>TextMAS</th><th>LatentMAS</th></tr></thead><tbody><tr><td>4B</td><td>82.4</td><td><b>89.8</b></td><td>88.2</td></tr><tr><td>8B</td><td>81.1</td><td>92.3</td><td><b>93.8</b></td></tr><tr><td>14B</td><td>83.7</td><td>93.8</td><td><b>95.2</b></td></tr></tbody></table><p class="small">GSM8K accuracy，作者报告。14B 条件下输出 token 从 TextMAS 的 3324 降至 LatentMAS 的 644。</p><p class="small"><b>工作证明</b>：在共享模型骨干的前提下，完整 KV 工作记忆可以作为角色协作的交接载体；但它仍然传递长 KV，没有解决固定带宽下如何压缩的问题。</p></div>
+      </div>
+      <div class="callout"><b>方法定位</b>同骨干下的连续工作记忆接力。它不把长 KV 压成固定少量 slots。</div>
+    </div>
+    <footer><span><span class="local-reference" title="本地资料未随博客发布">LatentMAS · §3 / Table 1 / Fig. 8</span> · 数字为作者报告，未本地复现</span><span>04 / 06</span></footer>
+  </article>
+
+  <article class="slide" data-title="LatCom：Cross-Agent Latent Compression">
+    <div class="eyebrow"><span>LATCOM / CROSS-AGENT LATENT COMPRESSION</span><span>本周研究汇报 · 2026.11.09</span></div>
+    <header><h1>LatCom：Cross-Agent Latent Compression</h1><p class="sub">Shinan Zhang 等 · 用 task-grounded compressor 将多份 latent trajectory 汇总为固定 receiver-readable slots</p></header>
+    <div class="content">
+      <div class="grid split">
+        <div class="panel"><h3>流程</h3><div class="vflow"><div class="layer-title">01 · 专业发送端</div><div class="node-row three"><div class="node"><strong>数学发送端</strong><span>40 步 latent 推理</span></div><div class="node"><strong>科学发送端</strong><span>40 步 latent 推理</span></div><div class="node"><strong>代码发送端</strong><span>40 步 latent 推理</span></div></div><div class="down-arrow">↓</div><div class="node"><strong>任务与角色标签</strong><span>保留任务信息与发送端身份</span></div><div class="down-arrow">↓</div><div class="node accent"><strong>全局压缩器</strong><span>读取全部轨迹 · 去除冗余</span></div><div class="down-arrow">↓</div><div class="node"><strong>64 个 latent 槽位</strong><span>固定的、接收端可读的记忆</span></div><div class="down-arrow">↓</div><div class="node"><strong>接收端</strong><span>生成最终答案</span></div></div><p class="legend">LatCom 压缩的是多个发送端的 latent 轨迹，并非先分别压缩、再拼接。</p></div>
+        <div class="panel"><h3>论文方法与结果</h3><p><b>Two-stage training</b>：先训练 single-sender readability，再训练 multi-sender fusion。</p><p><b>监督</b>：冻结 sender 与 receiver，仅训练 compressor；使用 receiver 端生成损失、对比项与对齐项。</p><div class="stats"><div class="statbox"><div class="stat">64</div><div class="statlabel">fixed slots</div></div><div class="statbox"><div class="stat">2.46×</div><div class="statlabel">vs LatentMAS speed-up</div></div><div class="statbox"><div class="stat">70.3%</div><div class="statlabel">output-token reduction</div></div></div><table><thead><tr><th>Backbone</th><th>TextMAS avg.</th><th>LatentMAS avg.</th><th>LatCom avg.</th></tr></thead><tbody><tr><td>Qwen3-4B</td><td>75.64</td><td>75.92</td><td><b>76.27</b></td></tr><tr><td>Qwen3-8B</td><td>79.20</td><td>79.58</td><td><b>80.15</b></td></tr></tbody></table><p class="small">七任务平均 accuracy，作者报告。LatCom 并非每一项任务都优于所有对照。</p></div>
+      </div>
+      <div class="callout"><b>方法定位</b>固定槽压缩的核心在于建立 receiver-readable interface，再做多源信息融合与去冗余。</div>
+    </div>
+    <footer><span><span class="local-reference" title="本地资料未随博客发布">LatCom · §3–4 / Table 1–2</span> · 数字为作者报告，未本地复现</span><span>05 / 06</span></footer>
+  </article>
+
+  <article class="slide" data-title="本地验证：传递、对齐与 8-slot 压缩">
+    <div class="eyebrow"><span>LOCAL VALIDATION / QWEN3.5-4B-AWQ</span><span>本周研究汇报 · 2026.11.09</span></div>
+    <header><h1>本地验证：传递、对齐与 8-slot 压缩</h1><p class="sub">私有键值任务：区分“连续表示能传递”与“固定容量压缩可用”</p></header>
+    <div class="content">
+      <div class="flow"><div class="node"><strong>Direct Injection</strong><span>layer-32 hidden → B input<br>裸注入与 RMS 校准未建立稳定传递</span></div><div class="arrow" style="font-size:13px">加入显式对齐<br>→</div><div class="node"><strong>Position-wise Alignment</strong><span>Ridge（带 L2 正则的线性映射）<br>hidden → input embedding，保留 token 位置</span></div><div class="arrow" style="font-size:13px">再加固定容量<br>→</div><div class="node accent"><strong>8-slot Compression</strong><span>A hidden sequence → C → 8 slots<br>仅训练 C，以 B 答案 CE 监督</span></div></div>
+      <div class="grid two">
+        <div class="panel"><h3>对齐实验：有限私有事实可以传递</h3><table><thead><tr><th>测试组</th><th>对齐后</th><th>原生 embedding</th></tr></thead><tbody><tr><td>已见键的新配对</td><td><b>126 / 128</b></td><td>128 / 128</td></tr><tr><td>新键 / 已见 token</td><td><b>125 / 128</b></td><td>127 / 128</td></tr><tr><td>新键 / 含未见 token</td><td><b>87 / 128</b></td><td>119 / 128</td></tr></tbody></table><p class="small"><b>已见键的新配对</b>：键字符串在训练中见过，只更换键与私有值的配对。<b>新键 / 已见 token</b>：完整键首次出现，但每个 token 都被对齐器训练覆盖；“含未见 token”则至少含一个未被训练覆盖的 token。</p><p class="small"><b>原生 embedding</b> 是直接给 B 正确输入向量的上限对照；<b>对齐后</b>是将 A 的 hidden 映射成该向量。略低于上限说明映射仍有误差，但 B 已能使用 A 的状态。</p><p class="small">每组由 32 个底层实例衍生，不能把 128 题视为独立样本。</p></div>
+        <div class="panel"><h3>压缩实验：训练可运行，信息利用未建立</h3><table><thead><tr><th>指标</th><th>结果</th></tr></thead><tbody><tr><td>验证 NLL（保留集 token 损失）</td><td>2.815 → <b>0.826</b></td></tr><tr><td>缺失信息完整答案（下游任务 EM）</td><td><b>0 / 192</b></td></tr><tr><td>缺失代码位置正确</td><td><b>1 / 256</b></td></tr><tr><td>8-slot 模块</td><td>492,032 参数，300 steps</td></tr></tbody></table><p><b>NLL</b> 衡量保留集上预测 token 的损失下降，不等于任务完成。完整答案采用严格精确匹配；代码位置正确衡量缺失关键信息是否在指定位置被恢复。</p><p class="small">在本私有事实任务中，完整答案正确就是下游任务成功，因此当前为 0 / 192。其他任务可不复原原文仍成功，必须另报端到端任务成功率。</p><p class="small">原生文本控制存在续写与停止问题，不能将全部失败只归因于压缩。</p></div>
+      </div>
+      <div class="callout"><b>本周结论</b>同底座下，对齐后的连续表示具有可传递性；当前 8-slot 小压缩器没有建立可靠的 receiver-readable 信息接口。</div>
+    </div>
+    <footer><span><span class="local-reference" title="本地资料未随博客发布">对齐实验记录</span> · <span class="local-reference" title="本地资料未随博客发布">E03-b 结果</span></span><span>06 / 06</span></footer>
+  </article>
+</main>
+<nav id="controls"><span id="current"></span><button id="prev">←</button><button id="next">→</button><button id="full">F</button></nav>
+<script>
+  const slides=[...document.querySelectorAll('.slide')]; let index=0;
+  function scale(){document.documentElement.style.setProperty('--scale',Math.min(innerWidth/1600,innerHeight/900));}
+  function go(i){index=Math.max(0,Math.min(slides.length-1,i));slides.forEach((s,j)=>s.classList.toggle('active',j===index));document.getElementById('current').textContent=`${String(index+1).padStart(2,'0')} / ${slides.length}`;}
+  document.getElementById('prev').onclick=()=>go(index-1);document.getElementById('next').onclick=()=>go(index+1);document.getElementById('full').onclick=()=>document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen();
+  addEventListener('keydown',e=>{if(['ArrowRight','PageDown',' '].includes(e.key)){e.preventDefault();go(index+1)}if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();go(index-1)}if(e.key==='Home')go(0);if(e.key==='End')go(slides.length-1);if(e.key.toLowerCase()==='f')document.getElementById('full').click()});addEventListener('resize',scale);scale();go(0);
+</script>
+</body>
+</html>
